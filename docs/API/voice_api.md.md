@@ -1,0 +1,109 @@
+# 创建音频转文本
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /v1/audio/transcriptions:
+    post:
+      summary: 创建音频转文本
+      deprecated: false
+      description: ''
+      tags:
+        - openai/音频（Audio）
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  description: >+
+                    要转录的音频文件对象(不是文件名),格式为:flac、mp3、mp4、mpeg、mpga、m4a、ogg、wav 或
+                    webm。
+
+                  example: file:///Users/xiangsx/Downloads/response.mpga
+                  type: string
+                  format: binary
+                model:
+                  description: |+
+                    要使用的模型 ID。目前只有 whisper-1 是可用的。
+
+                  example: whisper-1
+                  type: string
+                language:
+                  description: |+
+                    输入音频的语言。以 ISO-639-1 格式提供输入语言可以提高准确性和延迟。
+
+                  example: ''
+                  type: string
+                prompt:
+                  description: |+
+                    一个可选的文本来指导模型的风格或继续之前的音频段落。提示应该与音频语言匹配。
+
+                  example: ''
+                  type: string
+                response_format:
+                  description: |-
+                    默认为 json
+                    转录输出的格式,可选择:json、text、srt、verbose_json 或 vtt。
+                  example: json
+                  type: string
+                temperature:
+                  description: >-
+                    默认为 0
+
+                    采样温度,between 0 和 1。更高的值像 0.8 会使输出更随机,而更低的值像 0.2
+                    会使其更集中和确定性。如果设置为 0,模型将使用对数概率自动增加温度直到达到特定阈值。
+                  example: 0
+                  type: number
+              required:
+                - file
+                - model
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                required:
+                  - text
+                x-apifox-orders:
+                  - text
+              example:
+                text: >-
+                  Imagine the wildest idea that you've ever had, and you're
+                  curious about how it might scale to something that's a 100, a
+                  1,000 times bigger. This is a place where you can get to do
+                  that.
+          headers: {}
+          x-apifox-name: 成功
+      security:
+        - bearer: []
+      x-apifox-folder: openai/音频（Audio）
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/7040782/apis/api-343647061-run
+components:
+  schemas: {}
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+servers:
+  - url: https://api.tu-zi.com
+    description: api.tu-zi.com
+security:
+  - bearer: []
+
+```
+

@@ -1,360 +1,477 @@
-# 婚恋匹配平台 - 可执行开发清单
+# 婚恋匹配平台 - 可执行开发清单（AI-first 重构版）
 
-> 基于 `docs/plan.md` 拆解的详细任务步骤
-> 技术栈：Next.js 14 + Supabase + Tailwind + shadcn/ui + Whisper + Claude API
-
----
-
-## Phase 1：MVP 核心流程
-
-### 1. 项目初始化
-
-- [ ] `npx create-next-app@latest marry2 --typescript --tailwind --app` 创建项目
-- [ ] 安装依赖：`@supabase/supabase-js @supabase/ssr shadcn/ui lucide-react`
-- [ ] 初始化 shadcn/ui：`npx shadcn@latest init`
-- [ ] 安装常用组件：`button input card table badge tabs dialog form toast`
-- [ ] 配置 `.env.local`：`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`
-- [ ] 创建 `lib/supabase/client.ts`（浏览器端 client）
-- [ ] 创建 `lib/supabase/server.ts`（服务端 server client）
-- [ ] 创建 `middleware.ts`（Supabase Auth session 刷新 + 路由保护）
+> 基于 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md) 拆解  
+> 当前目标：把现有系统从“通用婚恋 MVP”重构为“AI 默认入库、红娘只处理异常”的高质量婚恋匹配平台  
+> 技术栈：Next.js 16 + Supabase + Tailwind + shadcn/ui + 云雾聚合网关（`whisper-1` + Claude）
 
 ---
 
-### 2. Supabase 数据库表结构
+## 0. 需求与设计基线
 
-#### 2.1 创建枚举类型
-
-- [ ] 创建枚举 `gender_type`：`male`, `female`
-- [ ] 创建枚举 `profile_status`：`active`, `inactive`, `matched`, `paused`
-- [ ] 创建枚举 `education_level`：`high_school`, `associate`, `bachelor`, `master`, `phd`, `other`
-- [ ] 创建枚举 `primary_intent`：`marriage`, `dating`, `fertility`
-- [ ] 创建枚举 `conversation_status`：`pending`, `transcribing`, `extracting`, `done`, `failed`
-- [ ] 创建枚举 `match_status`：`pending`, `reviewing`, `contacted_male`, `contacted_female`, `both_agreed`, `meeting_scheduled`, `met`, `succeeded`, `failed`, `dismissed`
-- [ ] 创建枚举 `reminder_type`：`no_followup`, `no_new_info`, `meeting_reminder`
-- [ ] 创建枚举 `user_role`：`admin`, `matchmaker`
-
-#### 2.2 创建核心表
-
-- [ ] 创建表 `user_roles`（user_id, role, display_name, created_at）
-- [ ] 创建表 `profiles`（基础信息字段，含 matchmaker_id FK, gender, status, ai_summary, raw_notes 等）
-- [ ] 创建表 `intentions`（profile_id 一对一，primary_intent, preferred_*, dealbreakers, tolerance_notes, implicit_intent_notes 等）
-- [ ] 创建表 `conversations`（profile_id, audio_url, transcript, extracted_fields JSONB, status, reviewed_by 等）
-- [ ] 创建表 `matches`（male_profile_id, female_profile_id, matchmaker_id, match_score, score_breakdown JSONB, match_reason, status, meeting_time 等）
-- [ ] 创建表 `reminders`（matchmaker_id, profile_id, match_id, type, message, is_read 等）
-
-#### 2.3 配置 RLS（行级安全策略）
-
-- [ ] `profiles`：matchmaker 只能 SELECT/INSERT/UPDATE 自己的客户（`matchmaker_id = auth.uid()`）
-- [ ] `intentions`：通过 profile_id 关联，matchmaker 只能访问自己客户的意图
-- [ ] `conversations`：matchmaker 只能访问自己上传的记录（`matchmaker_id = auth.uid()`）
-- [ ] `matches`：matchmaker 只能看涉及自己客户的匹配（male 或 female 属于自己）
-- [ ] `reminders`：matchmaker 只能看发给自己的提醒（`matchmaker_id = auth.uid()`）
-- [ ] `user_roles`：所有登录用户可读自己角色，admin 可读写全部
-- [ ] 为 admin 角色创建 bypass RLS 的 Service Role 函数（或用 policy 判断角色）
-
-#### 2.4 创建索引
-
-- [ ] `profiles(matchmaker_id)` 索引
-- [ ] `profiles(gender)` 索引
-- [ ] `matches(male_profile_id)`, `matches(female_profile_id)` 索引
-- [ ] `matches(status)` 索引
-- [ ] `reminders(matchmaker_id, is_read)` 索引
-
-#### 2.5 Supabase Storage
-
-- [ ] 创建 bucket `audio-files`（私有，仅授权访问）
-- [ ] 创建 bucket `profile-photos`（公开读，授权写）
-- [ ] 配置 audio-files 的 RLS：matchmaker 只能上传/读取自己上传的文件
+- [x] 将新版详细需求方案写入 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md)
+- [x] 固化 `V1 最小必要字段定义表`
+- [x] 固化 `AI 字段提取协议 v1`
+- [x] 明确 `unknown != no`
+- [x] 明确 `AI 默认自动入库，红娘只处理异常`
+- [x] 明确 V1 不做说话人分离前提
+- [x] 明确男方三类敏感关系模式与女方三态接受状态
+- [x] 明确前台主显 `Top1`、后台保留 `Top3`
+- [x] 明确 V1 暂不把 MBTI / Big Five / Attachment / HEXACO 作为核心自动匹配字段
 
 ---
 
-### 3. 认证系统
+## 1. 已完成基础能力（沿用当前仓库）
 
-- [ ] 创建登录页 `app/(auth)/login/page.tsx`（邮箱 + 密码）
-- [ ] 实现登录表单（使用 shadcn/ui Form + 调用 `supabase.auth.signInWithPassword`）
-- [ ] 实现登出功能（Server Action）
-- [ ] 创建 `lib/auth/get-user-role.ts`：从 `user_roles` 获取当前用户角色
-- [ ] 在 `middleware.ts` 中实现角色路由守卫：
-  - `/matchmaker/*` → 需要 `matchmaker` 或 `admin` 角色
-  - `/admin/*` → 需要 `admin` 角色
-  - 未登录自动跳转 `/login`
-- [ ] 创建 Layout：`app/(matchmaker)/layout.tsx`（侧边栏导航）
-- [ ] 创建 Layout：`app/(admin)/layout.tsx`（侧边栏导航）
-- [ ] 侧边栏导航组件 `components/nav/sidebar.tsx`（根据角色显示不同菜单项）
+### 1.1 项目与环境
 
----
+- [x] Next.js 16 项目已初始化
+- [x] Supabase 客户端与服务端封装已完成
+- [x] `proxy.ts` 已接入 Supabase Auth session 刷新与路由保护
+- [x] Node / npm 环境已安装并可本地构建
+- [x] 本地 `npm run build` 已通过
 
-### 4. 客户管理（红娘端核心）
+### 1.2 基础数据库与认证
 
-#### 4.1 客户列表页 `/matchmaker/clients`
+- [x] 基础枚举已建立：性别、状态、主意图、匹配状态、提醒类型、角色
+- [x] 已有核心表：`profiles`、`intentions`、`conversations`、`matches`、`reminders`、`user_roles`
+- [x] 基础 RLS 已配置
+- [x] `audio-files` / `profile-photos` bucket 已创建
+- [x] 登录 / 登出 / 角色路由守卫已完成
+- [x] 红娘端与管理端基础 layout / 侧边栏已完成
 
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/clients/page.tsx`
-- [ ] 实现客户列表数据获取（Server Component，从 `profiles` 表拉取当前红娘的客户）
-- [ ] 创建客户卡片组件 `components/client/client-card.tsx`（展示：姓名、性别标签、年龄、城市、意图、状态徽章）
-- [ ] 实现性别/意图/状态筛选 Tab（客户端交互）
-- [ ] 添加"新增客户"按钮，跳转 `/matchmaker/clients/new`
+### 1.3 现有主流程
 
-#### 4.2 新增客户页 `/matchmaker/clients/new`
+- [x] 客户列表 / 新增 / 详情页已完成
+- [x] 音频上传、转录、结构化提取主流程已完成
+- [x] 录音记录、审核页、基础字段同步能力已完成
+- [x] 基础匹配引擎已完成
+- [x] 红娘匹配工作台、匹配详情页已完成
+- [x] 提醒中心已完成
+- [x] 管理端 dashboard / clients / matchmakers / matches 已完成
 
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/clients/new/page.tsx`
-- [ ] 创建表单组件 `components/client/new-client-form.tsx`
-  - [ ] 字段：姓名、性别（radio）、手机号（红娘内部备注）、备注
-  - [ ] 提交后创建 profile 记录，跳转到客户详情页
-- [ ] 创建 Server Action `actions/clients.ts`：`createClient()`
-
-#### 4.3 客户详情页 `/matchmaker/clients/[id]`
-
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/clients/[id]/page.tsx`
-- [ ] 实现 Tab 导航：基本信息 / 匹配推荐 / 录音记录 / 跟进记录
-- [ ] **Tab 1 - 基本信息**
-  - [ ] 展示 `profiles` + `intentions` 所有字段
-  - [ ] 支持内联编辑（点击字段进入编辑态，保存调用 Server Action）
-  - [ ] 信息卡预览组件 `components/client/profile-card.tsx`
-- [ ] **Tab 2 - 匹配推荐**
-  - [ ] 展示 `matches` 表中与此客户相关的推荐列表
-  - [ ] 每条显示：对方信息卡缩略、匹配分、分项得分条形图、AI 匹配理由
-  - [ ] 操作按钮：跟进（更新 status → reviewing）/ 放弃（弹窗填原因）
-- [ ] **Tab 3 - 录音记录**
-  - [ ] 展示 `conversations` 历史列表（时间、状态、转录摘要）
-  - [ ] 点击查看详情（转录全文 + 提取字段）
-  - [ ] 上传新录音入口（跳转上传流程）
-- [ ] **Tab 4 - 跟进记录**
-  - [ ] 以时间线形式展示所有 match 的状态变更历史
-- [ ] 创建 Server Actions：`updateProfile()`, `updateIntention()`, `dismissMatch()`
+> 说明：以上能力保留，但后续需要按新版 `plan` 做 AI-first 重构，而不是继续沿用旧的“完整审核表单 + 通用匹配”逻辑。
 
 ---
 
-### 5. 语音上传与 AI 处理流程
+## 2. Phase 1：字段系统与数据库重构
 
-#### 5.1 上传页面 `/matchmaker/clients/[id]/upload`
+### 2.1 字段字典落地
 
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/clients/[id]/upload/page.tsx`
-- [ ] 创建上传组件 `components/upload/audio-uploader.tsx`
-  - [ ] 支持拖拽 + 点击上传
-  - [ ] 文件格式限制：mp3/m4a/wav/ogg
-  - [ ] 文件大小限制：100MB
-  - [ ] 上传前预览：文件名、大小、时长（HTML5 Audio API）
-- [ ] 实现文件上传到 Supabase Storage（`audio-files` bucket）
-- [ ] 上传完成后，在 `conversations` 表创建记录（status: `pending`）
-- [ ] 触发处理 Pipeline（调用 API Route）
-- [ ] 实时显示处理进度（轮询 `conversations.status`，每 3 秒一次）
+- [x] 创建机器可读的字段定义文件，例如 `lib/ai/field-spec.ts` 或 `lib/ai/field-spec.json`
+- [x] 将 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md) 中 `7.5 V1 最小必要字段定义表` 转成代码常量
+- [x] 给每个 V1 字段补齐：
+  - [x] 字段 key
+  - [x] 中文名
+  - [x] 数据类型
+  - [x] 允许值
+  - [x] 是否敏感
+  - [x] 是否参与匹配
+  - [x] 提取规则
+  - [x] 更新规则
+- [x] 从现有 prompt / 表单 /类型中移除不再属于 V1 核心字段的内容
+- [x] 明确 V1 只保留简化版 `情绪稳定`
+- [x] 将 MBTI / Big Five / Attachment / HEXACO 标记为 V2 预留，不进入 V1 核心自动提取
 
-#### 5.2 Whisper 转录 API
+### 2.2 新枚举与类型
 
-- [ ] 创建 API Route `app/api/transcribe/route.ts`
-  - [ ] 接收 `conversation_id`
-  - [ ] 从 Supabase Storage 下载音频文件
-  - [ ] 调用 OpenAI Whisper API（`whisper-1` 模型，language: `zh`）
-  - [ ] 将转录文本写回 `conversations.transcript`
-  - [ ] 更新 status → `extracting`
-  - [ ] 自动触发下一步（调用 Claude 提取 API）
-  - [ ] 失败时更新 status → `failed`，记录 error_message
+- [x] 新增枚举 `relationship_mode`
+  - [x] `marriage_standard`
+  - [x] `compensated_dating`
+  - [x] `fertility_asset_arrangement`
+- [x] 新增枚举 `tri_state`
+  - [x] `yes`
+  - [x] `no`
+  - [x] `unknown`
+- [x] 新增枚举 `recommendation_type`
+  - [x] `confirmed`
+  - [x] `pending_confirmation`
+  - [x] `rejected`
+- [x] 新增枚举 `followup_task_type`
+  - [x] `missing_field`
+  - [x] `sensitive_confirmation`
+  - [x] `verification`
+  - [x] `relationship_followup`
+- [x] 新增枚举 `followup_task_status`
+  - [x] `open`
+  - [x] `in_progress`
+  - [x] `done`
+  - [x] `dismissed`
+- [x] 新增枚举 `importance_level`
+  - [x] `hard`
+  - [x] `important`
+  - [x] `normal`
+  - [x] `flexible`
 
-#### 5.3 Claude 结构化提取 API
+### 2.3 表结构调整
 
-- [ ] 创建 API Route `app/api/extract/route.ts`
-  - [ ] 接收 `conversation_id`
-  - [ ] 读取 `conversations.transcript`
-  - [ ] 构建结构化提取 Prompt（见下）
-  - [ ] 调用 Claude API（`claude-sonnet-4-6`）
-  - [ ] 解析返回的 JSON
-  - [ ] 将结果写入 `conversations.extracted_fields`（JSONB）
-  - [ ] 无法结构化的内容写入 `conversations.extraction_notes`
-  - [ ] 更新 status → `done`
-- [ ] 编写 Claude 提取 Prompt `lib/prompts/extract-profile.ts`
-  - [ ] 系统提示：角色定义为婚恋信息提取专家
-  - [ ] 明确要求输出标准 JSON 格式（包含 profiles / intentions / raw_notes 三个部分）
-  - [ ] 对无法归类的内容统一放入 `raw_notes` 字段，不丢弃
-  - [ ] 处理模糊表达（如"收入还不错"→ 提取为区间估计并标注不确定）
+#### `profiles`
 
-#### 5.4 字段审核页 `/matchmaker/clients/[id]/conversations/[cid]/review`
+- [x] 为 `profiles` 补齐 V1 最小必要字段中仍缺失的核心字段
+- [x] 补充全球流动 / 高净值 V1 必要字段中当前仍缺失的部分
+- [x] 保留已有字段，但对不再属于 V1 核心匹配的字段做降级标注
 
-- [ ] 创建审核页面
-- [ ] 布局：左侧转录文本（可滚动高亮） / 右侧结构化字段编辑表单
-- [ ] 底部展示 `extraction_notes`（raw_notes 区域）
-- [ ] 每个字段支持编辑（AI 提取值作为默认值）
-- [ ] "确认并同步"按钮：
-  - [ ] 将字段写入 `profiles` / `intentions` 表（合并更新，不覆盖已有值除非红娘明确修改）
-  - [ ] 标记 `conversations.reviewed_at`
-  - [ ] 触发匹配引擎
+#### `intentions`
 
----
+- [x] 为 `intentions` 增加 `relationship_mode`
+- [x] 增加女方三态接受字段：
+  - [x] `accepts_mode_marriage_standard`
+  - [x] `accepts_mode_compensated_dating`
+  - [x] `accepts_mode_fertility_asset_arrangement`
+- [x] 增加 `importance_level` 相关字段或偏好重要性存储结构
+- [x] 为异地、迁居、婚史、孩子、生育、收入等偏好增加重要性存储能力
 
-### 6. 匹配引擎
+#### `trait_profiles`
 
-#### 6.1 匹配评分函数
+- [x] 创建 `trait_profiles` 表
+- [x] V1 在 `trait_profiles` 中启用最小必要字段：
+  - [x] `exercise_habits`
+  - [x] `diet_habits`
+  - [x] `sleep_schedule`
+  - [x] `smoking_habit`
+  - [x] `drinking_habit`
+  - [x] `social_preference`
+  - [x] `spending_style`
+  - [x] `emotional_stability`
+- [x] 其余 V1 软字段继续保留在当前更合适的位置：
+  - [x] `hobbies` 留在 `profiles`
+  - [x] `communication_style` / `relationship_pace` / `biggest_concerns` 留在 `intentions`
+  - [x] `hidden_expectations` / `followup_strategy` 留在 `profiles`
 
-- [ ] 创建 `lib/matching/score.ts` 匹配评分模块
-  - [ ] `intentCompatible(a, b)` → boolean（硬性过滤：意图必须兼容）
-  - [ ] `checkDealbreakers(a, b)` → boolean（硬性过滤：dealbreakers 冲突则排除）
-  - [ ] `scoreIntent(a, b)` → 0-40（意图兼容度，40% 权重）
-  - [ ] `scoreCity(a, b)` → 0-20（地域匹配，20% 权重）
-  - [ ] `scoreAge(a, b)` → 0-15（年龄区间交叉，15% 权重）
-  - [ ] `scoreIncome(a, b)` → 0-15（收入期望匹配，15% 权重）
-  - [ ] `scoreTolerance(a, b)` → 0-10（容忍边界交叉，10% 权重）
-  - [ ] `calculateMatchScore(male, female)` → `{ total, breakdown, passed }`
+#### `conversations`
 
-#### 6.2 匹配引擎 API
+- [x] 为 `conversations` 增加 `talked_at` 或等价字段，表示实际谈话时间
+- [x] 保留 `created_at` 作为上传时间
+- [x] 增加 `transcript_verbose_json`
+- [x] 增加 `missing_fields`
+- [x] 增加 `suggested_questions`
+- [x] 明确区分“本次原始提取结果”和“当前客户生效字段”
 
-- [ ] 创建 API Route `app/api/match/route.ts`
-  - [ ] 接收 `profile_id`（新增/更新的客户）
-  - [ ] 获取该客户的 gender 和完整 intentions
-  - [ ] 拉取所有异性且 status 为 `active` 的客户
-  - [ ] 对每个异性客户运行 `calculateMatchScore`
-  - [ ] 过滤掉未通过硬性条件的配对
-  - [ ] 对通过且 score > 60 的配对，写入或更新 `matches` 表
-  - [ ] 低于阈值或硬性过滤的配对，不写入
-  - [ ] 返回生成的匹配数量
+#### `matches`
 
-#### 6.3 匹配理由生成
+- [x] 为 `matches` 增加 `recommendation_type`
+- [x] 增加 `pending_reasons`
+- [x] 增加 `required_followup_fields`
+- [x] 增加 `suggested_followup_questions`
+- [x] 允许存储“待确认候选”与“已确认候选”的区别
 
-- [ ] 在 API Route 中，对评分 > 75 的高质量匹配，调用 Claude 生成 `match_reason`（自然语言描述为什么这对配对合适）
-- [ ] 将 `match_reason` 写入 `matches` 表
+#### `followup_tasks`
 
----
+- [x] 创建 `followup_tasks` 表
+- [x] 设计与 `profiles` / `matches` / `matchmaker_id` 的关联
+- [x] 支持 `pending_confirmation` 场景自动生成任务
 
-### 7. 红娘匹配工作台
+### 2.4 数据迁移与兼容
 
-#### 7.1 匹配列表页 `/matchmaker/matches`
+- [x] 为历史数据回填 tri-state 默认值
+- [x] 为历史数据回填 `recommendation_type`
+- [x] 为历史 conversations 回填 `talked_at`
+- [x] 编写迁移脚本，避免旧数据因新字段为空而出错
+- [x] 更新 `types/database.ts`
 
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/matches/page.tsx`
-- [ ] 实现匹配列表数据获取（涉及自己客户的所有 matches）
-- [ ] 创建匹配卡片组件 `components/match/match-card.tsx`
-  - [ ] 展示：男方缩略信息 + 女方缩略信息 + 匹配分徽章 + 当前状态
-  - [ ] 分项得分可视化（小型进度条）
-- [ ] 实现状态 Tab 筛选：全部 / 待处理 / 跟进中 / 已约谈 / 已完成
-- [ ] 按匹配分倒序排列
+### 2.5 RLS 与索引
 
-#### 7.2 匹配详情页 `/matchmaker/matches/[id]`
-
-- [ ] 创建页面 `app/(matchmaker)/matchmaker/matches/[id]/page.tsx`
-- [ ] 左侧：男方完整信息卡
-- [ ] 右侧：女方完整信息卡
-- [ ] 中间：匹配评分详情 + AI 匹配理由
-- [ ] 底部：跟进操作区
-  - [ ] 状态流转按钮（根据当前状态显示下一步操作）
-  - [ ] 备注输入框
-  - [ ] 约谈时间选择器（DateTimePicker）
-  - [ ] 约谈地点输入框
-  - [ ] 见面结果记录
-- [ ] 创建 Server Action `actions/matches.ts`：`updateMatchStatus()`, `addMatchNote()`
-
----
-
-### 8. 提醒系统（基础版）
-
-- [ ] 创建提醒生成函数 `lib/reminders/generate.ts`
-  - [ ] `checkNoFollowup()`：查询超过 7 天未更新的 active matches，生成提醒
-  - [ ] `checkNoNewInfo()`：查询超过 30 天无新对话的客户，生成提醒
-  - [ ] `checkMeetingReminder()`：查询 24 小时内有 meeting_time 的 matches，生成提醒
-- [ ] 创建 API Route `app/api/reminders/generate/route.ts`（供定时任务调用）
-- [ ] 创建提醒中心页面 `/matchmaker/reminders`
-  - [ ] 列表展示未读提醒
-  - [ ] 点击标记已读
-  - [ ] 点击跳转到对应客户/匹配页
-- [ ] 在侧边栏导航显示未读提醒数量角标
+- [x] 为 `trait_profiles` 配置 RLS
+- [x] 为 `followup_tasks` 配置 RLS
+- [x] 为新增 tri-state / relationship_mode / recommendation_type 字段补充索引
+- [x] 为 `followup_tasks(status, matchmaker_id)` 增加索引
 
 ---
 
-## Phase 2：运营完善
+## 3. Phase 2：AI 字段提取协议落地
 
-### 9. 管理者端
+### 3.1 Prompt 与协议重构
 
-#### 9.1 总览看板 `/admin/dashboard`
+- [x] 重写 `lib/prompts/extract-profile.ts`
+- [x] 从“输出完整对象”改成“输出 patch 合同”
+- [x] Prompt 中显式引入字段字典
+- [x] Prompt 中显式引入更新规则：
+  - [x] 未提及字段不修改旧值
+  - [x] 模糊新值不覆盖明确旧值
+  - [x] `unknown` 不覆盖已有明确值
+  - [x] 敏感字段只允许明确提及时写入
+- [x] Prompt 中显式要求输出：
+  - [x] `field_updates`
+  - [x] `review_required`
+  - [x] `missing_critical_fields`
+  - [x] `suggested_followup_questions`
+  - [x] `summary_updates`
+  - [x] `processing_notes`
 
-- [ ] 创建页面 `app/(admin)/admin/dashboard/page.tsx`
-- [ ] 数据统计卡片组件 `components/admin/stat-card.tsx`
-  - [ ] 男方客户总数 / 女方客户总数
-  - [ ] 本月新增用户
-  - [ ] 活跃匹配数
-  - [ ] 匹配成功数
-  - [ ] 红娘数量 + 平均客户数
-- [ ] 新增用户趋势折线图（按周，使用 recharts 或 shadcn chart）
-- [ ] 匹配漏斗图（推荐 → 跟进 → 约谈 → 成功）
-- [ ] 红娘工作量排行表
+### 3.2 转录与提取输入包
 
-#### 9.2 用户管理页 `/admin/clients`
+- [x] 在提取 API 中，把当前客户快照一起传给 Claude
+- [x] 把系统上下文传给 Claude：
+  - [x] `matchmaker_id`
+  - [x] `profile_id`
+  - [x] `profile_gender`
+  - [x] `conversation_id`
+  - [x] `uploaded_at`
+  - [x] `audio_duration`
+- [x] 若可用，则传 `transcript_verbose_json`
+- [x] 把字段说明书以机器可读方式传入模型
 
-- [ ] 创建页面 `app/(admin)/admin/clients/page.tsx`
-- [ ] 跨红娘查看所有客户档案（使用 Service Role）
-- [ ] 实现搜索：姓名模糊搜索
-- [ ] 实现筛选：性别 / 城市 / 意图 / 状态 / 负责红娘
-- [ ] 实现重新分配红娘（下拉选择 + 确认对话框）
+### 3.3 Patch 解析与校验
 
-#### 9.3 红娘管理页 `/admin/matchmakers`
+- [x] 新建 `lib/ai/extraction-contract.ts` 或等价模块
+- [x] 为 AI 输出合同建立 Zod / TS 校验
+- [x] 对非法 action / 非法 tri-state / 缺失字段 label 做兜底校验
+- [x] 对低置信度字段做统一拦截逻辑
+- [x] 对敏感字段缺少 `evidence_excerpt` 做警告或降级
 
-- [ ] 创建页面 `app/(admin)/admin/matchmakers/page.tsx`
-- [ ] 红娘列表：姓名、邮箱、客户数、活跃匹配数、本月成功数
-- [ ] 新增红娘：弹窗表单（邮箱 + 姓名），调用 Supabase Admin API 创建用户，插入 `user_roles`
-- [ ] 禁用/启用红娘账号
+### 3.4 自动入库策略
 
-#### 9.4 匹配管理页 `/admin/matches`
+- [x] 实现“低风险字段默认自动写入”
+- [x] 实现“敏感 / 冲突 / 低置信度字段进入异常确认页”
+- [x] 自动写入时保留 old/new diff
+- [x] 把本次 patch 持久化到 `conversations.extracted_fields`
+- [x] 保留原始 `processing_notes`
 
-- [ ] 创建页面 `app/(admin)/admin/matches/page.tsx`
-- [ ] 查看全部匹配记录（含所有状态）
-- [ ] 支持修改匹配状态
-- [ ] 支持重新分配负责红娘
+### 3.5 多次音频增量更新
 
----
+- [x] 明确“当前客户快照”的来源
+- [x] 新音频只更新本次明确提到的字段
+- [x] 不再使用“完整对象覆盖”方式同步
+- [x] 实现“最新且明确的新值覆盖旧值”
+- [x] 实现“模糊新值不覆盖明确旧值”
+- [x] 对冲突字段写入 `review_required`
 
-### 10. 信息卡完整设计
+### 3.6 缺口分析与补问生成
 
-- [ ] 优化 `components/client/profile-card.tsx` 为完整设计稿
-  - [ ] 照片展示区（支持无照片占位符）
-  - [ ] 基础信息区（姓名/年龄/城市/学历/职业/年薪/身高/体重）
-  - [ ] 意图区（主意图 + 期望对方条件 + 硬性要求）
-  - [ ] AI 综合描述区（ai_summary）
-  - [ ] Raw notes 折叠展示（红娘内部可见）
-- [ ] 支持打印/导出信息卡（CSS print 样式）
-
----
-
-### 11. 匹配引擎优化
-
-- [ ] 基于历史跟进结果调整权重
-  - [ ] 统计不同 `dismissed_reason` 的分布
-  - [ ] 统计 `succeeded` 的配对特征
-  - [ ] 手动在代码中调整权重参数（V1 不做自动学习）
-- [ ] 支持手动触发重新匹配（admin 端：针对单个客户或全量重跑）
-- [ ] 匹配阈值可配置（admin 端配置项：当前写死 60 分）
-
----
-
-## Phase 3：用户端扩展
-
-### 12. 用户端（V2）
-
-- [ ] 用户登录页（独立入口）
-- [ ] 用户查看自己的信息卡（只读）
-- [ ] 用户 AI 对话筛选对象
-  - [ ] 接入 Claude API，理解用户自然语言偏好
-  - [ ] 基于对话动态筛选 `profiles` 推荐
-  - [ ] 以信息卡格式展示推荐结果
-- [ ] 用户自助筛选页（卡片流 + 条件筛选）
+- [x] 根据 `missing_critical_fields` 生成补问建议
+- [x] 按优先级生成问题：
+  - [x] 关系模式 / 接受状态
+  - [x] 婚史 / 孩子
+  - [x] 生育意愿
+  - [x] 城市 / 异地 / 迁居
+  - [x] 收入 / 资产 / 生活方式
+- [x] 确保问题满足“一问一事、红娘可直接线下复述”
+- [x] 补问建议写入 `conversations.suggested_questions`
+- [x] 自动创建 `followup_tasks`
 
 ---
 
-## 通用任务
+## 4. Phase 3：AI-first 录音与建档流程重构
 
-### 错误处理与体验
+### 4.1 上传优先建档
 
-- [ ] 全局 Toast 通知（shadcn/ui Toaster）
-- [ ] API 失败统一 error boundary
-- [ ] 语音处理失败时，提供重试按钮
-- [ ] 表单 loading 状态（按钮 spinner）
-- [ ] 空状态设计（无客户、无匹配、无提醒时的占位提示）
+- [x] 重构“新增客户”流程为 AI-first
+- [x] 支持“最少上下文创建草稿客户 + 直接上传第一段音频”
+- [x] 让 AI 从第一段音频自动补齐基础字段
+- [x] 只在重名 / 身份不清时要求红娘处理
 
-### 代码质量
+### 4.2 Conversations 流程
 
-- [ ] 配置 TypeScript 严格模式
-- [ ] 创建 Supabase 类型生成脚本（`supabase gen types typescript`）
-- [ ] 创建 `types/database.ts`（从 Supabase 生成的类型）
-- [ ] 创建 `types/app.ts`（业务层自定义类型）
+- [x] 上传音频时系统自动记录：
+  - [x] 红娘
+  - [x] 客户
+  - [x] 上传时间
+  - [x] 音频时长
+- [x] 优先用系统时间作为 `talked_at` 默认值
+- [x] 若 AI 在文字稿里发现明确谈话时间，可自动修正 `talked_at`
+- [x] 只在明显错误时允许人工纠正
 
-### 部署
+### 4.3 异常确认页替代旧审核页
 
-- [ ] 配置 Vercel 项目（关联 GitHub 仓库）
-- [ ] 在 Vercel 配置所有环境变量
-- [ ] 配置 Supabase Edge Functions 的环境变量（OPENAI_API_KEY / ANTHROPIC_API_KEY）
-- [ ] 设置提醒生成的定时任务（Vercel Cron Jobs，每天早上 9:00 触发）
-- [ ] 配置生产环境 Supabase 项目（与开发环境隔离）
+- [x] 将 `/matchmaker/clients/[id]/conversations/[cid]/review` 从“完整审核表单页”改成“差异与异常页”
+- [x] 页面默认只展示：
+  - [x] 本次新增字段
+  - [x] 与旧值冲突字段
+  - [x] 低置信度字段
+  - [x] 敏感待确认字段
+  - [x] AI 补问建议
+- [x] 支持“一键接受 AI 更新”
+- [x] 支持只修改异常字段
+- [x] 不再要求红娘查看和填写完整字段大表单
+
+### 4.4 客户详情页调整
+
+- [x] 客户详情页的数据源改为“当前生效快照”
+- [x] 增加“最近一次 AI 更新摘要”
+- [x] 增加“待确认字段”区块
+- [x] 增加“待补问任务”区块
+- [x] 增加“本次音频带来的字段变化”可追溯视图
+
+---
+
+## 5. Phase 4：匹配引擎重构
+
+### 5.1 方向性偏好与权重
+
+- [x] 为核心偏好字段增加重要性提取能力
+- [x] 重要性统一采用：
+  - [x] `hard`
+  - [x] `important`
+  - [x] `normal`
+  - [x] `flexible`
+- [x] 从语义线索中提取重要性：
+  - [x] “必须 / 一定要 / 完全不能接受” -> `hard`
+  - [x] “比较看重 / 优先考虑 / 最好” -> `important`
+  - [x] “有更好，没有也行” -> `normal`
+  - [x] “无所谓 / 都行” -> `flexible`
+
+### 5.2 匹配分类重构
+
+- [x] 重写 `lib/matching/score.ts`
+- [x] 将结果从单一 `passed` 改为：
+  - [x] `confirmed`
+  - [x] `pending_confirmation`
+  - [x] `rejected`
+- [x] 实现 `unknown` 不直接排除，而是进入 `pending_confirmation`
+- [x] 对 tri-state 敏感字段加入专门逻辑
+- [x] 对 `relationship_mode` 做专门门槛逻辑
+
+### 5.3 新评分维度
+
+- [x] 按新版 plan 调整评分维度和 breakdown
+- [x] 至少支持：
+  - [x] 意图 / 关系模式
+  - [x] 城市 / 异地 / 迁居
+  - [x] 婚史 / 孩子 / 生育
+  - [x] 收入 / 资产
+  - [x] 兴趣 / 生活方式
+  - [x] 相处 / 推进
+  - [x] 敏感模式确认度
+- [x] 将“待确认字段”单独输出到匹配结果中
+
+### 5.4 Match 持久化
+
+- [x] 更新 `lib/matching/engine.ts`
+- [x] 在写入 `matches` 时同时写入：
+  - [x] `recommendation_type`
+  - [x] `pending_reasons`
+  - [x] `required_followup_fields`
+  - [x] `suggested_followup_questions`
+- [x] 保留高分 `match_reason` 生成能力
+- [x] 对 `pending_confirmation` 的理由文案做专门处理
+
+### 5.5 自动重跑
+
+- [x] 当 AI 自动更新到匹配相关字段时，自动重跑匹配
+- [x] 当敏感字段从 `unknown -> yes/no` 时，自动重跑匹配
+- [x] 当客户核心偏好重要性变化时，自动重跑匹配
+
+---
+
+## 6. Phase 5：红娘端工作台重构
+
+### 6.1 匹配列表页
+
+- [x] 将匹配列表按 `confirmed / pending_confirmation` 分区展示
+- [x] 前台主显 `Top1`
+- [x] 后台保留 `Top3`
+- [x] 待确认候选必须展示：
+  - [x] 待确认字段
+  - [x] AI 补问问题
+  - [x] 为什么先入候选
+
+### 6.2 匹配详情页
+
+- [x] 增加“待确认原因”区块
+- [x] 增加“下一步建议补问”区块
+- [x] 显示方向性偏好权重与分字段打分
+- [x] 显示哪些字段是 `hard conflict`
+- [x] 显示哪些字段是 `unknown`
+
+### 6.3 跟进任务与提醒
+
+- [x] 在红娘端增加“待补问任务”列表
+- [x] 将 `followup_tasks` 接入提醒系统
+- [x] 新增 `pending_confirmation` 类型提醒
+- [x] 支持从提醒直接跳转到客户 / 匹配 / 异常确认页
+
+---
+
+## 7. Phase 6：管理端与治理能力
+
+### 7.1 管理端字段治理
+
+- [x] 增加“字段完整度”看板
+- [x] 统计：
+  - [x] 基础字段完整度
+  - [x] 敏感字段完整度
+  - [x] 生活方式字段完整度
+  - [x] 已核验字段占比
+- [x] 统计 `pending_confirmation` 积压量
+- [x] 统计各红娘的补问完成率
+
+### 7.2 敏感模式运营视图
+
+- [x] 管理端支持查看三类关系模式客户规模
+- [x] 支持查看各模式的 `confirmed / pending_confirmation / rejected` 分布
+- [x] 支持查看敏感字段确认耗时
+
+### 7.3 历史与证据（预备 Phase 2/3）
+
+- [x] 已评估 `field_observations` 表，当前轮暂缓进入开发
+- [ ] 若进入，则实现字段级来源追溯
+- [x] 暂缓情况下，已保证 conversations + patch 历史可回放
+
+---
+
+## 8. Phase 7：验证、回归与发布准备
+
+### 8.1 协议与数据回归测试
+
+- [x] 为 AI 输出合同增加单元测试
+- [ ] 补齐剩余测试案例：
+  - [x] 明确新值覆盖旧值
+  - [x] 模糊新值不覆盖明确旧值
+  - [x] `unknown` 不覆盖 `yes/no`
+  - [x] 敏感模式正确进入 `pending_confirmation`
+  - [x] 缺失字段正确生成补问任务
+
+### 8.2 流程级测试
+
+- [x] 跑通“首段音频自动建档”流程
+- [x] 跑通“第二段音频增量更新”流程
+- [x] 跑通“敏感字段从 unknown 变 yes/no”后的自动重跑匹配
+- [x] 跑通“AI 自动入库 + 红娘异常确认”流程
+
+> 说明：本地已完成一组真实流程验证。首段男女音频完成自动建档与字段写入；女方第二段补充音频在第三方 `whisper-1` / Claude 配额再次耗尽后，使用同一音频已验证 transcript 回放完成增量提取与匹配重跑，最终将匹配从 `pending_confirmation` 推进到 `confirmed`；异常确认则基于真实 `review_required` 会话完成清空与 `reviewed_at` 回写。
+- [x] 已完成匿名态本地路由冒烟：
+  - [x] `/` -> `/login`
+  - [x] `/login` 返回 `200`
+  - [x] `/matchmaker/clients/new` 未登录重定向到 `/login`
+  - [x] `/admin/dashboard` 未登录重定向到 `/login`
+
+### 8.3 本地与部署准备
+
+- [x] 本地 `npm run build` 再次验证通过
+- [x] 本地 `npm test` 已通过
+- [x] 补充部署文档里对新表、新枚举、新定时任务的说明
+- [ ] 在 Vercel / Supabase 控制台完成新环境变量与 migration 部署
+
+---
+
+## 9. 后续扩展（V2 / V3 储备）
+
+### 9.1 人格与测评体系
+
+- [ ] 评估 MBTI 自报字段是否需要回归客户档案
+- [ ] 评估 Big Five / Attachment / HEXACO 是否通过问卷而非音频提取接入
+- [ ] 明确这些字段是否进入匹配，还是仅做展示 / 参考
+
+### 9.2 说话人分离
+
+- [ ] 持续关注第三方网关是否支持 diarization / speaker labels
+- [ ] 若支持，再评估是否升级转录链路
+
+### 9.3 已核验体系
+
+- [ ] 为收入 / 资产 / 婚史 / 孩子等高风险字段设计核验流程
+- [ ] 增加核验状态展示与筛选
+
+---
+
+## 10. 当前建议的执行顺序
+
+- [x] 先完成 **Phase 1 字段系统与数据库重构**
+- [x] 再完成 **Phase 2 AI 协议落地**
+- [x] 然后完成 **Phase 3 AI-first 建档与异常确认页**
+- [x] 再完成 **Phase 4 匹配引擎重构**
+- [x] 随后完成 **Phase 5 红娘端工作台重构**
+- [ ] 最后补齐 **Phase 7 验证发布**（完整实录联调 + 控制台部署）
+
+> 建议：  
+> 这次不要从 UI 开始改，而是严格按以下顺序推进：  
+> `字段字典 -> 数据库 -> AI 协议 -> 自动入库 -> 异常确认 -> 匹配重构 -> 工作台展示`

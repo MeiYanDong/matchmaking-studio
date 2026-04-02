@@ -128,3 +128,25 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  html,
+  body {
+    background: white !important;
+  }
+
+  aside,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    overflow: visible !important;
+  }
+
+  .print-card-shell {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}

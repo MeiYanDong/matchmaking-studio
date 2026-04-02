@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+.obsidian/
+.playwright-cli/
 
 # debug
 npm-debug.log*

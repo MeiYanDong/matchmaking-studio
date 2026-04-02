@@ -1,0 +1,295 @@
+# api.tu-zi.com
+
+## Docs
+- [介绍](https://apifox.tu-zi.com/7324323m0.md): 
+- openai [项目说明](https://apifox.tu-zi.com/7324324m0.md): 
+- openai > CodeX [Codex 配置使用教程](https://apifox.tu-zi.com/7423369m0.md): 
+- openai > 聊天（Chat） [gpts 请求](https://apifox.tu-zi.com/7324329m0.md): 
+- openai > 聊天（Chat） [聊天完成块对象](https://apifox.tu-zi.com/7324330m0.md): 
+- openai > 图像（Images） [README](https://apifox.tu-zi.com/7324335m0.md): 
+- openai > 图像（Images） [图像对象](https://apifox.tu-zi.com/7324336m0.md): 
+- openai > 自动补全（Completions） [完成对象](https://apifox.tu-zi.com/7324331m0.md): 
+- openai > 嵌入（Embeddings） [嵌入对象](https://apifox.tu-zi.com/7324332m0.md): 
+- openai > 微调（Fine-tuning） [ 微调作业对象](https://apifox.tu-zi.com/7324333m0.md): 
+- openai > 微调（Fine-tuning） [微调作业事件对象](https://apifox.tu-zi.com/7324334m0.md): 
+- openai > 模型（Models） [模型对象](https://apifox.tu-zi.com/7324337m0.md): 
+- openai > 文件（Files） [README](https://apifox.tu-zi.com/7324338m0.md): 
+- openai > 文件（Files） [文件对象](https://apifox.tu-zi.com/7324339m0.md): 
+- openai [审查（Moderations）](https://apifox.tu-zi.com/65446738f0.md): 
+- openai > 审查（Moderations） [调节对象](https://apifox.tu-zi.com/7324340m0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [辅助对象](https://apifox.tu-zi.com/7324341m0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [辅助文件对象](https://apifox.tu-zi.com/7324342m0.md): 
+- openai > 线程数-待开发（Threads） [线程对象](https://apifox.tu-zi.com/7324343m0.md): 
+- openai > 留言-待开发（Messages） [消息对象](https://apifox.tu-zi.com/7324344m0.md): 
+- openai > 留言-待开发（Messages） [消息文件对象](https://apifox.tu-zi.com/7324345m0.md): 
+- openai > 运行-待开发（Runs） [运行对象](https://apifox.tu-zi.com/7324346m0.md): 
+- openai > 运行-待开发（Runs） [运行步骤对象](https://apifox.tu-zi.com/7324347m0.md): 
+- 视频生成 > sora [可以@ 的人物说明](https://apifox.tu-zi.com/7501797m0.md): 
+- 视频生成 > luma > luma(goamz格式) [goamz 格式luma](https://apifox.tu-zi.com/65446716f0.md): 普通 luma api 速度高峰期可能稍慢
+- 视频生成 > luma > luma(goamz格式) [goamz 格式lumavip](https://apifox.tu-zi.com/65446717f0.md): 普通 luma api 速度高峰期可能稍慢
+- 视频生成 > pika [pika 接口说明](https://apifox.tu-zi.com/7324320m0.md): 
+- 音乐生成 > suno > suno官网原生格式 [官网格式](https://apifox.tu-zi.com/7324316m0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 5 上传自定义音频并续写 [续写自定义音频步骤介绍](https://apifox.tu-zi.com/7324317m0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 [suno api 说明](https://apifox.tu-zi.com/7661543m0.md): 
+- GPTs 相关 [GPTs相关接口文档](https://apifox.tu-zi.com/7324321m0.md): 
+- 智谱清言(glm) [智谱清言相关 api 接口文档](https://apifox.tu-zi.com/7324322m0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 [转换接口说明](https://apifox.tu-zi.com/7324348m0.md): 
+
+## API Docs
+- 系统接口 [用户查询账户信息](https://apifox.tu-zi.com/350716912e0.md): 系统访问令牌在：个人中心-更多选项
+- 系统接口 [查询key信息](https://apifox.tu-zi.com/350719117e0.md): quota是余额额度，实际余额=quota/500000
+- openai > 聊天（Chat） [创建聊天补全](https://apifox.tu-zi.com/343647063e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- openai > 图像（Images） [创建图像](https://apifox.tu-zi.com/343647071e0.md): [图片](https://platform.openai.com/docs/api-reference/images)
+- openai > 图像（Images） [创建图片编辑](https://apifox.tu-zi.com/343647072e0.md): 在给定原始图像和提示的情况下创建编辑或扩展图像。
+- openai > 图像（Images） [创建图像变体](https://apifox.tu-zi.com/343647073e0.md): 创建给定图像的变体。
+- openai > 音频（Audio） [创建语音](https://apifox.tu-zi.com/343647060e0.md): 
+- openai > 音频（Audio） [创建音频转文本](https://apifox.tu-zi.com/343647061e0.md): 
+- openai > 音频（Audio） [创建翻译](https://apifox.tu-zi.com/343647062e0.md): 
+- openai > 自动补全（Completions） [创建完成](https://apifox.tu-zi.com/343647064e0.md): 给定一个提示，该模型将返回一个或多个预测的完成，并且还可以返回每个位置的替代标记的概率。
+- openai > 嵌入（Embeddings） [创建嵌入](https://apifox.tu-zi.com/343647065e0.md): 获取给定输入的矢量表示，机器学习模型和算法可以轻松使用该表示。
+- openai > 微调（Fine-tuning） [创建微调作业](https://apifox.tu-zi.com/343647066e0.md): 创建一个作业，根据给定的数据集微调指定的模型。
+- openai > 微调（Fine-tuning） [列出微调作业](https://apifox.tu-zi.com/343647067e0.md): 列出您组织的微调工作
+- openai > 微调（Fine-tuning） [检索微调作业](https://apifox.tu-zi.com/343647068e0.md): 获取有关微调工作的信息。
+- openai > 微调（Fine-tuning） [取消微调](https://apifox.tu-zi.com/343647069e0.md): 立即取消微调工作。
+- openai > 微调（Fine-tuning） [列出微调事件](https://apifox.tu-zi.com/343647070e0.md): 获取微调作业的状态更新。
+- openai > 模型（Models） [列出模型](https://apifox.tu-zi.com/343647074e0.md): 列出当前可用的型号，并提供每个型号的基本信息，例如所有者和可用性。
+- openai > 模型（Models） [检索模型](https://apifox.tu-zi.com/343647075e0.md): 检索模型实例，提供有关模型的基本信息，例如所有者和权限。
+- openai > 模型（Models） [删除微调模型](https://apifox.tu-zi.com/343647076e0.md): 删除微调模型。您必须在组织中具有所有者角色才能删除模型。
+- openai > 文件（Files） [上传文件](https://apifox.tu-zi.com/343647077e0.md): 上传可跨各种端点/功能使用的文件。一个组织上传的所有文件大小最大可达 100 GB。
+- openai > 文件（Files） [删除文件](https://apifox.tu-zi.com/343647078e0.md): 删除文件。
+- openai > 文件（Files） [检索文件](https://apifox.tu-zi.com/343647079e0.md): 返回有关特定文件的信息。
+- openai > 文件（Files） [检索文件内容](https://apifox.tu-zi.com/343647080e0.md): 
+- openai > 文件（Files） [列出文件](https://apifox.tu-zi.com/343647081e0.md): 
+- openai > 审查（Moderations） [创建内容审核](https://apifox.tu-zi.com/343647082e0.md): 对文本是否违反 OpenAI 的内容政策进行分类
+- openai > 助手测试版-待开发（AssistantsBeta） [创建助手](https://apifox.tu-zi.com/343647083e0.md): 创建一个带有模型和说明的助手。
+- openai > 助手测试版-待开发（AssistantsBeta） [检索助手](https://apifox.tu-zi.com/343647084e0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [修改助手](https://apifox.tu-zi.com/343647085e0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [删除助手](https://apifox.tu-zi.com/343647086e0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [列出助手](https://apifox.tu-zi.com/343647087e0.md): 返回助手列表。
+- openai > 助手测试版-待开发（AssistantsBeta） [创建辅助文件](https://apifox.tu-zi.com/343647088e0.md): [通过将File](https://platform.openai.com/docs/api-reference/files)附加到[助手](https://platform.openai.com/docs/api-reference/assistants)来创建助手文件。
+- openai > 助手测试版-待开发（AssistantsBeta） [检索助手文件](https://apifox.tu-zi.com/343647089e0.md): 检索 AssistantFile。
+- openai > 助手测试版-待开发（AssistantsBeta） [删除辅助文件](https://apifox.tu-zi.com/343647090e0.md): 
+- openai > 助手测试版-待开发（AssistantsBeta） [列出助手文件](https://apifox.tu-zi.com/343647091e0.md): 返回辅助文件的列表。
+- openai > 线程数-待开发（Threads） [创建线程](https://apifox.tu-zi.com/343647092e0.md): 创建一个线程。
+- openai > 线程数-待开发（Threads） [检索线程](https://apifox.tu-zi.com/343647093e0.md): 
+- openai > 线程数-待开发（Threads） [修改线程](https://apifox.tu-zi.com/343647094e0.md): 修改后的与指定ID匹配的[线程对象。](https://platform.openai.com/docs/api-reference/threads/object)
+- openai > 线程数-待开发（Threads） [删除话题](https://apifox.tu-zi.com/343647095e0.md): 删除一个线程。
+- openai > 留言-待开发（Messages） [创建消息](https://apifox.tu-zi.com/343647096e0.md): 
+- openai > 留言-待开发（Messages） [检索消息](https://apifox.tu-zi.com/343647097e0.md): 与指定ID匹配的[消息](https://platform.openai.com/docs/api-reference/threads/messages/object)对象。
+- openai > 留言-待开发（Messages） [修改留言](https://apifox.tu-zi.com/343647098e0.md): 修改后的[消息](https://platform.openai.com/docs/api-reference/threads/messages/object)对象。
+- openai > 留言-待开发（Messages） [列出消息](https://apifox.tu-zi.com/343647099e0.md): 
+- openai > 留言-待开发（Messages） [检索消息文件](https://apifox.tu-zi.com/343647100e0.md): 
+- openai > 留言-待开发（Messages） [列出消息文件](https://apifox.tu-zi.com/343647101e0.md): 
+- openai > 运行-待开发（Runs） [创建运行](https://apifox.tu-zi.com/343647102e0.md): 一个[运行](https://platform.openai.com/docs/api-reference/runs/object)对象。
+- openai > 运行-待开发（Runs） [检索运行](https://apifox.tu-zi.com/343647103e0.md): 与指定ID匹配的[运行](https://platform.openai.com/docs/api-reference/runs/object)对象。
+- openai > 运行-待开发（Runs） [修改运行](https://apifox.tu-zi.com/343647104e0.md): 与指定 ID 匹配的修改后的[运行对象。](https://platform.openai.com/docs/api-reference/runs/object)
+- openai > 运行-待开发（Runs） [列表运行](https://apifox.tu-zi.com/343647105e0.md): [运行](https://platform.openai.com/docs/api-reference/runs/object)对象的列表。
+- openai > 运行-待开发（Runs） [提交工具输出以运行](https://apifox.tu-zi.com/343647106e0.md): 当运行具有`status: "requires_action"`和`required_action.type`is时`submit_tool_outputs`，此端点可用于在工具调用全部完成后提交输出。所有输出必须在单个请求中提交。
+- openai > 运行-待开发（Runs） [取消运行](https://apifox.tu-zi.com/343647107e0.md): 取消运行`in_progress`。
+- openai > 运行-待开发（Runs） [创建线程并运行](https://apifox.tu-zi.com/343647108e0.md): 创建一个线程并在一个请求中运行它。
+- openai > 运行-待开发（Runs） [检索运行步骤](https://apifox.tu-zi.com/343647109e0.md): 与指定 ID 匹配的[运行步骤](https://platform.openai.com/docs/api-reference/runs/step-object)对象。
+- openai > 运行-待开发（Runs） [列出运行步骤](https://apifox.tu-zi.com/343647110e0.md): 
+- openai > 已弃用-音频（Audio） [创建转录](https://apifox.tu-zi.com/343647111e0.md): 了解如何将音频转换为文本。
+- openai > 已弃用-音频（Audio） [创建翻译](https://apifox.tu-zi.com/343647112e0.md): 将音频翻译成英文。
+- Google > 聊天（chat） [生成内容](https://apifox.tu-zi.com/346157733e0.md): 对话生成内容
+- Google > 聊天（chat） [生成内容 （流式）](https://apifox.tu-zi.com/346237249e0.md): 
+- Google > 图像（image） [生成图像](https://apifox.tu-zi.com/346162482e0.md): 谷歌格式生成图像
+- Google > 图像（image） [生成图像（流式）](https://apifox.tu-zi.com/346319084e0.md): 
+- Google > 分析视频/音频/PDF [分析 视频/音频/PDF](https://apifox.tu-zi.com/350941833e0.md): 
+- Google > 分析视频/音频/PDF [分析 视频（YouTube）](https://apifox.tu-zi.com/354680204e0.md): 
+- Anthropic > 聊天（chat） [Claude](https://apifox.tu-zi.com/346380647e0.md): 
+- 图片生成 > gpt-image-1.5/gpt-4o-image > chat 格式 [生成图片 (传图)](https://apifox.tu-zi.com/382871631e0.md): 
+- 图片生成 > gpt-image-1.5/gpt-4o-image > chat 格式 [生成图片](https://apifox.tu-zi.com/343646951e0.md): 
+- 图片生成 > gpt-image-1.5/gpt-4o-image > image/generations 格式(dalle 格式) [创建图像](https://apifox.tu-zi.com/343646952e0.md): [图片](https://platform.openai.com/docs/api-reference/images)
+- 图片生成 > gpt-image-1.5/gpt-4o-image > image/generations 格式(dalle 格式) [创建图片编辑](https://apifox.tu-zi.com/343646953e0.md): 在给定原始图像和提示的情况下创建编辑或扩展图像。
+- 图片生成 > nano-banana > chat 格式 [创建图像（传图）](https://apifox.tu-zi.com/343646954e0.md): 更新: 
+- 图片生成 > nano-banana > chat 格式 [创建图像](https://apifox.tu-zi.com/343646955e0.md): 更新: 
+- 图片生成 > nano-banana > image/generations 格式(dalle 格式) [创建图像](https://apifox.tu-zi.com/343646956e0.md): 更新: 
+- 图片生成 > nano-banana > image/generations 格式(dalle 格式) [创建图片编辑](https://apifox.tu-zi.com/343646957e0.md): 此接口将废弃
+- 图片生成 > nano-banana > 谷歌官方格式 [生成图像 ](https://apifox.tu-zi.com/360926406e0.md): 更新: 
+- 图片生成 > nano-banana > 异步香蕉格式 [创建图片任务](https://apifox.tu-zi.com/412175236e0.md): 
+- 图片生成 > nano-banana > 异步香蕉格式 [查询图片任务](https://apifox.tu-zi.com/412211642e0.md): 
+- 图片生成 > nano-banana > 异步香蕉格式 [查询图片任务 Copy](https://apifox.tu-zi.com/418456906e0.md): 
+- 图片生成 > midjourney > 任务查询 [根据id列表查询多个任务](https://apifox.tu-zi.com/343646940e0.md): 
+- 图片生成 > midjourney > 任务查询 [查询任务](https://apifox.tu-zi.com/343646941e0.md): 根据任务id 查询任务详细内容
+- 图片生成 > midjourney > 任务查询 [查询图片Seed](https://apifox.tu-zi.com/343646942e0.md): 
+- 图片生成 > midjourney > 任务提交 [提交 Imagine 任务](https://apifox.tu-zi.com/343646946e0.md): 文生图，文图生图
+- 图片生成 > midjourney > 任务提交 [提交 Blend 任务](https://apifox.tu-zi.com/343646943e0.md): 图生图、混图
+- 图片生成 > midjourney > 任务提交 [提交 SwapFace 任务](https://apifox.tu-zi.com/343646944e0.md): 因为政策原因 需要单独申请
+- 图片生成 > midjourney > 任务提交 [提交 Describe 任务](https://apifox.tu-zi.com/343646945e0.md): 图生文
+- 图片生成 > midjourney > 任务提交 [提交 Shorten 任务](https://apifox.tu-zi.com/343646947e0.md): Prompt分析
+- 图片生成 > midjourney > 任务提交 [提交 Modal 任务](https://apifox.tu-zi.com/343646948e0.md): 提交局部重绘、ZOOM
+- 图片生成 > midjourney > 任务提交 [提交 Action 任务](https://apifox.tu-zi.com/343646949e0.md): 所有的关联按钮动作UPSCALE、VARIATION、REROLL、ZOOM等
+- 图片生成 > midjourney > 任务提交 [提交 Change 任务](https://apifox.tu-zi.com/343646950e0.md): UPSCALE、VARIATION、REROLL
+- 图片生成 > flux > 官方格式 [提示词生成(chat)](https://apifox.tu-zi.com/343646933e0.md): 
+- 图片生成 > flux > 官方格式 [ 生成图像(image)](https://apifox.tu-zi.com/343646931e0.md): ## 注意：
+- 图片生成 > flux > 官方格式 [查询任务(get_result)](https://apifox.tu-zi.com/343646932e0.md): ## 注意：
+- 图片生成 > flux > OpenAI Image 格式 [ 生成图像(generations)](https://apifox.tu-zi.com/343646935e0.md): 根据提示词生成图像（不支持传图）
+- 图片生成 > flux > OpenAI Image 格式 [图片编辑（Edit）](https://apifox.tu-zi.com/343646936e0.md): 在给定原始图像和提示的情况下创建编辑或扩展图像。
+- 图片生成 > flux > chat 格式 [生成图像（chat）](https://apifox.tu-zi.com/343646937e0.md): 
+- 图片生成 > Seedream(即梦） > chat（格式） [生成图像](https://apifox.tu-zi.com/349737485e0.md): 
+- 图片生成 > Seedream(即梦） > image(格式） [创建图片](https://apifox.tu-zi.com/349741169e0.md): 
+- 图片生成 > kling（可灵） [图像生成](https://apifox.tu-zi.com/347360398e0.md): 
+- 图片生成 > kling（可灵） [查询任务](https://apifox.tu-zi.com/347360909e0.md): 
+- 图片生成 > ideogram > openai images格式 [生成](https://apifox.tu-zi.com/343646938e0.md): 
+- 图片生成 > ideogram > openchat chat格式 [生成](https://apifox.tu-zi.com/343646939e0.md): 
+- 视频生成 > sora > 官方格式 [生成视频](https://apifox.tu-zi.com/359269497e0.md): Sora 更新：可提取任何视频角色进行客串表演
+- 视频生成 > sora > 官方格式 [编辑视频](https://apifox.tu-zi.com/359764262e0.md): 支持对 sora-2 模型已生成的视频进行编辑，可保障一定的一致性。
+- 视频生成 > sora > 官方格式 [从已经生成任务中创建角色](https://apifox.tu-zi.com/385433330e0.md): ##注意: 通过 sora 任务 创建 返回 id 后 需要到 查询角色 接口 查询角色情况
+- 视频生成 > sora > 官方格式 [使用故事板创建视频](https://apifox.tu-zi.com/385602747e0.md): # Sora 故事板提示词示例
+- 视频生成 > sora > 官方格式 [查询视频](https://apifox.tu-zi.com/359269905e0.md): 恢复正常，旧查询方式依然有效“https://tuzi-api.apifox.cn/357807699e0”
+- 视频生成 > sora > 官方格式 [查询角色](https://apifox.tu-zi.com/394270176e0.md): ## 拿到角色 username 后, 可以通过 在sora 的提示词中 @  角色 
+- 视频生成 > sora > 官方格式 [下载视频](https://apifox.tu-zi.com/359270489e0.md): 
+- 视频生成 > sora > openai chat 格式 [生成视频 （使用公共人物）](https://apifox.tu-zi.com/360306678e0.md): 
+- 视频生成 > sora > openai chat 格式 [生成视频](https://apifox.tu-zi.com/343647039e0.md): 图片的话，已 url 链接或 base64 传送即可。
+- 视频生成 > sora > openai chat 格式 [生成视频（传图）](https://apifox.tu-zi.com/357823504e0.md): 图片的话，已 url 链接或 base64 传送即可。
+- 视频生成 > sora > openai chat 格式 [连续修改生成的视频](https://apifox.tu-zi.com/360409734e0.md): 
+- 视频生成 > sora > 视频统一格式 [创建视频 （带 Character）](https://apifox.tu-zi.com/369451879e0.md): Sora 更新：可提取任何视频角色进行客串表演
+- 视频生成 > veo > 视频统一格式 [生成视频](https://apifox.tu-zi.com/361625786e0.md): 
+- 视频生成 > veo > 视频统一格式 [查询视频](https://apifox.tu-zi.com/361626806e0.md): 
+- 视频生成 > veo > 视频统一格式 [创建视频](https://apifox.tu-zi.com/343647040e0.md): 
+- 视频生成 > veo > 视频统一格式 [查询任务](https://apifox.tu-zi.com/343647041e0.md): 
+- 视频生成 > veo > 视频统一格式 [创建视频，带图片](https://apifox.tu-zi.com/343647042e0.md): 
+- 视频生成 > veo > chat 格式 [流式请求](https://apifox.tu-zi.com/343647043e0.md): 
+- 视频生成 > veo > chat 格式 [非流请求](https://apifox.tu-zi.com/343647044e0.md): 
+- 视频生成 > veo > chat 格式 [带图片请求](https://apifox.tu-zi.com/343647045e0.md): 
+- 视频生成 > kling（可灵） > 官方格式 [文生视频](https://apifox.tu-zi.com/343647025e0.md): 
+- 视频生成 > kling（可灵） > 官方格式 [图生视频](https://apifox.tu-zi.com/343647026e0.md): 
+- 视频生成 > kling（可灵） > 官方格式 [视频特效](https://apifox.tu-zi.com/348193229e0.md): 生成视频特效
+- 视频生成 > kling（可灵） > 官方格式 [查询任务](https://apifox.tu-zi.com/343647027e0.md): 
+- 视频生成 > kling（可灵） > 官方格式 [查询任务（特效）](https://apifox.tu-zi.com/348207641e0.md): 
+- 视频生成 > kling（可灵） > openai-videos格式 [生成视频 ](https://apifox.tu-zi.com/393713489e0.md): kling  新模型 O1 视频接口
+- 视频生成 > kling（可灵） > openai-videos格式 [查询视频](https://apifox.tu-zi.com/393718229e0.md): 
+- 视频生成 > Seedance (即梦/豆包) > 官方接口 [生成视频](https://apifox.tu-zi.com/418534831e0.md): 
+- 视频生成 > Seedance (即梦/豆包) [生成视频](https://apifox.tu-zi.com/408441203e0.md): # 注意: 
+- 视频生成 > Seedance (即梦/豆包) [查询视频](https://apifox.tu-zi.com/411306747e0.md): 
+- 视频生成 > Seedance (即梦/豆包) [生成视频 Copy](https://apifox.tu-zi.com/427346623e0.md): # 注意: 
+- 视频生成 > midjourney [提交Video任务](https://apifox.tu-zi.com/349398229e0.md): 根据参考图生成视频
+- 视频生成 > midjourney [查询Video任务](https://apifox.tu-zi.com/349401087e0.md): 
+- 视频生成 > vidu(官方格式) > 普通 [vidu(chat格式)](https://apifox.tu-zi.com/343646991e0.md): 
+- 视频生成 > vidu(官方格式) > 普通 [创建视频(tasks)](https://apifox.tu-zi.com/343646992e0.md): 
+- 视频生成 > vidu(官方格式) > 普通 [视频状态(state)](https://apifox.tu-zi.com/343646993e0.md): 
+- 视频生成 > vidu(官方格式) > 普通 [视频查询(tasks-get)](https://apifox.tu-zi.com/343646994e0.md): 
+- 视频生成 > vidu(官方格式) > 普通 [高清视频(tasks)](https://apifox.tu-zi.com/343646995e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumavip⚡️ [Chat格式lumavip](https://apifox.tu-zi.com/343647002e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumavip⚡️ [视频生成(generations)](https://apifox.tu-zi.com/343647003e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumavip⚡️ [查询任务(task)](https://apifox.tu-zi.com/343647004e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumavip⚡️ [视频扩展(extend)](https://apifox.tu-zi.com/343647005e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumapro🚀 （优先保证稳定性） [Chat格式lumapro](https://apifox.tu-zi.com/343647006e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumapro🚀 （优先保证稳定性） [视频生成(generations)](https://apifox.tu-zi.com/343647007e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumapro🚀 （优先保证稳定性） [查询任务(task)](https://apifox.tu-zi.com/343647008e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式lumapro🚀 （优先保证稳定性） [视频扩展(extend)](https://apifox.tu-zi.com/343647009e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式luma [Chat格式luma](https://apifox.tu-zi.com/343647010e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式luma [视频生成(generations)](https://apifox.tu-zi.com/343647011e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式luma [查询任务(task)](https://apifox.tu-zi.com/343647012e0.md): 
+- 视频生成 > luma > luma(官方格式) > 官方格式luma [视频拓展(extend)](https://apifox.tu-zi.com/343647013e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式luma [视频生成(generations)](https://apifox.tu-zi.com/343647014e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式luma [查询任务(task)](https://apifox.tu-zi.com/343647015e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式luma [视频拓展(extend)](https://apifox.tu-zi.com/343647016e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式lumavip [视频生成(generations)](https://apifox.tu-zi.com/343647017e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式lumavip [查询任务(task)](https://apifox.tu-zi.com/343647018e0.md): 
+- 视频生成 > luma > luma(goamz格式) > goamz 格式lumavip [视频拓展(extend)](https://apifox.tu-zi.com/343647019e0.md): 
+- 视频生成 > luma > luma(chatgpt-next-web格式) [视频生成(generations)](https://apifox.tu-zi.com/343647020e0.md): 
+- 视频生成 > luma > luma(chatgpt-next-web格式) [视频扩展(extend)](https://apifox.tu-zi.com/343647021e0.md): 
+- 视频生成 > luma > luma(chatgpt-next-web格式) [查询任务(task)](https://apifox.tu-zi.com/343647022e0.md): 
+- 视频生成 > luma > luma(chatgpt-next-web格式) [Chat格式lumavip](https://apifox.tu-zi.com/343647023e0.md): 
+- 视频生成 > pika > 官方格式 [生成视频](https://apifox.tu-zi.com/343647028e0.md): 
+- 视频生成 > pika > 官方格式 [查询任务](https://apifox.tu-zi.com/343647029e0.md): 
+- 视频生成 > pika > openai chat 兼容格式 [生成视频](https://apifox.tu-zi.com/343647030e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(普通) [创建视频](https://apifox.tu-zi.com/343647031e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(普通) [查询视频](https://apifox.tu-zi.com/343647032e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(普通) [获取特效模版](https://apifox.tu-zi.com/343647033e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(VIP) [创建视频](https://apifox.tu-zi.com/343647034e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(VIP) [查询视频](https://apifox.tu-zi.com/343647035e0.md): 
+- 视频生成 > pixverse(变身毒液效果等) > pixverse(官方格式)(VIP) [获取特效模版](https://apifox.tu-zi.com/343647036e0.md): 
+- 视频生成 > runway(暂不可用） > 官方格式 [生成视频(tasks)](https://apifox.tu-zi.com/343646996e0.md): 
+- 视频生成 > runway(暂不可用） > 官方格式 [查询任务](https://apifox.tu-zi.com/343646997e0.md): 
+- 视频生成 > runway(暂不可用） > chat 格式 [生成视频](https://apifox.tu-zi.com/343646998e0.md): 
+- 视频生成 > runway(暂不可用） > vip(更快无水印) > 官方格式 [生成视频(tasks)](https://apifox.tu-zi.com/343646999e0.md): 
+- 视频生成 > runway(暂不可用） > vip(更快无水印) > 官方格式 [查询任务](https://apifox.tu-zi.com/343647000e0.md): 
+- 视频生成 > runway(暂不可用） > vip(更快无水印) > chat 格式 [生成视频](https://apifox.tu-zi.com/343647001e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [查询任务(feed)](https://apifox.tu-zi.com/343646960e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [查询单个任务](https://apifox.tu-zi.com/343646962e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [批量查询任务](https://apifox.tu-zi.com/344556945e0.md): 批量获取多个任务的结果
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [生成音乐](https://apifox.tu-zi.com/343646958e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [ 生成歌词](https://apifox.tu-zi.com/343646961e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [音乐链接转成suno(upload)](https://apifox.tu-zi.com/343646959e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 所有接口 [获取完整音乐(concat)](https://apifox.tu-zi.com/343646963e0.md): 续写音乐之后，获取原音乐和续写音乐的整合完整音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景1 生成自定义音乐(带歌词) [音乐生成(generations)](https://apifox.tu-zi.com/343646964e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景1 生成自定义音乐(带歌词) [查询任务(feed)](https://apifox.tu-zi.com/343646965e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 2 通过提示词直接生成音乐(带歌词) [音乐生成(generations)](https://apifox.tu-zi.com/343646966e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 2 通过提示词直接生成音乐(带歌词) [查询任务(feed)](https://apifox.tu-zi.com/343646967e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 3 生成自定义音乐(纯音乐) [音乐生成(generations)](https://apifox.tu-zi.com/343646970e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 3 生成自定义音乐(纯音乐) [查询任务(feed)](https://apifox.tu-zi.com/343646971e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 4 通过提示词直接生成音乐(纯音乐) [音乐生成(generations)](https://apifox.tu-zi.com/343646968e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 4 通过提示词直接生成音乐(纯音乐) [查询任务(feed)](https://apifox.tu-zi.com/343646969e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 5 上传自定义音频并续写 [音乐链接转成suno(upload)](https://apifox.tu-zi.com/343646972e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 5 上传自定义音频并续写 [音乐生成(generations)](https://apifox.tu-zi.com/343646973e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 5 上传自定义音频并续写 [查询任务(feed)](https://apifox.tu-zi.com/343646974e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 1 音乐生成](https://apifox.tu-zi.com/343646975e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 2 查询任务](https://apifox.tu-zi.com/343646976e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 3 扩展音乐](https://apifox.tu-zi.com/343646977e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 4 查询拓展的任务](https://apifox.tu-zi.com/343646978e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 5 获取完整音乐](https://apifox.tu-zi.com/343646979e0.md): 续写音乐之后，获取原音乐和续写音乐的整合完整音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 6 续写音乐并获取完整音乐 [步骤 6 查询完整音乐的任务](https://apifox.tu-zi.com/343646980e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 7 Cover音乐(音乐翻版，修改风格) [步骤 1 音乐生成](https://apifox.tu-zi.com/343646981e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 7 Cover音乐(音乐翻版，修改风格) [步骤 2 查询任务](https://apifox.tu-zi.com/343646982e0.md): 
+- 音乐生成 > suno > suno官网原生格式 > 场景 7 Cover音乐(音乐翻版，修改风格) [步骤 3 Cover 音乐](https://apifox.tu-zi.com/343646983e0.md): 生成音乐接口, 可以直接生成也可续写音乐
+- 音乐生成 > suno > suno官网原生格式 > 场景 7 Cover音乐(音乐翻版，修改风格) [步骤 4 查询拓展的任务](https://apifox.tu-zi.com/343646984e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景1 - 灵感模式 [场景1 - 灵感模式  生成音乐](https://apifox.tu-zi.com/376152546e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景2 - 自定义模式 [场景2 - 自定义歌词、标题和风格 ](https://apifox.tu-zi.com/376161539e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景3 - 纯音乐自定义 [场景3 - 生成纯音乐](https://apifox.tu-zi.com/376417557e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景4 - 纯音乐灵感 [场景4 - 灵感模式 生成纯音乐](https://apifox.tu-zi.com/376418737e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景5 - 续写音频 [场景5 - 续写/扩展 已有音频](https://apifox.tu-zi.com/376424331e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景6 - 混音重置 [场景6 - 混音重制 (使用参考音频)](https://apifox.tu-zi.com/376483117e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景7 - 替换片段 [场景7 - 替换歌曲指定片段](https://apifox.tu-zi.com/376501555e0.md): 
+- 音乐生成 > suno > 支持 newapi, rixapi 接入 > 场景8 - 全轨分离 [场景8 - 全轨声曲分离](https://apifox.tu-zi.com/376543180e0.md): 
+- 音乐生成 > suno > 自定义格式(已废弃) [音乐生成(create)](https://apifox.tu-zi.com/343646985e0.md): 
+- 音乐生成 > suno > 自定义格式(已废弃) [查询任务(feed)](https://apifox.tu-zi.com/343646986e0.md): 
+- 音乐生成 > udio-(不支持） > 官方接口格式 [生成音乐](https://apifox.tu-zi.com/343646987e0.md): 
+- 音乐生成 > udio-(不支持） > 官方接口格式 [查询任务](https://apifox.tu-zi.com/343646988e0.md): 
+- 音乐生成 > udio-(不支持） > 官方接口格式 [生成歌词](https://apifox.tu-zi.com/343646989e0.md): 
+- 音乐生成 > udio-(不支持） > 兼容 openai chat格式 [生成音乐](https://apifox.tu-zi.com/343646990e0.md): 
+- 文件服务 [文件上传-待开发 (file)](https://apifox.tu-zi.com/343646927e0.md): 
+- 链接分析(url analysis) [链接总结-待开发 (summary)](https://apifox.tu-zi.com/343646928e0.md): 
+- 链接分析(url analysis) [链接聊天-待开发 (chat)](https://apifox.tu-zi.com/343646929e0.md): 
+- 链接分析(url analysis) [字幕导出-待开发 (subtitle)](https://apifox.tu-zi.com/343646930e0.md): 
+- GPTs 相关 [GPTs对话](https://apifox.tu-zi.com/343647046e0.md): 
+- GPTs 相关 [ 搜索相关 GPTs(chat格式)](https://apifox.tu-zi.com/343647047e0.md): 
+- GPTs 相关 [搜索相关 GPTs(官方格式)](https://apifox.tu-zi.com/343647048e0.md): 
+- GPTs 相关 [查询 GPTs 详情(chat格式)](https://apifox.tu-zi.com/343647049e0.md): 
+- GPTs 相关 [查询 GPTs 详情(官方格式)](https://apifox.tu-zi.com/343647050e0.md): 
+- GPTs 相关 [批量查询 GPTs 详情(chat格式)](https://apifox.tu-zi.com/343647051e0.md): 
+- GPTs 相关 [批量查询 GPTs 详情(官方格式)](https://apifox.tu-zi.com/343647052e0.md): 
+- 数字人 > 官方 API [查询 默认voice 列表](https://apifox.tu-zi.com/343647053e0.md): 
+- 数字人 > 官方 API [生成数字人视频](https://apifox.tu-zi.com/343647054e0.md): 上传图片/视频和音频/文本，生成对应的数字人视频
+- 数字人 > 官方 API [获取任务详情](https://apifox.tu-zi.com/343647055e0.md): 根据任务ID获取生成结果的详细信息
+- 数字人 > 兼容 openai chat 格式 [生成数字人](https://apifox.tu-zi.com/343647056e0.md): 
+- 智谱清言(glm) > 视频生成 [生成视频(chat 格式)](https://apifox.tu-zi.com/343647057e0.md): 
+- 智谱清言(glm) > 视频生成 [生成视频(generations)](https://apifox.tu-zi.com/343647058e0.md): 
+- 智谱清言(glm) > 视频生成 [ 查询任务(async-result)](https://apifox.tu-zi.com/343647059e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 流式转换 [流式转换接口](https://apifox.tu-zi.com/343647113e0.md): 将 OpenAI 兼容的流式请求转换为 AsyncData 异步任务
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 流式转换 [查询任务详情](https://apifox.tu-zi.com/348955825e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 gemini-2.5-pro-deepsearch [获取任务链接](https://apifox.tu-zi.com/343647114e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 gemini-2.5-pro-deepsearch [查询任务详情](https://apifox.tu-zi.com/343647115e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 veo3 [获取任务链接](https://apifox.tu-zi.com/343647116e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 veo3 [查询任务详情](https://apifox.tu-zi.com/343647117e0.md): 
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 sora-2 [获取任务链接（传图）](https://apifox.tu-zi.com/357823618e0.md): 图片的话，已 url 链接或 base64 传送即可。
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 sora-2 [获取任务链接](https://apifox.tu-zi.com/357807698e0.md): 图片的话，已 url 链接或 base64 传送即可。
+- 异步 sora-2、veo3 、gemini deepsearch 等 > 异步 sora-2 [查询任务详情](https://apifox.tu-zi.com/357807699e0.md): 
+- 异步任务通用接口（内测） [查询任务](https://apifox.tu-zi.com/372533615e0.md): 
+
+## Schemas
+- 示例数据模型 [Pet](https://apifox.tu-zi.com/197684936d0.md): 
+- 示例数据模型 [Category](https://apifox.tu-zi.com/197684937d0.md): 
+- 示例数据模型 [Tag](https://apifox.tu-zi.com/197684938d0.md): 
+- veo [veo 模型](https://apifox.tu-zi.com/197684939d0.md): 
+- veo [veo status](https://apifox.tu-zi.com/197684940d0.md): 
+- Schemas [ChatCompletionRequest](https://apifox.tu-zi.com/197684941d0.md): 
+- Schemas [TransformSuccessResponse](https://apifox.tu-zi.com/197684942d0.md): 
+- Schemas [ErrorResponse](https://apifox.tu-zi.com/197684943d0.md): 
+- Schemas [Message](https://apifox.tu-zi.com/197684944d0.md): 
+- sora > 场景7 [场景7A - 替换上传音频的片段(带版本)](https://apifox.tu-zi.com/219121226d0.md): 
+- sora > 场景7 [场景7B - 替换系统生成音频的片段 (不带版本)](https://apifox.tu-zi.com/219122428d0.md): 
+
+![](chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png)
