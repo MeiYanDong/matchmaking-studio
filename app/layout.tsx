@@ -9,8 +9,8 @@ const rootStyle = {
 } as CSSProperties
 
 export const metadata: Metadata = {
-  title: '婚恋匹配平台',
-  description: '专业婚恋匹配管理系统',
+  title: 'Matchmaking Studio',
+  description: 'AI-first private matchmaking workspace',
 }
 
 export default function RootLayout({

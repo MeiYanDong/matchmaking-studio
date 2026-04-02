@@ -24,7 +24,7 @@ const loginSchema = z.object({
 })
 
 export function LoginForm({
-  title = '婚恋匹配平台',
+  title = 'Matchmaking Studio',
   description = '请登录您的账号',
 }: LoginFormProps) {
   const router = useRouter()

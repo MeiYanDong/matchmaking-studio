@@ -1,7 +1,7 @@
-# 婚恋匹配平台 - 可执行开发清单（AI-first 重构版）
+# Matchmaking Studio - 可执行开发清单（AI-first 重构版）
 
 > 基于 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md) 拆解  
-> 当前目标：把现有系统从“通用婚恋 MVP”重构为“AI 默认入库、红娘只处理异常”的高质量婚恋匹配平台  
+> 当前目标：把现有系统从“通用婚恋 MVP”重构为“AI 默认入库、红娘只处理异常”的高质量婚恋撮合工作台  
 > 技术栈：Next.js 16 + Supabase + Tailwind + shadcn/ui + 云雾聚合网关（`whisper-1` + Claude）
 
 ---

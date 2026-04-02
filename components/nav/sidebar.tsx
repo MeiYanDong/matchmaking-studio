@@ -47,7 +47,7 @@ export function Sidebar({ role, displayName, unreadCount = 0 }: SidebarProps) {
         <div className="w-8 h-8 bg-rose-500 rounded-full flex items-center justify-center">
           <Heart className="w-4 h-4 text-white fill-white" />
         </div>
-        <span className="font-bold text-gray-900">婚恋匹配平台</span>
+        <span className="font-bold text-gray-900">Matchmaking Studio</span>
       </div>
 
       {/* User info */}
