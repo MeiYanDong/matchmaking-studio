@@ -54,10 +54,18 @@ CREATE TABLE IF NOT EXISTS trait_profiles (
 CREATE TABLE IF NOT EXISTS conversations (
   id TEXT PRIMARY KEY,
   profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  audio_bucket TEXT,
+  audio_region TEXT,
+  audio_key TEXT,
+  audio_mime_type TEXT,
+  audio_size_bytes INTEGER,
+  audio_etag TEXT,
   transcript TEXT NOT NULL,
+  transcript_verbose_json TEXT,
   ai_summary TEXT,
   talked_at TEXT,
   status TEXT NOT NULL DEFAULT 'transcribed',
+  error_message TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );

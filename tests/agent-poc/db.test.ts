@@ -6,10 +6,12 @@ import path from 'node:path'
 
 import {
   createFollowupTasks,
+  getConversationById,
   getProfileBundle,
   initializeAgentDatabase,
   insertConversation,
   openAgentDatabase,
+  saveConversationTranscript,
   saveConversationSummary,
   updateRowByProfileId,
   upsertProfileSkeleton,
@@ -97,6 +99,46 @@ test('agent poc tools can save summary, create followups and run sql', () => {
 
   assert.equal(Array.isArray(sqlResult), true)
   assert.equal((sqlResult as Array<{ count: number }>)[0]?.count, 2)
+
+  db.close()
+  fs.rmSync(dbPath, { force: true })
+})
+
+test('agent poc conversations can persist audio object info and transcript results', () => {
+  const dbPath = createTempDbPath('audio')
+  const db = openAgentDatabase(dbPath)
+  initializeAgentDatabase(db)
+  upsertProfileSkeleton(db, 'profile-3', '测试客户3')
+
+  insertConversation(db, {
+    conversationId: 'conversation-3',
+    profileId: 'profile-3',
+    status: 'uploaded',
+    audio: {
+      bucket: 'matchmaking-audio-1332933623',
+      region: 'ap-hongkong',
+      key: 'agent-poc/profile-3/conversation-3/test.mp3',
+      mimeType: 'audio/mpeg',
+      sizeBytes: 1024,
+      etag: 'etag-123',
+    },
+  })
+
+  saveConversationTranscript(db, {
+    conversationId: 'conversation-3',
+    transcript: '你好，我今年 28 岁，在杭州工作。',
+    verboseJson: { duration: 12.5, language: 'Chinese' },
+    status: 'done',
+  })
+
+  const conversation = getConversationById(db, 'conversation-3')
+
+  assert.equal(conversation?.audio_bucket, 'matchmaking-audio-1332933623')
+  assert.equal(conversation?.audio_region, 'ap-hongkong')
+  assert.equal(conversation?.audio_key, 'agent-poc/profile-3/conversation-3/test.mp3')
+  assert.equal(conversation?.status, 'done')
+  assert.equal(conversation?.transcript, '你好，我今年 28 岁，在杭州工作。')
+  assert.equal(typeof conversation?.transcript_verbose_json, 'string')
 
   db.close()
   fs.rmSync(dbPath, { force: true })

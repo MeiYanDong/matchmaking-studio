@@ -14,6 +14,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith('/login') ||
     pathname.startsWith('/user/login') ||
+    pathname.startsWith('/agent-poc') ||
     pathname.startsWith('/api/')
   ) {
     return supabaseMiddleware.response

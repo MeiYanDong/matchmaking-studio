@@ -2,9 +2,10 @@
 
 这个目录是 `codex/agent-extract-poc` 分支里的本地实验场。
 
-目标不是替换主线，而是验证一件事：
+目标不是替换主线，而是逐步验证两件事：
 
 ```text
+音频 -> COS -> Groq -> transcript -> 本地 SQLite
 transcript -> Agent 分步骤处理 -> 直接更新本地数据库
 ```
 
@@ -32,6 +33,29 @@ transcript -> Agent 分步骤处理 -> 直接更新本地数据库
   本地回放用 transcript 样本
 
 ## 快速开始
+
+启动本地开发服务：
+
+```bash
+npm run dev -- --hostname 127.0.0.1 --port 4011
+```
+
+打开本地音频转录页：
+
+```text
+http://127.0.0.1:4011/agent-poc/audio-transcribe
+```
+
+这条页面当前只验证最小闭环：
+
+- 选择本地音频
+- 上传到腾讯云 COS
+- 生成短时效签名 URL
+- 调用 Groq Whisper 转录
+- 把 transcript 写进本地 SQLite
+- 在页面直接显示文字稿
+
+Agent 写库、字段提取和匹配仍然保留在下一阶段验证。
 
 初始化本地 POC 数据库：
 

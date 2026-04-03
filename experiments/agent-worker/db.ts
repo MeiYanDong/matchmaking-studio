@@ -27,6 +27,7 @@ export function openAgentDatabase(dbPath = getAgentDatabasePath()) {
 export function initializeAgentDatabase(db: AgentDatabase) {
   const schema = fs.readFileSync(SCHEMA_PATH, 'utf8')
   db.exec(schema)
+  ensureConversationColumns(db)
 }
 
 export function resetAgentDatabase(dbPath = getAgentDatabasePath()) {
@@ -37,6 +38,27 @@ export function resetAgentDatabase(dbPath = getAgentDatabasePath()) {
 
 export function nowIso() {
   return new Date().toISOString()
+}
+
+function ensureConversationColumns(db: AgentDatabase) {
+  const rows = db.prepare('PRAGMA table_info(conversations)').all() as Array<{ name: string }>
+  const columns = new Set(rows.map((row) => row.name))
+  const requiredColumns: Array<[string, string]> = [
+    ['audio_bucket', 'TEXT'],
+    ['audio_region', 'TEXT'],
+    ['audio_key', 'TEXT'],
+    ['audio_mime_type', 'TEXT'],
+    ['audio_size_bytes', 'INTEGER'],
+    ['audio_etag', 'TEXT'],
+    ['transcript_verbose_json', 'TEXT'],
+    ['error_message', 'TEXT'],
+  ]
+
+  for (const [columnName, columnType] of requiredColumns) {
+    if (!columns.has(columnName)) {
+      db.exec(`ALTER TABLE conversations ADD COLUMN ${columnName} ${columnType}`)
+    }
+  }
 }
 
 function stringifyJson(value: unknown) {
@@ -101,25 +123,94 @@ export function insertConversation(
   params: {
     conversationId: string
     profileId: string
-    transcript: string
+    transcript?: string
     talkedAt?: string
     status?: string
+    audio?: {
+      bucket?: string
+      region?: string
+      key?: string
+      mimeType?: string
+      sizeBytes?: number
+      etag?: string
+    }
   }
 ) {
   const now = nowIso()
   db.prepare(`
     INSERT INTO conversations (
-      id, profile_id, transcript, talked_at, status, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      id, profile_id, audio_bucket, audio_region, audio_key, audio_mime_type, audio_size_bytes, audio_etag,
+      transcript, transcript_verbose_json, talked_at, status, error_message, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     params.conversationId,
     params.profileId,
-    params.transcript,
+    params.audio?.bucket || null,
+    params.audio?.region || null,
+    params.audio?.key || null,
+    params.audio?.mimeType || null,
+    params.audio?.sizeBytes || null,
+    params.audio?.etag || null,
+    params.transcript || '',
+    null,
     params.talkedAt || now,
-    params.status || 'transcribed',
+    params.status || (params.transcript ? 'transcribed' : 'uploaded'),
+    null,
     now,
     now
   )
+}
+
+export function getConversationById(db: AgentDatabase, conversationId: string) {
+  return db.prepare('SELECT * FROM conversations WHERE id = ?').get(conversationId) as Record<string, unknown> | undefined
+}
+
+export function saveConversationTranscript(
+  db: AgentDatabase,
+  params: {
+    conversationId: string
+    transcript: string
+    verboseJson?: unknown
+    status?: string
+  }
+) {
+  const now = nowIso()
+  db.prepare(`
+    UPDATE conversations
+    SET transcript = ?, transcript_verbose_json = ?, status = ?, error_message = NULL, updated_at = ?
+    WHERE id = ?
+  `).run(
+    params.transcript,
+    stringifyJson(params.verboseJson ?? null),
+    params.status || 'done',
+    now,
+    params.conversationId
+  )
+
+  return { ok: true }
+}
+
+export function updateConversationStatus(
+  db: AgentDatabase,
+  conversationId: string,
+  status: string
+) {
+  db.prepare('UPDATE conversations SET status = ?, updated_at = ? WHERE id = ?').run(status, nowIso(), conversationId)
+  return { ok: true }
+}
+
+export function saveConversationError(
+  db: AgentDatabase,
+  conversationId: string,
+  errorMessage: string
+) {
+  db.prepare('UPDATE conversations SET status = ?, error_message = ?, updated_at = ? WHERE id = ?').run(
+    'failed',
+    errorMessage,
+    nowIso(),
+    conversationId
+  )
+  return { ok: true }
 }
 
 export function seedDemoConversation(db: AgentDatabase) {
