@@ -41,6 +41,15 @@ type ErrorPayload = {
   error?: string
 }
 
+type SnapshotSection = Record<string, unknown> | null
+
+type SnapshotPayload = {
+  profile: SnapshotSection
+  intention: SnapshotSection
+  traitProfile: SnapshotSection
+  recentConversations?: Array<Record<string, unknown>>
+}
+
 const STEP_LABELS: Record<Step, string> = {
   idle: '选择一段音频开始测试',
   uploading: '正在上传到 COS',
@@ -53,10 +62,12 @@ export function AudioTranscribeLab({
   profileId,
   profileName,
   backHref = '/agent-poc/clients',
+  initialSnapshot,
 }: {
   profileId: string
   profileName: string
   backHref?: string
+  initialSnapshot: SnapshotPayload
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [step, setStep] = useState<Step>('idle')
@@ -176,6 +187,15 @@ export function AudioTranscribeLab({
       setStep('error')
     }
   }
+
+  const profile = initialSnapshot.profile ?? {}
+  const intention = initialSnapshot.intention ?? {}
+  const traitProfile = initialSnapshot.traitProfile ?? {}
+  const profileExtra = (profile.extra_data as Record<string, unknown> | null) ?? {}
+  const latestConversationSummary =
+    typeof initialSnapshot.recentConversations?.[0]?.ai_summary === 'string'
+      ? String(initialSnapshot.recentConversations[0].ai_summary)
+      : ''
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
@@ -323,6 +343,78 @@ export function AudioTranscribeLab({
           </div>
         </section>
       </div>
+
+      <section className="rounded-[24px] border border-[#eadfce] bg-white p-6 shadow-[0_16px_48px_rgba(49,30,18,0.06)]">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[#241711]">当前数据库结果</h2>
+            <p className="mt-1 text-sm text-[#7b6557]">这里展示本地 SQLite 里这位客户当前已经写入的资料快照。</p>
+          </div>
+          <div className="text-xs text-[#8c7464]">如果我刚直接改过库，刷新页面就能看到最新结果</div>
+        </div>
+
+        <div className="mt-6 grid gap-5 xl:grid-cols-3">
+          <div className="rounded-[18px] bg-[#f8f2ea] p-4 text-sm text-[#5c493d]">
+            <div className="font-medium text-[#2b1d16]">基础档案</div>
+            <div className="mt-3 space-y-2 leading-6">
+              <div>年龄：{profile.age ? String(profile.age) : '未填写'}</div>
+              <div>城市：{typeof profile.city === 'string' && profile.city ? profile.city : '未填写'}</div>
+              <div>常驻城市：{Array.isArray(profile.current_base_cities) && profile.current_base_cities.length ? profile.current_base_cities.join('、') : '未填写'}</div>
+              <div>学历：{typeof profile.education === 'string' && profile.education ? profile.education : '未填写'}</div>
+              <div>职业：{typeof profile.occupation === 'string' && profile.occupation ? profile.occupation : '未填写'}</div>
+              <div>年收入：{profile.annual_income ? `${String(profile.annual_income)} 万` : '未填写'}</div>
+              <div>身高：{profileExtra.height_cm ? `${String(profileExtra.height_cm)} cm` : '未填写'}</div>
+            </div>
+          </div>
+
+          <div className="rounded-[18px] bg-[#f8f2ea] p-4 text-sm text-[#5c493d]">
+            <div className="font-medium text-[#2b1d16]">择偶与关系目标</div>
+            <div className="mt-3 space-y-2 leading-6">
+              <div>主目标：{typeof intention.primary_intent === 'string' && intention.primary_intent ? intention.primary_intent : '未填写'}</div>
+              <div>关系模式：{typeof intention.relationship_mode === 'string' && intention.relationship_mode ? intention.relationship_mode : '未填写'}</div>
+              <div>
+                年龄偏好：
+                {intention.acceptable_age_min || intention.acceptable_age_max
+                  ? `${String(intention.acceptable_age_min ?? '未设')} - ${String(intention.acceptable_age_max ?? '未设')}`
+                  : '未填写'}
+              </div>
+              <div>
+                学历要求：
+                {Array.isArray(intention.acceptable_education) && intention.acceptable_education.length
+                  ? intention.acceptable_education.join('、')
+                  : '未填写'}
+              </div>
+              <div>
+                城市偏好：
+                {typeof intention.future_city_preference === 'string' && intention.future_city_preference
+                  ? intention.future_city_preference
+                  : '未填写'}
+              </div>
+              <div>
+                接受异地：
+                {typeof intention.accepts_long_distance === 'string' && intention.accepts_long_distance
+                  ? intention.accepts_long_distance
+                  : '未填写'}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[18px] bg-[#f8f2ea] p-4 text-sm text-[#5c493d]">
+            <div className="font-medium text-[#2b1d16]">沟通偏好与摘要</div>
+            <div className="mt-3 space-y-2 leading-6">
+              <div>兴趣：{Array.isArray(traitProfile.hobbies) && traitProfile.hobbies.length ? traitProfile.hobbies.join('、') : '未填写'}</div>
+              <div>沟通风格：{typeof traitProfile.communication_style === 'string' && traitProfile.communication_style ? traitProfile.communication_style : '未填写'}</div>
+              <div>关系节奏：{typeof traitProfile.relationship_pace === 'string' && traitProfile.relationship_pace ? traitProfile.relationship_pace : '未填写'}</div>
+              <div>主要顾虑：{typeof traitProfile.biggest_concerns === 'string' && traitProfile.biggest_concerns ? traitProfile.biggest_concerns : '未填写'}</div>
+              <div>隐性期待：{typeof traitProfile.hidden_expectations === 'string' && traitProfile.hidden_expectations ? traitProfile.hidden_expectations : '未填写'}</div>
+              <div>跟进建议：{typeof traitProfile.followup_strategy === 'string' && traitProfile.followup_strategy ? traitProfile.followup_strategy : '未填写'}</div>
+              <div className="rounded-2xl border border-[#eadac8] bg-white px-3 py-2 text-xs leading-6 text-[#6f5748]">
+                AI 摘要：{typeof profile.ai_summary === 'string' && profile.ai_summary ? profile.ai_summary : latestConversationSummary || '未填写'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
