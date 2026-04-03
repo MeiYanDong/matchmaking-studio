@@ -248,6 +248,36 @@ test('parseExtractionContract 兼容第三方模型的近义 issue_type', () => 
   assert.equal(parsed.review_required[1]?.issue_type, 'value_conflict')
 })
 
+test('parseExtractionContract 兼容数字置信度与 inference_required', () => {
+  const parsed = parseExtractionContract({
+    field_updates: [
+      {
+        field_key: 'age',
+        value: 28,
+        confidence: 0.95,
+      },
+      {
+        field_key: 'accepts_long_distance',
+        value: 'no',
+        confidence: '0.72',
+      },
+    ],
+    review_required: [
+      {
+        field_key: 'accepts_mode_marriage_standard',
+        issue_type: 'inference_required',
+        confidence: 0.75,
+        candidate_value: 'yes',
+      },
+    ],
+  })
+
+  assert.equal(parsed.field_updates[0]?.confidence, 'high')
+  assert.equal(parsed.field_updates[1]?.confidence, 'medium')
+  assert.equal(parsed.review_required[0]?.confidence, 'medium')
+  assert.equal(parsed.review_required[0]?.issue_type, 'ambiguous_statement')
+})
+
 test('parseExtractionContract 兼容对象形式的缺失字段与补问', () => {
   const parsed = parseExtractionContract({
     missing_critical_fields: [

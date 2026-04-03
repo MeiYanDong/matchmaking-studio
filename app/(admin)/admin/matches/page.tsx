@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { MATCH_STATUS_LABELS } from '@/types/app'
-import { Match, MatchStatus, Profile } from '@/types/database'
+import { Match, MatchStatus, Profile, RecommendationType } from '@/types/database'
 import { AdminMatchActions } from '@/components/admin/admin-match-actions'
 
 const FILTER_TABS = [
@@ -32,10 +32,12 @@ type MatchRow = Match & {
   female_profile: Pick<Profile, 'name' | 'city' | 'age'>
 }
 
+const RECOMMENDATION_VALUES: RecommendationType[] = ['confirmed', 'pending_confirmation', 'rejected']
+
 export default async function AdminMatchesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>
+  searchParams: Promise<{ status?: string; recommendation?: string }>
 }) {
   const params = await searchParams
   const authClient = await createClient()
@@ -63,9 +65,13 @@ export default async function AdminMatchesPage({
   const statuses = params.status
     ? params.status.split(',').filter((status): status is MatchStatus => MATCH_STATUS_VALUES.includes(status as MatchStatus))
     : []
+  const recommendation = RECOMMENDATION_VALUES.find((value) => value === params.recommendation)
 
   if (statuses.length) {
     query = statuses.length === 1 ? query.eq('status', statuses[0]) : query.in('status', statuses)
+  }
+  if (recommendation) {
+    query = query.eq('recommendation_type', recommendation)
   }
 
   const [{ data: matches }, { data: matchmakers }] = await Promise.all([
@@ -84,12 +90,36 @@ export default async function AdminMatchesPage({
 
       <div className="flex gap-2 mb-6 flex-wrap">
         {FILTER_TABS.map((tab) => {
-          const active = params.status === tab.value || (!params.status && !tab.value)
+          const active = (params.status === tab.value || (!params.status && !tab.value)) && !params.recommendation
           return (
             <Link key={tab.value || 'all'} href={tab.value ? `/admin/matches?status=${tab.value}` : '/admin/matches'}>
               <Badge
                 variant={active ? 'default' : 'outline'}
                 className={`cursor-pointer px-3 py-1 text-sm ${active ? 'bg-rose-500 hover:bg-rose-600' : 'hover:bg-gray-100'}`}
+              >
+                {tab.label}
+              </Badge>
+            </Link>
+          )
+        })}
+      </div>
+
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {[
+          { label: '全部候选', value: '' },
+          { label: '已确认候选', value: 'confirmed' },
+          { label: '待确认候选', value: 'pending_confirmation' },
+          { label: '已排除', value: 'rejected' },
+        ].map((tab) => {
+          const active = params.recommendation === tab.value || (!params.recommendation && !tab.value)
+          const href = tab.value
+            ? `/admin/matches?recommendation=${tab.value}${params.status ? `&status=${params.status}` : ''}`
+            : `/admin/matches${params.status ? `?status=${params.status}` : ''}`
+          return (
+            <Link key={tab.value || 'all-recommendations'} href={href}>
+              <Badge
+                variant={active ? 'default' : 'outline'}
+                className={`cursor-pointer px-3 py-1 text-sm ${active ? 'bg-[#8f3c32] hover:bg-[#7f342b]' : 'hover:bg-gray-100'}`}
               >
                 {tab.label}
               </Badge>

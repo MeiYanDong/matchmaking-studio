@@ -334,7 +334,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
   const processingNotes = extracted?.processing_notes ?? []
 
   return (
-    <div className="flex max-h-[88vh] min-h-[70vh] flex-col">
+    <div className="flex h-[min(86vh,920px)] min-h-[70vh] flex-col">
       <DialogHeader className="border-b border-black/5 bg-[linear-gradient(135deg,rgba(255,251,245,0.98),rgba(255,255,255,0.96)_40%,rgba(236,253,245,0.88))] px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
@@ -364,15 +364,15 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
       </DialogHeader>
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1.4fr)_420px]">
-        <div className="min-h-0 border-b border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,250,252,0.9))] lg:border-b-0 lg:border-r">
+        <div className="flex min-h-0 flex-col border-b border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,250,252,0.9))] lg:border-b-0 lg:border-r">
           <div className="grid gap-3 border-b border-black/5 px-6 py-5 sm:grid-cols-3">
             <SummaryCard title="自动写入字段" value={String(appliedUpdates.length)} description="AI 已同步更新" tone="emerald" />
             <SummaryCard title="待确认异常" value={String(reviewRequired.length)} description="需要人工复核" tone="amber" />
             <SummaryCard title="待补问建议" value={String(suggestedQuestions.length)} description="下一轮可直接追问" tone="rose" />
           </div>
 
-          <div className="min-h-0 px-6 py-5">
-            <div className="flex h-full min-h-[24rem] flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_50px_-42px_rgba(15,23,42,0.5)]">
+          <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_50px_-42px_rgba(15,23,42,0.5)]">
               <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
                   <FileText className="w-4 h-4 text-slate-500" />
@@ -380,7 +380,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
                 </div>
                 <span className="text-xs text-slate-400">滚动查看完整内容</span>
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
                 <div className="mx-auto max-w-4xl whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
                   {conversation.transcript || '暂无转录文本'}
                 </div>
@@ -536,7 +536,9 @@ function SnippetPanel({
         {label}
       </div>
       <p className={cn('mt-3 text-[15px] leading-7 text-gray-700', clampClass)}>{content}</p>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white/95 via-white/70 to-transparent" />
+      {clampClass && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/88 via-white/55 to-transparent" />
+      )}
     </div>
   )
 }

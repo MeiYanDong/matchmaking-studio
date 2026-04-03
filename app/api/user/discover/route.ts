@@ -12,7 +12,7 @@ type CandidateRow = Profile & {
 function getDiscoveryModel() {
   return process.env.CLAUDE_DISCOVERY_MODEL?.trim()
     || process.env.CLAUDE_DEFAULT_MODEL?.trim()
-    || 'claude-sonnet-4-20250514'
+    || 'anthropic/claude-sonnet-4.6'
 }
 
 async function parseNaturalLanguageQuery(query: string) {

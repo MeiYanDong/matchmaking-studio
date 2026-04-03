@@ -46,8 +46,8 @@ export function MatchingControls({ currentThreshold }: { currentThreshold: numbe
   }
 
   return (
-    <div className="bg-white rounded-xl border p-6">
-      <h2 className="font-semibold text-gray-900 mb-4">匹配引擎控制台</h2>
+    <div className="rounded-[28px] border border-[#e2d5c8] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,244,236,0.92))] p-6 shadow-[0_22px_48px_-38px_rgba(35,24,21,0.28)]">
+      <h2 className="mb-4 font-semibold text-[#231815]">匹配引擎控制台</h2>
       <div className="grid md:grid-cols-[1fr_auto_auto] gap-3 items-end">
         <div className="space-y-2">
           <Label htmlFor="threshold">匹配阈值</Label>
@@ -60,7 +60,7 @@ export function MatchingControls({ currentThreshold }: { currentThreshold: numbe
             onChange={(e) => setThreshold(e.target.value)}
           />
         </div>
-        <Button onClick={handleSaveThreshold} disabled={saving} className="bg-rose-500 hover:bg-rose-600">
+        <Button onClick={handleSaveThreshold} disabled={saving} className="bg-[#8f3c32] hover:bg-[#7f342b]">
           {saving && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
           {saving ? '保存中...' : '保存阈值'}
         </Button>

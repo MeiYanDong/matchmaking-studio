@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
-import { transcribeAudioDetailed } from '@/lib/ai/client'
+import {
+  transcribeAudioDetailedFromUrl,
+  transcribeAudioDetailedViaBackupProvider,
+} from '@/lib/ai/client'
 import { toUserFacingAIErrorMessage } from '@/lib/ai/provider-errors'
 import { Json } from '@/types/database'
 import { getSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 
 const STORAGE_DOWNLOAD_ATTEMPTS = 3
+const SIGNED_AUDIO_URL_EXPIRES_IN = 60 * 60
+const MIN_STALE_TRANSCRIBING_MS = 120_000
+const MAX_STALE_TRANSCRIBING_MS = 8 * 60_000
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error
@@ -43,6 +49,24 @@ function buildStorageDownloadErrorMessage(rawMessage: string) {
     : '音频文件下载失败，请稍后重试。'
 }
 
+function getStaleTranscribingThreshold(audioDurationSeconds?: number | null) {
+  if (!audioDurationSeconds || !Number.isFinite(audioDurationSeconds)) {
+    return MIN_STALE_TRANSCRIBING_MS
+  }
+
+  return Math.min(
+    MAX_STALE_TRANSCRIBING_MS,
+    Math.max(MIN_STALE_TRANSCRIBING_MS, Math.round(audioDurationSeconds * 1500))
+  )
+}
+
+function isStaleTranscribing(createdAt: string | null | undefined, audioDurationSeconds?: number | null) {
+  if (!createdAt) return false
+  const createdTime = new Date(createdAt).getTime()
+  if (!Number.isFinite(createdTime)) return false
+  return Date.now() - createdTime >= getStaleTranscribingThreshold(audioDurationSeconds)
+}
+
 async function downloadAudioWithRetry(
   supabase = createServiceRoleClient(),
   audioPath: string
@@ -59,6 +83,41 @@ async function downloadAudioWithRetry(
     lastErrorMessage = error?.message || 'empty storage response'
     console.error(
       `[transcribe] audio download attempt ${attempt}/${STORAGE_DOWNLOAD_ATTEMPTS} failed for ${audioPath}: ${lastErrorMessage}`
+    )
+
+    if (
+      attempt < STORAGE_DOWNLOAD_ATTEMPTS
+      && !isMissingStorageObject(lastErrorMessage)
+      && isRetryableStorageDownloadError(lastErrorMessage)
+    ) {
+      await wait(250 * attempt * attempt)
+      continue
+    }
+
+    break
+  }
+
+  throw new Error(buildStorageDownloadErrorMessage(lastErrorMessage))
+}
+
+async function createSignedAudioUrlWithRetry(
+  supabase = createServiceRoleClient(),
+  audioPath: string
+) {
+  let lastErrorMessage = 'unknown storage error'
+
+  for (let attempt = 1; attempt <= STORAGE_DOWNLOAD_ATTEMPTS; attempt += 1) {
+    const { data, error } = await supabase.storage
+      .from('audio-files')
+      .createSignedUrl(audioPath, SIGNED_AUDIO_URL_EXPIRES_IN)
+
+    if (!error && data?.signedUrl) {
+      return data.signedUrl
+    }
+
+    lastErrorMessage = error?.message || 'empty signed url response'
+    console.error(
+      `[transcribe] create signed url attempt ${attempt}/${STORAGE_DOWNLOAD_ATTEMPTS} failed for ${audioPath}: ${lastErrorMessage}`
     )
 
     if (
@@ -97,6 +156,7 @@ export async function POST(request: NextRequest) {
   try {
     const payload = await request.json()
     conversationId = payload.conversationId
+    const allowRecovery = Boolean(payload.allowRecovery)
     if (!conversationId) {
       return NextResponse.json({ error: 'conversationId is required' }, { status: 400 })
     }
@@ -120,7 +180,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '对话记录不存在' }, { status: 404 })
     }
 
-    if (conv.status === 'transcribing') {
+    if (
+      conv.status === 'transcribing'
+      && !(allowRecovery && !conv.transcript && isStaleTranscribing(conv.created_at, conv.audio_duration))
+    ) {
       return NextResponse.json({ error: '录音正在转录中，请勿重复提交' }, { status: 409 })
     }
 
@@ -155,21 +218,30 @@ export async function POST(request: NextRequest) {
       .update({ status: 'transcribing', error_message: null })
       .eq('id', targetConversationId)
 
-    // 从 Storage 下载音频文件
+    // 先生成签名 URL，优先让 Groq 直接拉取 Storage 中的原始音频
     const audioPath = conv.audio_url
     if (!audioPath) {
       await supabase.from('conversations').update({ status: 'failed', error_message: '音频文件路径为空' }).eq('id', targetConversationId)
       return NextResponse.json({ error: '音频文件路径为空' }, { status: 400 })
     }
 
-    const audioData = await downloadAudioWithRetry(serviceRoleClient, audioPath)
+    const signedAudioUrl = await createSignedAudioUrlWithRetry(serviceRoleClient, audioPath)
 
-    // 调用 Whisper API
-    const audioFile = new File([audioData], 'audio.mp3', { type: audioData.type || 'audio/mpeg' })
+    let transcription
+    try {
+      transcription = await transcribeAudioDetailedFromUrl(signedAudioUrl, 'zh', {
+        idempotencyKey: `conversation:${targetConversationId}:whisper-primary`,
+      })
+    } catch (primaryError) {
+      console.error('Primary URL transcription failed, attempting backup provider:', primaryError)
 
-    const transcription = await transcribeAudioDetailed(audioFile, 'zh', {
-      idempotencyKey: `conversation:${targetConversationId}:whisper-1`,
-    })
+      const audioData = await downloadAudioWithRetry(serviceRoleClient, audioPath)
+      const audioFile = new File([audioData], 'audio.mp3', { type: audioData.type || 'audio/mpeg' })
+
+      transcription = await transcribeAudioDetailedViaBackupProvider(audioFile, 'zh', {
+        idempotencyKey: `conversation:${targetConversationId}:whisper-backup`,
+      })
+    }
 
     if (!transcription.text?.trim()) {
       throw new Error('Whisper 返回空文本，请重试或更换更清晰、更短的音频。')

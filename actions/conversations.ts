@@ -120,6 +120,7 @@ export async function resolveConversationReview(input: ResolveConversationReview
       summary_updates: {},
       processing_notes: ['红娘已处理本次异常字段'],
     },
+    observationSourceType: 'matchmaker_summary',
   })
 
   const mergedAppliedUpdates = [

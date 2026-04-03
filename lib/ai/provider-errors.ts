@@ -8,7 +8,7 @@ export type ClaudeGatewayFailureCode =
   | 'quota_exceeded'
   | 'request_failed'
 
-export type GatewayProviderName = '云雾' | '兔子' | '第三方'
+export type GatewayProviderName = '云雾' | '兔子' | 'OpenRouter' | 'Groq' | '第三方'
 
 export function normalizeSecretValue(value?: string | null) {
   const trimmed = value?.trim() || ''
@@ -52,7 +52,7 @@ export function classifyWhisperGatewayFailure(
   return 'request_failed'
 }
 
-export function shouldFallbackToOfficialOpenAI(status: number, body: string) {
+export function shouldFallbackToBackupWhisperProvider(status: number, body: string) {
   const code = classifyWhisperGatewayFailure(status, body)
   return code === 'quota_exceeded' || code === 'provider_unavailable'
 }
@@ -74,39 +74,47 @@ export function inferGatewayProviderName(baseUrl: string): GatewayProviderName {
     return '兔子'
   }
 
+  if (normalized.includes('openrouter.ai')) {
+    return 'OpenRouter'
+  }
+
+  if (normalized.includes('groq.com')) {
+    return 'Groq'
+  }
+
   return '第三方'
 }
 
 export function buildWhisperGatewayErrorMessage(
   status: number,
   body: string,
-  hasOfficialOpenAIKey: boolean,
+  hasBackupProvider: boolean,
   providerName: GatewayProviderName = '第三方'
 ) {
   const failureCode = classifyWhisperGatewayFailure(status, body)
 
   if (failureCode === 'quota_exceeded') {
-    return hasOfficialOpenAIKey
-      ? `${providerName} Whisper 网关额度不足，且可选的官方 OpenAI 兜底也失败，请检查 OPENAI_API_KEY 是否可用。`
-      : `${providerName} Whisper 网关额度不足，请先处理第三方账户余额；若你额外配置了 OPENAI_API_KEY，也可作为可选兜底。`
+    return hasBackupProvider
+      ? `${providerName} Whisper 网关额度不足，且备选转录服务也失败，请检查主备供应商余额与权限。`
+      : `${providerName} Whisper 网关额度不足，请先处理该供应商的余额或权限。`
   }
 
   if (failureCode === 'provider_unavailable') {
-    return hasOfficialOpenAIKey
-      ? `${providerName} Whisper 网关当前没有可用渠道，且可选的官方 OpenAI 兜底也失败，请稍后重试。`
-      : `${providerName} Whisper 网关当前没有可用渠道，请稍后重试；若你额外配置了 OPENAI_API_KEY，也可作为可选兜底。`
+    return hasBackupProvider
+      ? `${providerName} Whisper 网关当前没有可用渠道，且备选转录服务也失败，请稍后重试。`
+      : `${providerName} Whisper 网关当前没有可用渠道，请稍后重试。`
   }
 
   return `${providerName} Whisper 网关请求失败: ${status} ${body}`
 }
 
 export function buildWhisperEmptyTranscriptMessage(
-  hasOfficialOpenAIKey: boolean,
+  hasBackupProvider: boolean,
   providerName: GatewayProviderName = '第三方'
 ) {
-  return hasOfficialOpenAIKey
-    ? `${providerName} Whisper 返回空文本，且可选的官方 OpenAI 兜底也未产生有效文本，请重试或更换更清晰的音频。`
-    : `${providerName} Whisper 返回空文本，请重试或更换更清晰、更短的音频；若持续出现，请先检查第三方网关状态。`
+  return hasBackupProvider
+    ? `${providerName} Whisper 返回空文本，且备选转录服务也未产生有效文本，请重试或更换更清晰的音频。`
+    : `${providerName} Whisper 返回空文本，请重试或更换更清晰、更短的音频；若持续出现，请检查供应商状态。`
 }
 
 export function classifyClaudeGatewayFailure(
@@ -165,6 +173,9 @@ export function toUserFacingAIErrorMessage(message: string, fallback: string) {
     || lower.includes('token quota is not enough')
     || lower.includes('token remain quota')
     || lower.includes('need quota')
+    || lower.includes('insufficient credits')
+    || lower.includes('credit balance')
+    || lower.includes('payment required')
   ) {
     return 'Claude 余额不足，请充值后重试。'
   }
@@ -183,6 +194,18 @@ export function toUserFacingAIErrorMessage(message: string, fallback: string) {
     || lower.includes('service unavailable')
   ) {
     return 'AI 服务暂时不可用，请稍后重试。'
+  }
+
+  if (
+    lower.includes('aborterror')
+    || lower.includes('timed out')
+    || lower.includes('timeout')
+    || lower.includes('signal is aborted')
+    || lower.includes('fetch failed')
+    || lower.includes('econnreset')
+    || lower.includes('network')
+  ) {
+    return 'AI 服务连接失败，请重试当前操作。'
   }
 
   if (

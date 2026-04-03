@@ -25,6 +25,7 @@
 *.pem
 .obsidian/
 .playwright-cli/
+/audios/
 
 # debug
 npm-debug.log*

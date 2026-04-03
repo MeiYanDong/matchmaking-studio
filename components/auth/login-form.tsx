@@ -95,7 +95,7 @@ export function LoginForm({
                   <FormItem>
                     <FormLabel>邮箱</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="请输入邮箱" {...field} />
+                      <Input type="email" placeholder="请输入邮箱" autoComplete="email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -108,7 +108,7 @@ export function LoginForm({
                   <FormItem>
                     <FormLabel>密码</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="请输入密码" {...field} />
+                      <Input type="password" placeholder="请输入密码" autoComplete="current-password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

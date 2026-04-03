@@ -7,6 +7,25 @@ import { WorkloadRanking } from '@/components/admin/workload-ranking'
 import { MatchingControls } from '@/components/admin/matching-controls'
 import { getMatchThreshold } from '@/lib/matching/settings'
 import { Users, Heart, TrendingUp, CheckCircle, UserCog, ShieldCheck, Sparkles, Clock3 } from 'lucide-react'
+import type { Json } from '@/types/database'
+
+function readProcessingNotes(extractedFields: Json | null) {
+  if (!extractedFields || typeof extractedFields !== 'object' || Array.isArray(extractedFields)) return []
+  const notes = (extractedFields as { processing_notes?: unknown }).processing_notes
+  if (!Array.isArray(notes)) return []
+  return notes.map((note) => String(note).trim()).filter(Boolean)
+}
+
+function extractDriftLabels(notes: string[]) {
+  return notes.flatMap((note) => {
+    const [, payload] = note.split(':')
+    if (!payload) return []
+    return payload
+      .split('、')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  })
+}
 
 export default async function AdminDashboard() {
   const authClient = await createClient()
@@ -41,6 +60,7 @@ export default async function AdminDashboard() {
     { data: matchmakers },
     { data: allMatches },
     { data: allFollowupTasks },
+    { data: allConversations },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('gender', 'male'),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('gender', 'female'),
@@ -55,6 +75,7 @@ export default async function AdminDashboard() {
     supabase.from('user_roles').select('user_id, display_name').eq('role', 'matchmaker'),
     supabase.from('matches').select('matchmaker_id, status, dismissed_reason, match_score, male_profile_id, female_profile_id, recommendation_type, created_at, updated_at'),
     supabase.from('followup_tasks').select('matchmaker_id, status, task_type, created_at, updated_at'),
+    supabase.from('conversations').select('id, status, error_message, extracted_fields, created_at'),
   ])
 
   const totalProfiles = (totalMale ?? 0) + (totalFemale ?? 0)
@@ -62,6 +83,7 @@ export default async function AdminDashboard() {
   const intentionRows = allIntentions ?? []
   const traitRows = allTraitProfiles ?? []
   const followupTaskRows = allFollowupTasks ?? []
+  const conversationRows = allConversations ?? []
 
   const profileById = new Map(profileRows.map((profile) => [profile.id, profile]))
   const intentionByProfileId = new Map(intentionRows.map((intention) => [intention.profile_id, intention]))
@@ -231,6 +253,34 @@ export default async function AdminDashboard() {
       : 0,
     total: succeededMatchesRows.length,
   }
+
+  const totalConversations = conversationRows.length
+  const doneConversationCount = conversationRows.filter((conversation) => conversation.status === 'done').length
+  const failedConversationCount = conversationRows.filter((conversation) => conversation.status === 'failed').length
+  const successConversationRate = completenessRatio(doneConversationCount, totalConversations)
+  const extractionFailureRate = completenessRatio(failedConversationCount, totalConversations)
+  const unknownFieldConversationCount = conversationRows.filter((conversation) =>
+    readProcessingNotes(conversation.extracted_fields).some((note) => note.includes('已忽略无法识别') || note.includes('不受支持'))
+  ).length
+  const unknownFieldRatio = completenessRatio(unknownFieldConversationCount, totalConversations)
+  const modelOutputAnomalyCount = conversationRows.filter((conversation) => {
+    const notes = readProcessingNotes(conversation.extracted_fields)
+    return Boolean(
+      conversation.error_message?.includes('AI 返回格式解析失败')
+      || notes.some((note) => note.includes('已忽略无法识别') || note.includes('不受支持'))
+    )
+  }).length
+
+  const driftCounts = conversationRows
+    .flatMap((conversation) => extractDriftLabels(readProcessingNotes(conversation.extracted_fields)))
+    .reduce<Record<string, number>>((acc, key) => {
+      acc[key] = (acc[key] ?? 0) + 1
+      return acc
+    }, {})
+
+  const topDriftRows = Object.entries(driftCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -440,6 +490,58 @@ export default async function AdminDashboard() {
               <div className="mt-1 text-xl font-semibold text-red-800">{recommendationTypeCounts['rejected'] ?? 0}</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        <div className="bg-white rounded-xl border p-6">
+          <h2 className="font-semibold text-gray-900 mb-4">录音处理质量</h2>
+          <div className="grid grid-cols-2 gap-4 mb-5">
+            <div className="rounded-2xl bg-sky-50 p-4">
+              <div className="text-sm text-sky-700">录音处理成功率</div>
+              <div className="mt-2 text-3xl font-bold text-sky-900">{successConversationRate}%</div>
+              <p className="mt-2 text-xs text-sky-700">{doneConversationCount} / {totalConversations || 0} 条录音已完成</p>
+            </div>
+            <div className="rounded-2xl bg-red-50 p-4">
+              <div className="text-sm text-red-700">提取失败率</div>
+              <div className="mt-2 text-3xl font-bold text-red-800">{extractionFailureRate}%</div>
+              <p className="mt-2 text-xs text-red-700">{failedConversationCount} 条失败待排查</p>
+            </div>
+            <div className="rounded-2xl bg-amber-50 p-4">
+              <div className="text-sm text-amber-700">未知字段比例</div>
+              <div className="mt-2 text-3xl font-bold text-amber-800">{unknownFieldRatio}%</div>
+              <p className="mt-2 text-xs text-amber-700">{unknownFieldConversationCount} 条录音出现模型字段漂移</p>
+            </div>
+            <div className="rounded-2xl bg-violet-50 p-4">
+              <div className="text-sm text-violet-700">模型输出异常</div>
+              <div className="mt-2 text-3xl font-bold text-violet-800">{modelOutputAnomalyCount}</div>
+              <p className="mt-2 text-xs text-violet-700">包含格式解析失败与别名漂移</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-500 leading-6">
+            这组指标用于持续观察录音处理链路、字段漂移和 AI 输出稳定性，帮助后续压缩 prompt 与扩充字段别名。
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl border p-6">
+          <h2 className="font-semibold text-gray-900 mb-4">模型输出漂移观察点</h2>
+          {topDriftRows.length ? (
+            <div className="space-y-3">
+              {topDriftRows.map(([label, count]) => (
+                <div key={label} className="flex items-center justify-between rounded-xl border border-gray-100 px-3 py-3 text-sm">
+                  <span className="text-gray-700">{label}</span>
+                  <span className="font-medium text-gray-900">{count} 次</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+              最近的提取记录中还没有出现明显的未知字段或别名漂移。
+            </div>
+          )}
+          <p className="mt-4 text-xs leading-6 text-gray-400">
+            统计来源于 `conversations.extracted_fields.processing_notes`，用于追踪未知字段、别名输出和不受支持的总结字段。
+          </p>
         </div>
       </div>
 

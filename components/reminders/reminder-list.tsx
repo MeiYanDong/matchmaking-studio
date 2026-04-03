@@ -13,6 +13,8 @@ import { Bell, BellOff, Heart, User, Calendar, ClipboardCheck } from 'lucide-rea
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
+export type ReminderPriority = 'high' | 'medium' | 'low'
+
 const typeIcon: Record<string, React.ReactNode> = {
   no_followup: <Heart className="w-4 h-4 text-rose-400" />,
   no_new_info: <User className="w-4 h-4 text-blue-400" />,
@@ -25,6 +27,18 @@ const typeBg: Record<string, string> = {
   no_new_info: 'border-l-blue-300 bg-blue-50',
   meeting_reminder: 'border-l-orange-300 bg-orange-50',
   pending_confirmation: 'border-l-amber-300 bg-amber-50',
+}
+
+const priorityTone: Record<ReminderPriority, string> = {
+  high: 'border-[#e8c89a] bg-[#fff7ea] text-[#8f642d]',
+  medium: 'border-[#ddd1c3] bg-white/85 text-[#6f5849]',
+  low: 'border-[#e8dfd6] bg-[#fbf7f2] text-[#877362]',
+}
+
+export function getReminderPriority(type: Reminder['type']): ReminderPriority {
+  if (type === 'pending_confirmation') return 'high'
+  if (type === 'meeting_reminder' || type === 'no_followup') return 'medium'
+  return 'low'
 }
 
 interface ReminderListProps {
@@ -76,6 +90,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
       <div className="space-y-2">
         {reminders.map(reminder => {
           const isRead = reminder.is_read || readIds.has(reminder.id)
+          const priority = getReminderPriority(reminder.type)
           const href = reminder.match_id
             ? `/matchmaker/matches/${reminder.match_id}`
             : reminder.profile_id
@@ -91,6 +106,9 @@ export function ReminderList({ reminders }: ReminderListProps) {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant="outline" className="text-xs px-2 py-0">{REMINDER_TYPE_LABELS[reminder.type]}</Badge>
+                  <Badge variant="outline" className={`text-[11px] ${priorityTone[priority]}`}>
+                    {priority === 'high' ? '高优先级' : priority === 'medium' ? '中优先级' : '低优先级'}
+                  </Badge>
                   {!isRead && <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />}
                 </div>
                 <p className="text-sm text-gray-700">{reminder.message}</p>

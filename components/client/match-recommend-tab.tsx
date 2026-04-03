@@ -34,6 +34,10 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
   )
   const confirmedMatches = activeMatches.filter((match) => match.recommendation_type === 'confirmed')
   const pendingMatches = activeMatches.filter((match) => match.recommendation_type === 'pending_confirmation')
+  const topConfirmed = confirmedMatches[0] ?? null
+  const supportingConfirmed = topConfirmed ? confirmedMatches.slice(1, 3) : confirmedMatches.slice(0, 3)
+  const topPending = pendingMatches[0] ?? null
+  const supportingPending = topPending ? pendingMatches.slice(1, 3) : pendingMatches.slice(0, 3)
 
   async function handleFollowup(matchId: string) {
     setLoading(true)
@@ -77,10 +81,10 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
       {confirmedMatches.length > 0 && (
         <SectionTitle
           title="已确认候选"
-          description={`前台主显 Top1，当前共 ${confirmedMatches.length} 条可直接推进的候选`}
+          description={`前台主显 Top1，当前共 ${confirmedMatches.length} 条可直接推进的候选，并保留另外 2 条候补`}
         />
       )}
-      {confirmedMatches.map(match => {
+      {topConfirmed ? [topConfirmed].map(match => {
         const otherProfile = profile.gender === 'male' ? match.female_profile : match.male_profile
         const breakdown = match.score_breakdown as ScoreBreakdown | null
 
@@ -151,15 +155,76 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
             )}
           </div>
         )
-      })}
+      }) : null}
+
+      {supportingConfirmed.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-[#8b6d58]">Top 3 候补</p>
+          {supportingConfirmed.map(match => {
+            const otherProfile = profile.gender === 'male' ? match.female_profile : match.male_profile
+            const breakdown = match.score_breakdown as ScoreBreakdown | null
+
+            return (
+              <div key={match.id} className="bg-white rounded-xl border p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${otherProfile.gender === 'male' ? 'bg-blue-100' : 'bg-pink-100'}`}>
+                      <User className={`w-6 h-6 ${otherProfile.gender === 'male' ? 'text-blue-600' : 'text-pink-600'}`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{otherProfile.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {[otherProfile.age && `${otherProfile.age}岁`, otherProfile.city].filter(Boolean).join(' · ')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-rose-500">{Math.round(match.match_score)}</div>
+                      <div className="text-xs text-gray-400">匹配分</div>
+                    </div>
+                    <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                      {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
+                    </Badge>
+                  </div>
+                </div>
+
+                {breakdown && (
+                  <div className="grid grid-cols-5 gap-2 mb-4">
+                    {SCORE_DIMENSION_META.map(({ label, key, max }) => {
+                      const score = breakdown[key as ScoreDimensionKey] ?? 0
+                      const pct = (score / max) * 100
+                      return (
+                        <div key={key} className="text-center">
+                          <div className="text-xs text-gray-500 mb-1">{label}</div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-rose-400 rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                          <div className="text-xs font-medium mt-1">{Math.round(score)}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {match.match_reason && (
+                  <p className="text-sm text-gray-600 bg-rose-50 rounded p-3 border-l-2 border-rose-300">
+                    {humanizeAIText(match.match_reason)}
+                  </p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {pendingMatches.length > 0 && (
         <SectionTitle
           title="待确认候选"
-          description={`这些候选基础分不错，但仍有敏感字段需要补问；后台保留 Top3，当前 ${pendingMatches.length} 条`}
+          description={`这些候选基础分不错，但仍有敏感字段需要补问；当前主显 Top1，并保留另外 2 条待确认候补`}
         />
       )}
-      {pendingMatches.map((match) => {
+      {topPending ? [topPending].map((match) => {
         const otherProfile = profile.gender === 'male' ? match.female_profile : match.male_profile
         const breakdown = match.score_breakdown as ScoreBreakdown | null
 
@@ -239,7 +304,65 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
             )}
           </div>
         )
-      })}
+      }) : null}
+
+      {supportingPending.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-[#8b6d58]">待确认候补</p>
+          {supportingPending.map((match) => {
+            const otherProfile = profile.gender === 'male' ? match.female_profile : match.male_profile
+            const breakdown = match.score_breakdown as ScoreBreakdown | null
+
+            return (
+              <div key={match.id} className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${otherProfile.gender === 'male' ? 'bg-blue-100' : 'bg-pink-100'}`}>
+                      <User className={`w-6 h-6 ${otherProfile.gender === 'male' ? 'text-blue-600' : 'text-pink-600'}`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{otherProfile.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {[otherProfile.age && `${otherProfile.age}岁`, otherProfile.city].filter(Boolean).join(' · ')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-amber-600">{Math.round(match.match_score)}</div>
+                      <div className="text-xs text-gray-400">匹配分</div>
+                    </div>
+                    <Badge variant="outline" className="border-amber-300 bg-white text-amber-700">
+                      {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
+                    </Badge>
+                  </div>
+                </div>
+
+                {breakdown && breakdown.pending_fields.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {breakdown.pending_fields.map((field) => (
+                      <Badge key={field} variant="outline" className="border-amber-300 bg-white text-amber-800">
+                        待确认：{getFieldDisplayLabel(field)}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {match.pending_reasons?.length ? (
+                  <div className="rounded-xl border border-amber-200 bg-white/70 p-3 mb-3">
+                    <p className="text-xs font-medium text-amber-700 mb-2">待确认原因</p>
+                    <div className="space-y-1">
+                      {match.pending_reasons.map((reason) => (
+                        <p key={reason} className="text-sm text-amber-900">{humanizeAIText(reason)}</p>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Dismiss dialog */}
       <Dialog open={!!dismissing} onOpenChange={() => setDismissing(null)}>

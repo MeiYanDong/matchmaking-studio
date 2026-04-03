@@ -21,6 +21,7 @@ import {
 import { buildCurrentProfileSnapshot, type CurrentProfileSnapshot } from '@/lib/ai/snapshot'
 import { V1_FIELD_SPEC_BY_KEY, type V1FieldKey } from '@/lib/ai/field-spec'
 import { isPlaceholderCandidateValue } from '@/lib/ai/field-presentation'
+import { buildFieldObservationInserts } from '@/lib/ai/field-observations'
 
 type ApplyExtractionInput = {
   supabase: SupabaseClient<Database>
@@ -29,6 +30,7 @@ type ApplyExtractionInput = {
   traitProfile: TraitProfile | null
   conversation: Conversation
   contract: ExtractionContract
+  observationSourceType?: Database['public']['Enums']['field_observation_source_type']
 }
 
 type ApplyExtractionResult = {
@@ -282,10 +284,34 @@ function valuesEqual(a: unknown, b: unknown) {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
+const MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS = new Set<V1FieldKey>([
+  'age',
+  'city',
+  'current_base_cities',
+  'education',
+  'occupation',
+  'work_schedule',
+  'annual_income',
+  'marital_history',
+  'has_children',
+])
+
+function canBackfillDirectProfileFactAtMediumConfidence(
+  fieldKey: V1FieldKey,
+  confidence: ExtractionConfidence,
+  explicitConflict: boolean,
+  oldValue: unknown
+) {
+  if (confidence === 'low' || explicitConflict) return false
+  if (oldValue !== null && oldValue !== undefined) return false
+  return MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS.has(fieldKey)
+}
+
 function shouldAutoApply(
   confidence: ExtractionConfidence,
   explicitConflict: boolean,
   fieldKey: V1FieldKey,
+  oldValue: unknown,
   evidenceExcerpt?: string
 ) {
   const spec = V1_FIELD_SPEC_BY_KEY[fieldKey]
@@ -295,7 +321,10 @@ function shouldAutoApply(
   }
 
   if (spec.autoApply === 'always') return confidence !== 'low'
-  if (spec.autoApply === 'when_high_confidence') return confidence === 'high'
+  if (spec.autoApply === 'when_high_confidence') {
+    return confidence === 'high'
+      || canBackfillDirectProfileFactAtMediumConfidence(fieldKey, confidence, explicitConflict, oldValue)
+  }
   if (spec.autoApply === 'review_on_conflict') return confidence === 'high' && !explicitConflict
   return false
 }
@@ -341,6 +370,7 @@ export async function applyExtractionContractToProfile({
   traitProfile,
   conversation,
   contract,
+  observationSourceType = 'ai_extracted',
 }: ApplyExtractionInput): Promise<ApplyExtractionResult> {
   const currentSnapshot = buildCurrentProfileSnapshot({
     profile,
@@ -407,13 +437,13 @@ export async function applyExtractionContractToProfile({
 
     const canAutoApply = (update.auto_apply ?? true)
       && update.action !== 'review'
-      && shouldAutoApply(update.confidence, explicitConflict, fieldKey, update.evidence_excerpt)
+      && shouldAutoApply(update.confidence, explicitConflict, fieldKey, oldValue, update.evidence_excerpt)
 
     if (!canAutoApply) {
       reviewRequired.push({
         field_key: fieldKey,
         field_label: spec.label,
-        issue_type: update.confidence === 'low' ? 'low_confidence' : 'value_conflict',
+        issue_type: explicitConflict ? 'value_conflict' : 'low_confidence',
         old_value: oldValue as Json | undefined,
         candidate_value: mergedValue as Json,
         confidence: update.confidence,
@@ -495,6 +525,21 @@ export async function applyExtractionContractToProfile({
       .update(conversationUpdates)
       .eq('id', conversation.id)
   )
+
+  const fieldObservationPayload = buildFieldObservationInserts({
+    profileId: profile.id,
+    conversationId: conversation.id,
+    sourceType: observationSourceType,
+    fieldUpdates: appliedFieldUpdates,
+  })
+
+  if (fieldObservationPayload.length) {
+    writeOperations.push(
+      supabase
+        .from('field_observations')
+        .insert(fieldObservationPayload)
+    )
+  }
 
   await Promise.all(writeOperations)
 

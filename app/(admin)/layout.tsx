@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Sidebar } from '@/components/nav/sidebar'
+import { WorkspaceShell } from '@/components/nav/workspace-shell'
 
 export default async function AdminLayout({
   children,
@@ -21,11 +21,8 @@ export default async function AdminLayout({
   if (!roleData || roleData.role !== 'admin') redirect('/matchmaker/clients')
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar role="admin" displayName={roleData.display_name} />
-      <main className="flex-1 overflow-auto">
+    <WorkspaceShell role="admin" displayName={roleData.display_name}>
         {children}
-      </main>
-    </div>
+    </WorkspaceShell>
   )
 }

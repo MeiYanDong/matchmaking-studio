@@ -1,477 +1,417 @@
-# Matchmaking Studio - 可执行开发清单（AI-first 重构版）
+# Matchmaking Studio - 可执行开发清单
 
-> 基于 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md) 拆解  
-> 当前目标：把现有系统从“通用婚恋 MVP”重构为“AI 默认入库、红娘只处理异常”的高质量婚恋撮合工作台  
-> 技术栈：Next.js 16 + Supabase + Tailwind + shadcn/ui + 云雾聚合网关（`whisper-1` + Claude）
-
----
-
-## 0. 需求与设计基线
-
-- [x] 将新版详细需求方案写入 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md)
-- [x] 固化 `V1 最小必要字段定义表`
-- [x] 固化 `AI 字段提取协议 v1`
-- [x] 明确 `unknown != no`
-- [x] 明确 `AI 默认自动入库，红娘只处理异常`
-- [x] 明确 V1 不做说话人分离前提
-- [x] 明确男方三类敏感关系模式与女方三态接受状态
-- [x] 明确前台主显 `Top1`、后台保留 `Top3`
-- [x] 明确 V1 暂不把 MBTI / Big Five / Attachment / HEXACO 作为核心自动匹配字段
+> 依据：[plan.md](./plan.md)  
+> 目标：把当前项目收束为一套 AI-first、红娘主导、面向高质量客户的婚恋撮合工作台  
+> 使用规则：只有在“代码已落地 + 本地验证通过 + 关键页面/流程实际可用”后，才将对应任务勾选为已完成
 
 ---
 
-## 1. 已完成基础能力（沿用当前仓库）
+## 0. 当前已完成基线
 
-### 1.1 项目与环境
+- [x] 项目已经迁移到 `Next.js 16 + App Router + Supabase + Tailwind CSS + shadcn/ui`
+- [x] 本地环境已经可用，`npm run build` 可通过
+- [x] 代码仓库已经上传到 GitHub，并已更名为 `matchmaking-studio`
+- [x] 产品与技术总方案已经写入 [plan.md](./plan.md)
+- [x] 已有红娘端、管理端、用户端基础路由与认证保护
+- [x] 已有音频上传、转录、结构化提取、写库、匹配、提醒的基础闭环
+- [x] 已有 AI-first 的基础字段同步能力和异常确认能力
+- [x] 已有本地测试账号、模拟角色与示例录音数据
 
-- [x] Next.js 16 项目已初始化
-- [x] Supabase 客户端与服务端封装已完成
-- [x] `proxy.ts` 已接入 Supabase Auth session 刷新与路由保护
-- [x] Node / npm 环境已安装并可本地构建
-- [x] 本地 `npm run build` 已通过
-
-### 1.2 基础数据库与认证
-
-- [x] 基础枚举已建立：性别、状态、主意图、匹配状态、提醒类型、角色
-- [x] 已有核心表：`profiles`、`intentions`、`conversations`、`matches`、`reminders`、`user_roles`
-- [x] 基础 RLS 已配置
-- [x] `audio-files` / `profile-photos` bucket 已创建
-- [x] 登录 / 登出 / 角色路由守卫已完成
-- [x] 红娘端与管理端基础 layout / 侧边栏已完成
-
-### 1.3 现有主流程
-
-- [x] 客户列表 / 新增 / 详情页已完成
-- [x] 音频上传、转录、结构化提取主流程已完成
-- [x] 录音记录、审核页、基础字段同步能力已完成
-- [x] 基础匹配引擎已完成
-- [x] 红娘匹配工作台、匹配详情页已完成
-- [x] 提醒中心已完成
-- [x] 管理端 dashboard / clients / matchmakers / matches 已完成
-
-> 说明：以上能力保留，但后续需要按新版 `plan` 做 AI-first 重构，而不是继续沿用旧的“完整审核表单 + 通用匹配”逻辑。
+> 说明：从这里开始，后续 todo 不再把“能跑起来”当目标，而是按新版 `plan` 逐步重构为更稳定、更优雅、更高质量的产品形态。
 
 ---
 
-## 2. Phase 1：字段系统与数据库重构
+## 1. Phase UI-0：品牌、主题与全局骨架基线
 
-### 2.1 字段字典落地
+### 1.1 品牌与命名统一
 
-- [x] 创建机器可读的字段定义文件，例如 `lib/ai/field-spec.ts` 或 `lib/ai/field-spec.json`
-- [x] 将 [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md) 中 `7.5 V1 最小必要字段定义表` 转成代码常量
-- [x] 给每个 V1 字段补齐：
-  - [x] 字段 key
-  - [x] 中文名
-  - [x] 数据类型
-  - [x] 允许值
-  - [x] 是否敏感
-  - [x] 是否参与匹配
-  - [x] 提取规则
-  - [x] 更新规则
-- [x] 从现有 prompt / 表单 /类型中移除不再属于 V1 核心字段的内容
-- [x] 明确 V1 只保留简化版 `情绪稳定`
-- [x] 将 MBTI / Big Five / Attachment / HEXACO 标记为 V2 预留，不进入 V1 核心自动提取
+- [x] GitHub 仓库名统一为 `matchmaking-studio`
+- [x] `package.json` / `package-lock.json` 名称统一为 `matchmaking-studio`
+- [x] 应用标题统一为 `Matchmaking Studio`
+- [x] 登录页、侧边栏、README、计划文档的品牌名称统一
+- [x] 检查并清理页面中剩余旧品牌文案与旧平台描述
 
-### 2.2 新枚举与类型
+### 1.2 视觉系统定稿
 
-- [x] 新增枚举 `relationship_mode`
-  - [x] `marriage_standard`
-  - [x] `compensated_dating`
-  - [x] `fertility_asset_arrangement`
-- [x] 新增枚举 `tri_state`
-  - [x] `yes`
-  - [x] `no`
-  - [x] `unknown`
-- [x] 新增枚举 `recommendation_type`
-  - [x] `confirmed`
-  - [x] `pending_confirmation`
-  - [x] `rejected`
-- [x] 新增枚举 `followup_task_type`
-  - [x] `missing_field`
-  - [x] `sensitive_confirmation`
-  - [x] `verification`
-  - [x] `relationship_followup`
-- [x] 新增枚举 `followup_task_status`
-  - [x] `open`
-  - [x] `in_progress`
-  - [x] `done`
-  - [x] `dismissed`
-- [x] 新增枚举 `importance_level`
-  - [x] `hard`
-  - [x] `important`
-  - [x] `normal`
-  - [x] `flexible`
+- [x] 在 `app/globals.css` 中建立完整的主题 token 体系
+- [x] 将视觉语言收束为“Private Matchmaking Office”
+- [x] 确定全局主色方向：酒红棕或深墨绿二选一
+- [x] 确定背景层次：暖白 / 骨白 / 纸感灰
+- [x] 统一边框、阴影、圆角、间距节奏
+- [ ] 降低高饱和状态色使用频率，避免彩虹式 badge
 
-### 2.3 表结构调整
+### 1.3 全局骨架重构
 
-#### `profiles`
+- [x] 重构左侧主导航（Left Rail）
+- [x] 增加统一的顶部上下文条（Top Context Bar）
+- [x] 抽出稳定的主工作区骨架（Main Worksurface）
+- [x] 抽出可复用的右侧辅助栏（Assist Rail）
+- [x] 统一页面容器宽度、栅格和留白
+- [ ] 确保移动端和中小屏不会因为固定布局直接崩坏
 
-- [x] 为 `profiles` 补齐 V1 最小必要字段中仍缺失的核心字段
-- [x] 补充全球流动 / 高净值 V1 必要字段中当前仍缺失的部分
-- [x] 保留已有字段，但对不再属于 V1 核心匹配的字段做降级标注
+### 1.4 基础组件系统统一
 
-#### `intentions`
-
-- [x] 为 `intentions` 增加 `relationship_mode`
-- [x] 增加女方三态接受字段：
-  - [x] `accepts_mode_marriage_standard`
-  - [x] `accepts_mode_compensated_dating`
-  - [x] `accepts_mode_fertility_asset_arrangement`
-- [x] 增加 `importance_level` 相关字段或偏好重要性存储结构
-- [x] 为异地、迁居、婚史、孩子、生育、收入等偏好增加重要性存储能力
-
-#### `trait_profiles`
-
-- [x] 创建 `trait_profiles` 表
-- [x] V1 在 `trait_profiles` 中启用最小必要字段：
-  - [x] `exercise_habits`
-  - [x] `diet_habits`
-  - [x] `sleep_schedule`
-  - [x] `smoking_habit`
-  - [x] `drinking_habit`
-  - [x] `social_preference`
-  - [x] `spending_style`
-  - [x] `emotional_stability`
-- [x] 其余 V1 软字段继续保留在当前更合适的位置：
-  - [x] `hobbies` 留在 `profiles`
-  - [x] `communication_style` / `relationship_pace` / `biggest_concerns` 留在 `intentions`
-  - [x] `hidden_expectations` / `followup_strategy` 留在 `profiles`
-
-#### `conversations`
-
-- [x] 为 `conversations` 增加 `talked_at` 或等价字段，表示实际谈话时间
-- [x] 保留 `created_at` 作为上传时间
-- [x] 增加 `transcript_verbose_json`
-- [x] 增加 `missing_fields`
-- [x] 增加 `suggested_questions`
-- [x] 明确区分“本次原始提取结果”和“当前客户生效字段”
-
-#### `matches`
-
-- [x] 为 `matches` 增加 `recommendation_type`
-- [x] 增加 `pending_reasons`
-- [x] 增加 `required_followup_fields`
-- [x] 增加 `suggested_followup_questions`
-- [x] 允许存储“待确认候选”与“已确认候选”的区别
-
-#### `followup_tasks`
-
-- [x] 创建 `followup_tasks` 表
-- [x] 设计与 `profiles` / `matches` / `matchmaker_id` 的关联
-- [x] 支持 `pending_confirmation` 场景自动生成任务
-
-### 2.4 数据迁移与兼容
-
-- [x] 为历史数据回填 tri-state 默认值
-- [x] 为历史数据回填 `recommendation_type`
-- [x] 为历史 conversations 回填 `talked_at`
-- [x] 编写迁移脚本，避免旧数据因新字段为空而出错
-- [x] 更新 `types/database.ts`
-
-### 2.5 RLS 与索引
-
-- [x] 为 `trait_profiles` 配置 RLS
-- [x] 为 `followup_tasks` 配置 RLS
-- [x] 为新增 tri-state / relationship_mode / recommendation_type 字段补充索引
-- [x] 为 `followup_tasks(status, matchmaker_id)` 增加索引
+- [x] 二次封装 `Button`
+- [x] 二次封装 `Badge`
+- [x] 二次封装 `Card`
+- [x] 二次封装 `Dialog`
+- [x] 二次封装 `Tabs`
+- [x] 二次封装 `Input / Textarea / Select`
+- [x] 全站统一使用 `lucide-react`
+- [ ] 清理页面里直接散落的硬编码颜色类名
 
 ---
 
-## 3. Phase 2：AI 字段提取协议落地
+## 2. Phase 1：字段系统与数据库治理
 
-### 3.1 Prompt 与协议重构
+### 2.1 字段字典与来源治理
 
-- [x] 重写 `lib/prompts/extract-profile.ts`
-- [x] 从“输出完整对象”改成“输出 patch 合同”
-- [x] Prompt 中显式引入字段字典
-- [x] Prompt 中显式引入更新规则：
-  - [x] 未提及字段不修改旧值
-  - [x] 模糊新值不覆盖明确旧值
-  - [x] `unknown` 不覆盖已有明确值
-  - [x] 敏感字段只允许明确提及时写入
-- [x] Prompt 中显式要求输出：
-  - [x] `field_updates`
-  - [x] `review_required`
-  - [x] `missing_critical_fields`
-  - [x] `suggested_followup_questions`
-  - [x] `summary_updates`
-  - [x] `processing_notes`
+- [x] 审核当前 `field-spec` 与 [plan.md](./plan.md) 的一致性
+- [x] 为所有 V1 核心字段补齐：
+- [x] 字段 key
+- [x] 中文名
+- [x] 类型
+- [x] 允许值
+- [x] 敏感性
+- [x] 匹配层级（硬筛选 / 软偏好 / 待确认 / 参考）
+- [x] 提取规则
+- [x] 更新规则
+- [x] 证据要求
+- [x] 明确哪些字段只允许客户明确表达后写入
+- [x] 明确哪些字段允许 AI 做保守总结
 
-### 3.2 转录与提取输入包
+### 2.2 数据模型审计与补齐
 
-- [x] 在提取 API 中，把当前客户快照一起传给 Claude
-- [x] 把系统上下文传给 Claude：
-  - [x] `matchmaker_id`
-  - [x] `profile_id`
-  - [x] `profile_gender`
-  - [x] `conversation_id`
-  - [x] `uploaded_at`
-  - [x] `audio_duration`
-- [x] 若可用，则传 `transcript_verbose_json`
-- [x] 把字段说明书以机器可读方式传入模型
+- [x] 审核 `profiles` 是否完整覆盖 V1 基础事实字段
+- [x] 审核 `intentions` 是否完整覆盖关系模式和三态接受状态
+- [x] 审核 `trait_profiles` 是否完整覆盖 V1 生活方式字段
+- [x] 审核 `matches` 是否完整覆盖 `confirmed / pending_confirmation / rejected`
+- [x] 审核 `followup_tasks` 是否能承载缺口补问与敏感确认
+- [x] 新增 `field_observations` 表，用于字段级来源与证据追溯
+- [x] 为关键字段补充 `source_type / confidence / verification_status / conversation_id`
 
-### 3.3 Patch 解析与校验
+### 2.3 索引、RLS 与兼容迁移
 
-- [x] 新建 `lib/ai/extraction-contract.ts` 或等价模块
-- [x] 为 AI 输出合同建立 Zod / TS 校验
-- [x] 对非法 action / 非法 tri-state / 缺失字段 label 做兜底校验
-- [x] 对低置信度字段做统一拦截逻辑
-- [x] 对敏感字段缺少 `evidence_excerpt` 做警告或降级
-
-### 3.4 自动入库策略
-
-- [x] 实现“低风险字段默认自动写入”
-- [x] 实现“敏感 / 冲突 / 低置信度字段进入异常确认页”
-- [x] 自动写入时保留 old/new diff
-- [x] 把本次 patch 持久化到 `conversations.extracted_fields`
-- [x] 保留原始 `processing_notes`
-
-### 3.5 多次音频增量更新
-
-- [x] 明确“当前客户快照”的来源
-- [x] 新音频只更新本次明确提到的字段
-- [x] 不再使用“完整对象覆盖”方式同步
-- [x] 实现“最新且明确的新值覆盖旧值”
-- [x] 实现“模糊新值不覆盖明确旧值”
-- [x] 对冲突字段写入 `review_required`
-
-### 3.6 缺口分析与补问生成
-
-- [x] 根据 `missing_critical_fields` 生成补问建议
-- [x] 按优先级生成问题：
-  - [x] 关系模式 / 接受状态
-  - [x] 婚史 / 孩子
-  - [x] 生育意愿
-  - [x] 城市 / 异地 / 迁居
-  - [x] 收入 / 资产 / 生活方式
-- [x] 确保问题满足“一问一事、红娘可直接线下复述”
-- [x] 补问建议写入 `conversations.suggested_questions`
-- [x] 自动创建 `followup_tasks`
+- [x] 为 tri-state、relationship mode、recommendation type 补足索引
+- [x] 为 `followup_tasks(status, matchmaker_id)` 补足索引
+- [x] 为 `field_observations(profile_id, field_key)` 补足索引
+- [x] 为新增表补齐 RLS
+- [x] 对历史数据补齐默认值与兼容迁移
+- [x] 更新数据库类型生成与 TypeScript 类型
 
 ---
 
-## 4. Phase 3：AI-first 录音与建档流程重构
+## 3. Phase 2：AI 字段提取协议与增量更新链路
 
-### 4.1 上传优先建档
+### 3.1 提取协议落地
 
-- [x] 重构“新增客户”流程为 AI-first
+- [x] 审核当前提取 prompt 是否完全对齐 [plan.md](./plan.md) 中的 `AI 字段提取协议 v1`
+- [x] 强制模型输出 patch，而不是完整档案对象
+- [x] 强制模型输出 `field_updates`
+- [x] 强制模型输出 `review_required`
+- [x] 强制模型输出 `missing_critical_fields`
+- [x] 强制模型输出 `suggested_followup_questions`
+- [x] 强制模型输出 `summary_updates`
+- [x] 强制模型输出 `processing_notes`
+
+### 3.2 输入包完善
+
+- [x] 保证提取时传入“当前客户快照”
+- [x] 传入会话系统上下文：`profile_id / profile_gender / matchmaker_id / conversation_id / talked_at / uploaded_at`
+- [x] 若可用则传入 `transcript_verbose_json`
+- [x] 传入字段说明书的机器可读版本
+- [x] 只传必要上下文，控制 token 体积
+
+### 3.3 Patch 应用规则固化
+
+- [x] 确保“未提及字段不覆盖旧值”
+- [x] 确保“模糊新值不覆盖明确旧值”
+- [x] 确保 `unknown` 不覆盖 `yes / no` 或明确事实
+- [x] 确保敏感字段必须尽量带 `evidence_excerpt`
+- [x] 确保冲突字段进入异常确认，而不是默默覆盖
+- [x] 确保可自动写入字段默认直写入库
+- [x] 确保 `summary_updates` 只允许白名单字段
+
+### 3.4 字段来源与历史记录
+
+- [x] 每次提取后保留本次原始 patch
+- [x] 将本次 patch 与最终生效字段做差异记录
+- [x] 把关键字段同步写入 `field_observations`
+- [x] 支持按字段回看“来自哪次录音、哪段证据”
+
+### 3.5 错误处理与容错
+
+- [x] 统一处理云雾 Whisper 错误
+- [x] 统一处理云雾 Claude 错误
+- [x] 用户侧错误文案必须短句化
+- [x] 合同解析失败时不直接把原始 JSON 暴露到前端
+- [ ] 统计未知字段、别名漂移和模型输出异常，便于后续迭代
+
+---
+
+## 4. Phase 3：AI-first 录音与建档主流程
+
+### 4.1 上传与转录链路
+
+- [x] 审核上传页是否真正以“录音优先”而不是“表单优先”
+- [x] 确保音频上传写入 `conversations`
+- [x] 确保记录负责红娘、客户、上传时间、音频时长
+- [x] 确保 `talked_at` 有合理自动推断逻辑
+- [x] 为 Storage 下载补齐重试与超时处理
+- [x] 将浏览器端音频上传改为 Supabase resumable upload，并显示资料库上传进度
+- [x] 为转录请求补齐幂等保护
+- [x] 将转录主链路改为：`Storage signed URL -> Groq`
+- [x] 服务端生成短时效签名 URL，而不是默认下载整段文件后再转传
+- [x] Groq 转录失败时，自动切换到云雾 Whisper 兜底
+- [ ] 上传阶段与转录阶段在状态机与接口实现上彻底解耦
+- [x] 前端步骤文案明确区分“上传到资料库中”与“发送到转录服务中”
+- [x] 确保同一段已入库音频重试转录时无需重新上传
+- [x] 为 URL 转录补齐真实联通回归验证
+
+### 4.2 提取与自动写库
+
+- [x] 确保转录成功后自动进入结构化提取
+- [x] 确保提取成功后自动写入客户当前档案
+- [x] 确保写入完成后会话状态变为 `done`
+- [x] 确保敏感字段与冲突字段进入异常确认链路
+- [x] 确保提取后的缺口与补问写回 `conversations`
+
+### 4.3 新客户建档体验
+
 - [x] 支持“最少上下文创建草稿客户 + 直接上传第一段音频”
-- [x] 让 AI 从第一段音频自动补齐基础字段
-- [x] 只在重名 / 身份不清时要求红娘处理
+- [x] AI 自动补齐第一段录音中的基础事实字段
+- [x] 只在重名、身份冲突、归属不清时要求红娘处理
+- [x] 优化上传完成后的成功态、失败态、恢复态
 
-### 4.2 Conversations 流程
+### 4.4 多轮录音增量更新
 
-- [x] 上传音频时系统自动记录：
-  - [x] 红娘
-  - [x] 客户
-  - [x] 上传时间
-  - [x] 音频时长
-- [x] 优先用系统时间作为 `talked_at` 默认值
-- [x] 若 AI 在文字稿里发现明确谈话时间，可自动修正 `talked_at`
-- [x] 只在明显错误时允许人工纠正
+- [x] 验证“第二段录音可更新第一段录音建立的档案”
+- [x] 验证 tri-state 可从 `unknown -> yes/no`
+- [x] 验证明确新值可覆盖旧值
+- [x] 验证模糊新值不会污染旧值
+- [x] 验证历史录音与当前档案可同时保留
 
-### 4.3 异常确认页替代旧审核页
+### 4.5 长音频策略（V1 边界）
 
-- [x] 将 `/matchmaker/clients/[id]/conversations/[cid]/review` 从“完整审核表单页”改成“差异与异常页”
-- [x] 页面默认只展示：
-  - [x] 本次新增字段
-  - [x] 与旧值冲突字段
-  - [x] 低置信度字段
-  - [x] 敏感待确认字段
-  - [x] AI 补问建议
-- [x] 支持“一键接受 AI 更新”
-- [x] 支持只修改异常字段
-- [x] 不再要求红娘查看和填写完整字段大表单
-
-### 4.4 客户详情页调整
-
-- [x] 客户详情页的数据源改为“当前生效快照”
-- [x] 增加“最近一次 AI 更新摘要”
-- [x] 增加“待确认字段”区块
-- [x] 增加“待补问任务”区块
-- [x] 增加“本次音频带来的字段变化”可追溯视图
+- [x] 明确 V1 默认整段转录，不引入自动分段
+- [ ] 为上传页和后端增加“当前版本暂不做分段”的实现注释与文档说明
+- [ ] 对超大文件只做大小限制与清晰提示，不提前实现 chunking
+- [x] 将“静音切段 / overlap / 合并去重”移入后续版本储备
 
 ---
 
-## 5. Phase 4：匹配引擎重构
+## 5. Phase 4：匹配引擎与待确认候选机制
 
-### 5.1 方向性偏好与权重
+### 5.1 匹配主流程
 
-- [x] 为核心偏好字段增加重要性提取能力
-- [x] 重要性统一采用：
-  - [x] `hard`
-  - [x] `important`
-  - [x] `normal`
-  - [x] `flexible`
-- [x] 从语义线索中提取重要性：
-  - [x] “必须 / 一定要 / 完全不能接受” -> `hard`
-  - [x] “比较看重 / 优先考虑 / 最好” -> `important`
-  - [x] “有更好，没有也行” -> `normal`
-  - [x] “无所谓 / 都行” -> `flexible`
+- [x] 审核基础匹配打分是否覆盖 V1 核心字段
+- [x] 加入关系模式覆盖层
+- [x] 明确 `confirmed / pending_confirmation / rejected` 三类输出
+- [x] 确保 `unknown != no`
+- [x] 确保 `no` 直接排除
+- [x] 确保 `yes` 可进入已确认候选
+- [x] 确保 `unknown` 进入待确认候选
 
-### 5.2 匹配分类重构
+### 5.2 偏好权重
 
-- [x] 重写 `lib/matching/score.ts`
-- [x] 将结果从单一 `passed` 改为：
-  - [x] `confirmed`
-  - [x] `pending_confirmation`
-  - [x] `rejected`
-- [x] 实现 `unknown` 不直接排除，而是进入 `pending_confirmation`
-- [x] 对 tri-state 敏感字段加入专门逻辑
-- [x] 对 `relationship_mode` 做专门门槛逻辑
+- [x] 为年龄、城市、学历、收入、婚史、孩子、生育、生活方式、关系模式接入重要性等级
+- [x] 固定四档：`hard / important / normal / flexible`
+- [x] 将语言线索映射到重要性等级
+- [x] 在得分中体现“满足程度 × 重要性权重”
 
-### 5.3 新评分维度
+### 5.3 候选解释
 
-- [x] 按新版 plan 调整评分维度和 breakdown
-- [x] 至少支持：
-  - [x] 意图 / 关系模式
-  - [x] 城市 / 异地 / 迁居
-  - [x] 婚史 / 孩子 / 生育
-  - [x] 收入 / 资产
-  - [x] 兴趣 / 生活方式
-  - [x] 相处 / 推进
-  - [x] 敏感模式确认度
-- [x] 将“待确认字段”单独输出到匹配结果中
+- [x] 输出总分
+- [x] 输出分字段得分
+- [x] 输出硬冲突字段
+- [x] 输出待确认字段
+- [x] 输出“为什么排前面”
+- [x] 输出“下一步应该问什么”
 
-### 5.4 Match 持久化
+### 5.4 重跑策略
 
-- [x] 更新 `lib/matching/engine.ts`
-- [x] 在写入 `matches` 时同时写入：
-  - [x] `recommendation_type`
-  - [x] `pending_reasons`
-  - [x] `required_followup_fields`
-  - [x] `suggested_followup_questions`
-- [x] 保留高分 `match_reason` 生成能力
-- [x] 对 `pending_confirmation` 的理由文案做专门处理
-
-### 5.5 自动重跑
-
-- [x] 当 AI 自动更新到匹配相关字段时，自动重跑匹配
-- [x] 当敏感字段从 `unknown -> yes/no` 时，自动重跑匹配
-- [x] 当客户核心偏好重要性变化时，自动重跑匹配
+- [x] 当匹配关键字段变更时自动重跑匹配
+- [x] 当 tri-state 从 `unknown` 变为 `yes/no` 时自动重跑
+- [x] 当关系模式发生变化时自动重跑
+- [x] 保证重跑不会把已有跟进状态误重置
 
 ---
 
-## 6. Phase 5：红娘端工作台重构
+## 6. Phase 5：补问任务与提醒闭环
 
-### 6.1 匹配列表页
+### 6.1 自动补问任务
 
-- [x] 将匹配列表按 `confirmed / pending_confirmation` 分区展示
-- [x] 前台主显 `Top1`
-- [x] 后台保留 `Top3`
-- [x] 待确认候选必须展示：
-  - [x] 待确认字段
-  - [x] AI 补问问题
-  - [x] 为什么先入候选
+- [x] 将 `missing_critical_fields` 可靠转成 `followup_tasks`
+- [x] 将敏感待确认项转成 `sensitive_confirmation` 任务
+- [x] 将任务绑定到客户、匹配、红娘
+- [x] 为任务生成一问一事的补问列表
 
-### 6.2 匹配详情页
+### 6.2 提醒中心联动
 
-- [x] 增加“待确认原因”区块
-- [x] 增加“下一步建议补问”区块
-- [x] 显示方向性偏好权重与分字段打分
-- [x] 显示哪些字段是 `hard conflict`
-- [x] 显示哪些字段是 `unknown`
+- [x] 将 `pending_confirmation` 长时间未处理接入提醒
+- [x] 将长期无新录音客户接入提醒
+- [x] 将长期无跟进匹配接入提醒
+- [x] 将提醒与 `followup_tasks` 打通
 
-### 6.3 跟进任务与提醒
+### 6.3 补问完成后的回流
 
-- [x] 在红娘端增加“待补问任务”列表
-- [x] 将 `followup_tasks` 接入提醒系统
-- [x] 新增 `pending_confirmation` 类型提醒
-- [x] 支持从提醒直接跳转到客户 / 匹配 / 异常确认页
+- [x] 当红娘上传后续录音时，自动尝试关闭相关补问任务
+- [x] 当 tri-state 被明确后，自动关闭对应确认任务
+- [x] 在匹配页和提醒中心同步刷新状态
 
 ---
 
-## 7. Phase 6：管理端与治理能力
+## 7. Phase UI-1：红娘核心工作流页面重构
 
-### 7.1 管理端字段治理
+### 7.1 客户详情页骨架
 
-- [x] 增加“字段完整度”看板
-- [x] 统计：
-  - [x] 基础字段完整度
-  - [x] 敏感字段完整度
-  - [x] 生活方式字段完整度
-  - [x] 已核验字段占比
-- [x] 统计 `pending_confirmation` 积压量
-- [x] 统计各红娘的补问完成率
+- [x] 重构客户头部 Hero 区
+- [x] 让头部只展示最关键的 6-8 项信息
+- [x] 固定右侧辅助栏：最近更新 / 缺口 / 待确认 / 下一步
+- [x] 统一 tab 导航层级与布局
 
-### 7.2 敏感模式运营视图
+### 7.2 录音记录页
 
-- [x] 管理端支持查看三类关系模式客户规模
-- [x] 支持查看各模式的 `confirmed / pending_confirmation / rejected` 分布
-- [x] 支持查看敏感字段确认耗时
+- [x] 将录音列表改造成“时间线摘要卡”
+- [x] 明确拆分：录音速记 vs AI 摘要
+- [x] 优化状态、数量、动作按钮的扫描效率
+- [x] 不再让长转录摘要被遮挡或硬截断得难以阅读
 
-### 7.3 历史与证据（预备 Phase 2/3）
+### 7.3 录音详情工作台
 
-- [x] 已评估 `field_observations` 表，当前轮暂缓进入开发
-- [ ] 若进入，则实现字段级来源追溯
-- [x] 暂缓情况下，已保证 conversations + patch 历史可回放
+- [x] 将“查看详细”升级为双栏工作台式详情层
+- [x] 左侧只放转录全文与证据
+- [x] 右侧只放 AI 摘要、自动写入、异常、缺口、补问
+- [x] 修复转录全文无法独立滚动的问题
+- [x] 修复弹窗宽度、层级、滚动和信息压缩问题
 
----
+### 7.4 审核页
 
-## 8. Phase 7：验证、回归与发布准备
-
-### 8.1 协议与数据回归测试
-
-- [x] 为 AI 输出合同增加单元测试
-- [ ] 补齐剩余测试案例：
-  - [x] 明确新值覆盖旧值
-  - [x] 模糊新值不覆盖明确旧值
-  - [x] `unknown` 不覆盖 `yes/no`
-  - [x] 敏感模式正确进入 `pending_confirmation`
-  - [x] 缺失字段正确生成补问任务
-
-### 8.2 流程级测试
-
-- [x] 跑通“首段音频自动建档”流程
-- [x] 跑通“第二段音频增量更新”流程
-- [x] 跑通“敏感字段从 unknown 变 yes/no”后的自动重跑匹配
-- [x] 跑通“AI 自动入库 + 红娘异常确认”流程
-
-> 说明：本地已完成一组真实流程验证。首段男女音频完成自动建档与字段写入；女方第二段补充音频在第三方 `whisper-1` / Claude 配额再次耗尽后，使用同一音频已验证 transcript 回放完成增量提取与匹配重跑，最终将匹配从 `pending_confirmation` 推进到 `confirmed`；异常确认则基于真实 `review_required` 会话完成清空与 `reviewed_at` 回写。
-- [x] 已完成匿名态本地路由冒烟：
-  - [x] `/` -> `/login`
-  - [x] `/login` 返回 `200`
-  - [x] `/matchmaker/clients/new` 未登录重定向到 `/login`
-  - [x] `/admin/dashboard` 未登录重定向到 `/login`
-
-### 8.3 本地与部署准备
-
-- [x] 本地 `npm run build` 再次验证通过
-- [x] 本地 `npm test` 已通过
-- [x] 补充部署文档里对新表、新枚举、新定时任务的说明
-- [ ] 在 Vercel / Supabase 控制台完成新环境变量与 migration 部署
+- [x] 将审核页彻底收束为“差异与异常处理页”
+- [x] 默认只展示变化、冲突、敏感项、低置信度项
+- [x] 显示当前值 vs AI 候选 vs 证据片段
+- [x] 三态字段必须用红娘可理解的交互控件
+- [x] 不再暴露原始 field key、英文枚举值、原始 JSON
 
 ---
 
-## 9. 后续扩展（V2 / V3 储备）
+## 8. Phase UI-2：匹配与跟进工作台重构
 
-### 9.1 人格与测评体系
+### 8.1 匹配列表页
 
-- [ ] 评估 MBTI 自报字段是否需要回归客户档案
-- [ ] 评估 Big Five / Attachment / HEXACO 是否通过问卷而非音频提取接入
-- [ ] 明确这些字段是否进入匹配，还是仅做展示 / 参考
+- [x] 按 `confirmed / pending_confirmation` 明确分区
+- [ ] 前台主显 Top1
+- [ ] 保留 Top3 候选
+- [x] 每张卡片都显示“为什么值得看”
+- [x] `pending_confirmation` 卡片明确显示“缺什么、问什么、为什么值得继续”
 
-### 9.2 说话人分离
+### 8.2 匹配详情页
 
-- [ ] 持续关注第三方网关是否支持 diarization / speaker labels
-- [ ] 若支持，再评估是否升级转录链路
+- [x] 强化匹配理由展示
+- [x] 强化待确认字段展示
+- [x] 强化下一步动作建议展示
+- [x] 让红娘可以快速做推进决策
 
-### 9.3 已核验体系
+### 8.3 跟进记录页
 
-- [ ] 为收入 / 资产 / 婚史 / 孩子等高风险字段设计核验流程
-- [ ] 增加核验状态展示与筛选
+- [x] 统一跟进时间线样式
+- [x] 将跟进动作、结果、风险提示拆层
+- [x] 与补问任务、匹配状态联动
+
+### 8.4 提醒中心
+
+- [x] 将提醒改造成真正的工作列表，而不是简单通知列表
+- [ ] 支持按优先级、任务类型、状态过滤
+- [x] 支持从提醒直接跳到客户、匹配、补问任务
 
 ---
 
-## 10. 当前建议的执行顺序
+## 9. Phase UI-3：管理端治理与分析
 
-- [x] 先完成 **Phase 1 字段系统与数据库重构**
-- [x] 再完成 **Phase 2 AI 协议落地**
-- [x] 然后完成 **Phase 3 AI-first 建档与异常确认页**
-- [x] 再完成 **Phase 4 匹配引擎重构**
-- [x] 随后完成 **Phase 5 红娘端工作台重构**
-- [ ] 最后补齐 **Phase 7 验证发布**（完整实录联调 + 控制台部署）
+### 9.1 管理看板
 
-> 建议：  
-> 这次不要从 UI 开始改，而是严格按以下顺序推进：  
-> `字段字典 -> 数据库 -> AI 协议 -> 自动入库 -> 异常确认 -> 匹配重构 -> 工作台展示`
+- [x] 重构管理端 dashboard 的信息层级
+- [x] 展示字段完整度
+- [x] 展示敏感模式候选数量
+- [x] 展示待确认积压量
+- [x] 展示红娘补问完成率
+- [x] 展示匹配推进漏斗
+
+### 9.2 客户与匹配治理页
+
+- [ ] 提供字段完整度筛选
+- [ ] 提供敏感关系模式筛选
+- [ ] 提供待确认候选筛选
+- [ ] 提供异常提取记录与失败记录筛选
+
+### 9.3 运营与质量观察
+
+- [ ] 增加录音处理成功率统计
+- [ ] 增加提取失败率统计
+- [ ] 增加未知字段比例统计
+- [ ] 增加模型输出漂移观察点
+
+---
+
+## 10. 测试、联调与发布
+
+### 10.1 回归测试
+
+- [x] 为字段 patch 应用补齐回归测试
+- [x] 为 tri-state 更新补齐回归测试
+- [x] 为匹配分类补齐回归测试
+- [x] 为补问任务生成补齐回归测试
+- [x] 为用户侧短句错误提示补齐回归测试
+
+### 10.2 真实流程联调
+
+- [x] 用男方首轮录音验证自动建档
+- [ ] 用女方首轮录音验证自动建档
+- [x] 用补充录音验证增量更新
+- [x] 验证 `unknown -> yes`
+- [ ] 验证 `unknown -> no`
+- [x] 验证 `pending_confirmation -> confirmed`
+- [x] 验证异常确认页真实可用
+
+### 10.3 UI 验收
+
+- [x] 客户详情页在桌面端可用
+- [ ] 客户详情页在移动端可用
+- [x] 录音详情转录全文可独立滚动
+- [x] 红娘前台不再看到原始英文枚举值
+- [x] 录音列表摘要不再被遮挡
+- [x] 全站图标统一为 `lucide-react`
+
+### 10.4 发布准备
+
+- [x] 清理 `.env` 说明与部署文档
+- [ ] 校验生产数据库 migration 顺序
+- [ ] 校验 Vercel / Supabase 环境变量
+- [x] 校验生产构建
+- [ ] 完成上线前 smoke test
+
+---
+
+## 11. V2 储备项（暂不进入当前主线）
+
+- [ ] 说话人分离 / diarization
+- [ ] 长音频自动分段
+- [ ] overlap 切段与 transcript 合并去重
+- [ ] 段首上下文补偿与术语 prompt
+- [ ] MBTI 自报字段
+- [ ] Big Five 问卷接入
+- [ ] Attachment 问卷接入
+- [ ] HEXACO 问卷接入
+- [ ] 问卷式补录入口
+- [ ] 自助客户端
+- [ ] 更精细的财富与核验工作流
+
+---
+
+## 12. 当前阶段最优先事项
+
+- [ ] 完成 Phase UI-0：品牌、主题与全局骨架基线
+- [x] 完成 Phase 1：字段系统与数据库治理审计补齐
+- [ ] 完成 Phase 2：AI 字段提取协议与增量更新链路加固
+- [x] 完成 Phase UI-1：客户详情页、录音记录页、录音详情工作台、审核页重构
+- [x] 完成 Phase 4：匹配引擎与待确认候选机制稳定化

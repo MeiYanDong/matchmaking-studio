@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { createClient } from '@/actions/clients'
 import { GenderType } from '@/types/database'
-import { LoaderCircle } from 'lucide-react'
+import { LoaderCircle, Mars, Venus } from 'lucide-react'
 
 export function NewClientForm() {
   const router = useRouter()
@@ -56,7 +56,13 @@ export function NewClientForm() {
                   : 'border-gray-200 text-gray-500 hover:border-gray-300'
               }`}
             >
-              <div className="text-2xl mb-1">{g === 'male' ? '👨' : '👩'}</div>
+              <div className="mb-2 flex justify-center">
+                {g === 'male' ? (
+                  <Mars className="h-6 w-6" />
+                ) : (
+                  <Venus className="h-6 w-6" />
+                )}
+              </div>
               <div className="font-medium">{g === 'male' ? '男方' : '女方'}</div>
             </button>
           ))}

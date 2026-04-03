@@ -15,7 +15,7 @@ type MatchRunResult = {
 function getMatchReasonModel() {
   return process.env.CLAUDE_MATCH_REASON_MODEL?.trim()
     || process.env.CLAUDE_DEFAULT_MODEL?.trim()
-    || 'claude-sonnet-4-20250514'
+    || 'anthropic/claude-sonnet-4.6'
 }
 
 function toProfileWithIntention(

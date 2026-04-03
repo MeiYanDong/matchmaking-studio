@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { ProfileCard } from '@/components/client/profile-card'
 import { toast } from 'sonner'
 import { updateMatchStatus, dismissMatch } from '@/actions/matches'
-import { Phone, Calendar, MapPin, FileText, TrendingUp, X, CheckCircle } from 'lucide-react'
+import { Phone, Calendar, MapPin, FileText, TrendingUp, X, CheckCircle, Mars, Venus } from 'lucide-react'
 import { getFieldDisplayLabel, humanizeAIText } from '@/lib/ai/field-presentation'
 
 interface MatchDetailClientProps {
@@ -47,7 +47,7 @@ const STATUS_FLOW: Record<MatchStatus, { next: MatchStatus; label: string; color
   both_agreed: [{ next: 'meeting_scheduled', label: '安排约谈', color: 'bg-orange-500 hover:bg-orange-600' }],
   meeting_scheduled: [{ next: 'met', label: '确认已见面', color: 'bg-yellow-500 hover:bg-yellow-600' }],
   met: [
-    { next: 'succeeded', label: '匹配成功 🎉', color: 'bg-green-500 hover:bg-green-600' },
+    { next: 'succeeded', label: '标记匹配成功', color: 'bg-green-500 hover:bg-green-600' },
     { next: 'failed', label: '匹配失败', color: 'bg-gray-500 hover:bg-gray-600' },
   ],
   succeeded: [],
@@ -235,11 +235,17 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
       {/* Profile cards */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <p className="text-xs text-gray-400 mb-2 font-medium">👨 男方</p>
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-gray-400">
+            <Mars className="h-3.5 w-3.5" />
+            男方
+          </p>
           <ProfileCard profile={maleProfile} intention={maleIntention} printable />
         </div>
         <div>
-          <p className="text-xs text-gray-400 mb-2 font-medium">👩 女方</p>
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-gray-400">
+            <Venus className="h-3.5 w-3.5" />
+            女方
+          </p>
           <ProfileCard profile={femaleProfile} intention={femaleIntention} printable />
         </div>
       </div>

@@ -122,6 +122,38 @@ function normalizeReviewIssueType(
   return fieldKey === 'profile_gender' ? 'identity_conflict' : 'ambiguous_statement'
 }
 
+function normalizeConfidence(value: unknown): ExtractionConfidence {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    if (value >= 0.85) return 'high'
+    if (value >= 0.55) return 'medium'
+    return 'low'
+  }
+
+  const raw = String(value ?? '').trim()
+  if (!raw) return 'medium'
+
+  const normalized = normalizeFieldIdentifier(raw)
+
+  if (normalized === 'high' || normalized === '高' || normalized === 'highconfidence') {
+    return 'high'
+  }
+
+  if (normalized === 'medium' || normalized === '中' || normalized === 'mediumconfidence') {
+    return 'medium'
+  }
+
+  if (normalized === 'low' || normalized === '低' || normalized === 'lowconfidence') {
+    return 'low'
+  }
+
+  const numeric = Number(raw)
+  if (Number.isFinite(numeric)) {
+    return normalizeConfidence(numeric)
+  }
+
+  return 'medium'
+}
+
 function resolveFieldKey(value: unknown) {
   const raw = String(value ?? '').trim()
   if (!raw) return ''
@@ -223,7 +255,7 @@ function normalizeFieldUpdateItem(item: Record<string, unknown>) {
     action: item.action ?? 'set',
     new_value: item.new_value ?? item.value,
     old_value: item.old_value,
-    confidence: item.confidence ?? 'medium',
+    confidence: normalizeConfidence(item.confidence),
     evidence_excerpt: item.evidence_excerpt ?? item.source,
     reason: item.reason,
     auto_apply: item.auto_apply,
@@ -240,7 +272,7 @@ function normalizeReviewRequiredItem(item: Record<string, unknown>) {
     issue_type: issueType,
     old_value: item.old_value,
     candidate_value: item.candidate_value ?? item.candidate_values,
-    confidence: item.confidence ?? 'medium',
+    confidence: normalizeConfidence(item.confidence),
     evidence_excerpt: item.evidence_excerpt ?? item.source,
     reason: item.reason,
   }

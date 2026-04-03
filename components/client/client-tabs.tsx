@@ -21,21 +21,25 @@ export function ClientTabs({ profile, intention, traitProfile, conversations, ma
 
   return (
     <Tabs defaultValue="info" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 mb-6">
-        <TabsTrigger value="info">基本信息</TabsTrigger>
-        <TabsTrigger value="matches">
+      <TabsList className="mb-6 grid w-full grid-cols-2 rounded-[22px] border border-[#eadfce] bg-[#f6efe6] p-1.5 lg:grid-cols-4">
+        <TabsTrigger value="info" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+          基本信息
+        </TabsTrigger>
+        <TabsTrigger value="matches" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
           匹配推荐
           {pendingMatchCount > 0 && (
-            <span className="ml-1.5 bg-rose-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-5">
+            <span className="ml-1.5 min-w-5 rounded-full bg-[#8f3c32] px-1.5 py-0.5 text-xs text-white">
               {pendingMatchCount}
             </span>
           )}
         </TabsTrigger>
-        <TabsTrigger value="conversations">录音记录</TabsTrigger>
-        <TabsTrigger value="followup">
+        <TabsTrigger value="conversations" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+          录音记录
+        </TabsTrigger>
+        <TabsTrigger value="followup" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
           跟进记录
           {openTaskCount > 0 && (
-            <span className="ml-1.5 bg-amber-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-5">
+            <span className="ml-1.5 min-w-5 rounded-full bg-[#b6763e] px-1.5 py-0.5 text-xs text-white">
               {openTaskCount}
             </span>
           )}

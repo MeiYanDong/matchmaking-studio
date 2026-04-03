@@ -53,52 +53,54 @@ export default async function ClientsPage({
   const femaleCount = profileRows.filter(p => p.gender === 'female').length
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">我的客户</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            共 {profileRows.length} 位客户 · 男方 {maleCount} 位 · 女方 {femaleCount} 位
-          </p>
-          {profilesError ? (
-            <p className="text-amber-600 text-sm mt-2">
-              客户列表刚刚加载不完整，页面已经自动兜底。你可以刷新一次再看最新数据。
+    <div className="space-y-6">
+      <section className="rounded-[32px] border border-[#dfd0c0] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(252,247,241,0.98)_48%,rgba(247,238,229,0.95))] px-6 py-7 shadow-[0_26px_64px_-44px_rgba(35,24,21,0.48)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-[#8b6d58]">Client Desk</p>
+            <h2 className="mt-2 font-heading text-4xl text-[#231815]">我的客户</h2>
+            <p className="mt-3 text-sm leading-7 text-[#6b594c]">
+              共 {profileRows.length} 位客户，当前男方 {maleCount} 位、女方 {femaleCount} 位。优先通过最新录音更新字段，再让 AI 继续推进匹配。
             </p>
-          ) : null}
+          </div>
+
+          <Link href="/matchmaker/clients/new">
+            <Button className="h-11 rounded-[18px] px-4 shadow-[0_20px_40px_-28px_rgba(143,60,50,0.75)]">
+              <Plus className="w-4 h-4" />
+              新增客户
+            </Button>
+          </Link>
         </div>
-        <Link href="/matchmaker/clients/new">
-          <Button className="bg-rose-500 hover:bg-rose-600 gap-2">
-            <Plus className="w-4 h-4" />
-            新增客户
-          </Button>
-        </Link>
-      </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <FilterLink href="/matchmaker/clients" label="全部" active={!gender && !intent && !status} />
-        <FilterLink href="/matchmaker/clients?gender=male" label="男方" active={gender === 'male'} />
-        <FilterLink href="/matchmaker/clients?gender=female" label="女方" active={gender === 'female'} />
-        <div className="w-px bg-gray-200 mx-1" />
-        <FilterLink href="/matchmaker/clients?intent=marriage" label="结婚意向" active={intent === 'marriage'} />
-        <FilterLink href="/matchmaker/clients?intent=dating" label="恋爱意向" active={intent === 'dating'} />
-        <FilterLink href="/matchmaker/clients?intent=fertility" label="生育目标" active={intent === 'fertility'} />
-        <div className="w-px bg-gray-200 mx-1" />
-        <FilterLink href="/matchmaker/clients?status=active" label="活跃" active={status === 'active'} />
-        <FilterLink href="/matchmaker/clients?status=matched" label="已匹配" active={status === 'matched'} />
-        <FilterLink href="/matchmaker/clients?status=paused" label="暂停" active={status === 'paused'} />
-      </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <FilterLink href="/matchmaker/clients" label="全部" active={!gender && !intent && !status} />
+          <FilterLink href="/matchmaker/clients?gender=male" label="男方" active={gender === 'male'} />
+          <FilterLink href="/matchmaker/clients?gender=female" label="女方" active={gender === 'female'} />
+          <div className="mx-1 w-px bg-[#e6d7c8]" />
+          <FilterLink href="/matchmaker/clients?intent=marriage" label="结婚意向" active={intent === 'marriage'} />
+          <FilterLink href="/matchmaker/clients?intent=dating" label="恋爱意向" active={intent === 'dating'} />
+          <FilterLink href="/matchmaker/clients?intent=fertility" label="生育目标" active={intent === 'fertility'} />
+          <div className="mx-1 w-px bg-[#e6d7c8]" />
+          <FilterLink href="/matchmaker/clients?status=active" label="活跃" active={status === 'active'} />
+          <FilterLink href="/matchmaker/clients?status=matched" label="已匹配" active={status === 'matched'} />
+          <FilterLink href="/matchmaker/clients?status=paused" label="暂停" active={status === 'paused'} />
+        </div>
 
-      {/* Client grid */}
+        {profilesError ? (
+          <p className="mt-4 rounded-[18px] border border-[#ecd7c1] bg-[#fff7ef] px-4 py-3 text-sm text-[#9d6b42]">
+            客户列表刚刚加载不完整，页面已经自动兜底。你可以刷新一次再看最新数据。
+          </p>
+        ) : null}
+      </section>
+
       {!filtered.length ? (
-        <div className="text-center py-20 text-gray-400">
-          <User className="w-12 h-12 mx-auto mb-3 opacity-40" />
+        <div className="rounded-[28px] border border-dashed border-[#dacbbb] bg-white/70 py-20 text-center text-[#8a776a]">
+          <User className="mx-auto mb-3 h-12 w-12 opacity-40" />
           <p className="text-lg font-medium">暂无客户</p>
-          <p className="text-sm mt-1">点击右上角"新增客户"添加第一位客户</p>
+          <p className="mt-1 text-sm">点击右上角“新增客户”添加第一位客户</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((profile) => {
             return <ClientCard key={profile.id} profile={profile} />
           })}
@@ -113,7 +115,7 @@ function FilterLink({ href, label, active }: { href: string; label: string; acti
     <Link href={href}>
       <Badge
         variant={active ? 'default' : 'outline'}
-        className={`cursor-pointer px-3 py-1 text-sm ${active ? 'bg-rose-500 hover:bg-rose-600' : 'hover:bg-gray-100'}`}
+        className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${active ? 'border-[#8f3c32] bg-[#8f3c32] text-white hover:bg-[#7f342b]' : 'border-[#ddcbbb] bg-white/80 text-[#5f4d41] hover:bg-white'}`}
       >
         {label}
       </Badge>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateClaudeText } from '@/lib/ai/client'
+import { generateClaudeTextDetailed } from '@/lib/ai/client'
 import { toUserFacingAIErrorMessage } from '@/lib/ai/provider-errors'
 import { EXTRACT_PROFILE_SYSTEM_PROMPT, buildExtractPrompt } from '@/lib/prompts/extract-profile'
 import { parseExtractionContract } from '@/lib/ai/extraction-contract'
@@ -10,6 +10,7 @@ import { syncFollowupTask } from '@/lib/followup/tasks'
 import { runMatchingForProfile } from '@/lib/matching/engine'
 import { getSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
+import { isLikelyTruncatedJsonOutput, parseJsonFromModelOutput } from '@/lib/ai/model-output'
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error
@@ -17,15 +18,10 @@ function getErrorMessage(error: unknown, fallback: string) {
     : fallback
 }
 
-function parseJsonFromModelOutput(text: string) {
-  const jsonText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-  return JSON.parse(jsonText)
-}
-
 function getExtractionModel() {
   return process.env.CLAUDE_EXTRACTION_MODEL?.trim()
     || process.env.CLAUDE_DEFAULT_MODEL?.trim()
-    || 'claude-sonnet-4-20250514'
+    || 'anthropic/claude-sonnet-4.6'
 }
 
 function getExtractionMaxTokens() {
@@ -35,6 +31,78 @@ function getExtractionMaxTokens() {
   }
 
   return 1536
+}
+
+const EXTRACTION_RETRY_SYSTEM_SUFFIX = `
+
+补充规则：
+1. 你上一次输出可能因为过长被截断，这一次请进一步压缩。
+2. processing_notes 最多 3 条，每条不超过 24 个字。
+3. summary_updates 文本字段尽量一句话。
+4. 除必要字段外，不要生成冗长原因说明。
+`
+
+async function generateAndParseExtractionContract(input: {
+  model: string
+  maxTokens: number
+  system: string
+  prompt: string
+}) {
+  const firstResult = await generateClaudeTextDetailed({
+    model: input.model,
+    maxTokens: input.maxTokens,
+    system: input.system,
+    responseFormat: 'json_object',
+    messages: [
+      {
+        role: 'user',
+        content: input.prompt,
+      },
+    ],
+  })
+
+  try {
+    return {
+      contract: parseExtractionContract(parseJsonFromModelOutput(firstResult.text)),
+      rawText: firstResult.text,
+    }
+  } catch (error) {
+    const shouldRetry =
+      isLikelyTruncatedJsonOutput(firstResult.text, error, firstResult.finishReason)
+
+    if (!shouldRetry) {
+      throw {
+        cause: error,
+        rawText: firstResult.text,
+      }
+    }
+
+    const retryResult = await generateClaudeTextDetailed({
+      model: input.model,
+      maxTokens: Math.max(input.maxTokens, 2300),
+      system: `${input.system}\n${EXTRACTION_RETRY_SYSTEM_SUFFIX}`.trim(),
+      responseFormat: 'json_object',
+      messages: [
+        {
+          role: 'user',
+          content: input.prompt,
+        },
+      ],
+    })
+
+    try {
+      return {
+        contract: parseExtractionContract(parseJsonFromModelOutput(retryResult.text)),
+        rawText: retryResult.text,
+      }
+    } catch (retryError) {
+      throw {
+        cause: retryError,
+        rawText: retryResult.text,
+        truncated: true,
+      }
+    }
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -110,47 +178,46 @@ export async function POST(request: NextRequest) {
       conversation,
     })
 
-    const text = await generateClaudeText({
-      model: getExtractionModel(),
-      maxTokens: getExtractionMaxTokens(),
-      system: EXTRACT_PROFILE_SYSTEM_PROMPT,
-      responseFormat: 'json_object',
-      messages: [
-        {
-          role: 'user',
-          content: buildExtractPrompt({
-            transcript: conversation.transcript,
-            transcriptVerboseJson: conversation.transcript_verbose_json,
-            currentSnapshot,
-            systemContext: {
-              matchmaker_id: conversation.matchmaker_id,
-              matchmaker_name: matchmakerRole?.display_name ?? null,
-              profile_id: profile.id,
-              profile_gender: profile.gender,
-              conversation_id: conversation.id,
-              uploaded_at: conversation.created_at,
-              audio_duration: conversation.audio_duration,
-            },
-          }),
-        },
-      ],
+    const prompt = buildExtractPrompt({
+      transcript: conversation.transcript,
+      transcriptVerboseJson: conversation.transcript_verbose_json,
+      currentSnapshot,
+      systemContext: {
+        matchmaker_id: conversation.matchmaker_id,
+        matchmaker_name: matchmakerRole?.display_name ?? null,
+        profile_id: profile.id,
+        profile_gender: profile.gender,
+        conversation_id: conversation.id,
+        uploaded_at: conversation.created_at,
+        audio_duration: conversation.audio_duration,
+      },
     })
 
     let extractionContract
+    let rawModelText = ''
     try {
-      extractionContract = parseExtractionContract(parseJsonFromModelOutput(text))
+      const result = await generateAndParseExtractionContract({
+        model: getExtractionModel(),
+        maxTokens: getExtractionMaxTokens(),
+        system: EXTRACT_PROFILE_SYSTEM_PROMPT,
+        prompt,
+      })
+      extractionContract = result.contract
+      rawModelText = result.rawText
     } catch (error) {
+      const payload = error as { cause?: unknown; rawText?: string; truncated?: boolean }
+      const fallbackMessage = payload?.truncated ? 'AI 返回被截断，请重试。' : 'AI 返回格式解析失败'
       await supabase
         .from('conversations')
         .update({
           status: 'failed',
-          error_message: 'AI 返回格式解析失败',
-          extraction_notes: text,
+          error_message: fallbackMessage,
+          extraction_notes: payload?.rawText ?? null,
         })
         .eq('id', targetConversationId)
 
       return NextResponse.json({
-        error: getErrorMessage(error, 'AI 返回格式解析失败'),
+        error: getErrorMessage(payload?.cause ?? error, fallbackMessage),
       }, { status: 500 })
     }
 

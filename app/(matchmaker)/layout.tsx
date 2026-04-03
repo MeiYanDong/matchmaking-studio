@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Sidebar } from '@/components/nav/sidebar'
+import { WorkspaceShell } from '@/components/nav/workspace-shell'
 import { requireSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 
@@ -29,15 +29,12 @@ export default async function MatchmakerLayout({
   const unreadCount = unreadResult.error ? 0 : (unreadResult.count ?? 0)
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar
-        role={role}
-        displayName={displayName}
-        unreadCount={unreadCount}
-      />
-      <main className="flex-1 overflow-auto">
+    <WorkspaceShell
+      role={role}
+      displayName={displayName}
+      unreadCount={unreadCount}
+    >
         {children}
-      </main>
-    </div>
+    </WorkspaceShell>
   )
 }

@@ -6,6 +6,7 @@ import './globals.css'
 const rootStyle = {
   '--font-sans': '"Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif',
   '--font-geist-mono': '"SFMono-Regular", "SF Mono", Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", monospace',
+  '--font-heading': '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Baskerville", "Songti SC", "Source Han Serif SC", serif',
 } as CSSProperties
 
 export const metadata: Metadata = {

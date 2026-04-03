@@ -8,7 +8,7 @@ import {
   classifyWhisperGatewayFailure,
   inferGatewayProviderName,
   normalizeSecretValue,
-  shouldFallbackToOfficialOpenAI,
+  shouldFallbackToBackupWhisperProvider,
   toUserFacingAIErrorMessage,
 } from '@/lib/ai/provider-errors'
 
@@ -21,19 +21,21 @@ test('normalizeSecretValue 会过滤占位密钥', () => {
 test('classifyWhisperGatewayFailure 能识别额度不足', () => {
   const body = '{"error":{"message":"预扣费额度失败","code":"insufficient_user_quota"}}'
   assert.equal(classifyWhisperGatewayFailure(403, body), 'quota_exceeded')
-  assert.equal(shouldFallbackToOfficialOpenAI(403, body), true)
+  assert.equal(shouldFallbackToBackupWhisperProvider(403, body), true)
 })
 
 test('classifyWhisperGatewayFailure 能识别上游无可用渠道', () => {
   const body = '{"error":{"message":"default 分组下 whisper-1 没有可用渠道"}}'
   assert.equal(classifyWhisperGatewayFailure(503, body), 'provider_unavailable')
-  assert.equal(shouldFallbackToOfficialOpenAI(503, body), true)
+  assert.equal(shouldFallbackToBackupWhisperProvider(503, body), true)
 })
 
 test('inferGatewayProviderName 能识别云雾主站', () => {
   assert.equal(inferGatewayProviderName('https://yunwu.ai'), '云雾')
   assert.equal(inferGatewayProviderName('https://yunwu.zeabur.app'), '云雾')
   assert.equal(inferGatewayProviderName('https://api.tu-zi.com'), '兔子')
+  assert.equal(inferGatewayProviderName('https://openrouter.ai/api/v1'), 'OpenRouter')
+  assert.equal(inferGatewayProviderName('https://api.groq.com/openai/v1'), 'Groq')
 })
 
 test('buildWhisperGatewayErrorMessage 会给出可执行指引', () => {
@@ -49,7 +51,7 @@ test('buildWhisperGatewayErrorMessage 会给出可执行指引', () => {
     false
   )
 
-  assert.match(quotaMessage, /第三方账户余额/)
+  assert.match(quotaMessage, /余额或权限/)
   assert.match(unavailableMessage, /没有可用渠道/)
   assert.match(buildWhisperEmptyTranscriptMessage(false), /空文本/)
 })
@@ -79,4 +81,11 @@ test('toUserFacingAIErrorMessage 会把 Whisper 配额问题压成短句', () =>
 test('toUserFacingAIErrorMessage 会把字段校验数组错误压成短句', () => {
   const raw = '[{"code":"custom","path":["field_updates",0,"field_key"],"message":"unknown field key"}]'
   assert.equal(toUserFacingAIErrorMessage(raw, '提取失败'), 'AI 返回了无法识别的字段，请重试。')
+})
+
+test('toUserFacingAIErrorMessage 会把网络层 fetch failed 压成短句', () => {
+  assert.equal(
+    toUserFacingAIErrorMessage('TypeError: fetch failed', '提取失败'),
+    'AI 服务连接失败，请重试当前操作。'
+  )
 })

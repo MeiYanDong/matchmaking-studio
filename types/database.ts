@@ -42,6 +42,12 @@ export type FollowupTaskType =
 export type FollowupTaskStatus = 'open' | 'in_progress' | 'done' | 'dismissed'
 export type ImportanceLevel = 'hard' | 'important' | 'normal' | 'flexible'
 export type TaskPriority = 'high' | 'medium' | 'low'
+export type FieldObservationSourceType =
+  | 'self_reported'
+  | 'matchmaker_summary'
+  | 'ai_extracted'
+  | 'verified_document'
+export type FieldVerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected'
 
 export interface Database {
   public: {
@@ -442,6 +448,51 @@ export interface Database {
         }
         Relationships: []
       }
+      field_observations: {
+        Row: {
+          id: string
+          profile_id: string
+          conversation_id: string
+          field_key: string
+          field_value_json: Json | null
+          source_type: FieldObservationSourceType
+          confidence: number
+          verification_status: FieldVerificationStatus
+          evidence_text: string | null
+          start_time_seconds: number | null
+          end_time_seconds: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          conversation_id: string
+          field_key: string
+          field_value_json?: Json | null
+          source_type?: FieldObservationSourceType
+          confidence?: number
+          verification_status?: FieldVerificationStatus
+          evidence_text?: string | null
+          start_time_seconds?: number | null
+          end_time_seconds?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          conversation_id?: string
+          field_key?: string
+          field_value_json?: Json | null
+          source_type?: FieldObservationSourceType
+          confidence?: number
+          verification_status?: FieldVerificationStatus
+          evidence_text?: string | null
+          start_time_seconds?: number | null
+          end_time_seconds?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           id: string
@@ -692,6 +743,8 @@ export interface Database {
       followup_task_status: FollowupTaskStatus
       importance_level: ImportanceLevel
       task_priority: TaskPriority
+      field_observation_source_type: FieldObservationSourceType
+      field_verification_status: FieldVerificationStatus
     }
     CompositeTypes: Record<string, never>
   }
@@ -708,6 +761,10 @@ export type IntentionUpdate = Database['public']['Tables']['intentions']['Update
 export type TraitProfile = Database['public']['Tables']['trait_profiles']['Row']
 export type TraitProfileInsert = Database['public']['Tables']['trait_profiles']['Insert']
 export type TraitProfileUpdate = Database['public']['Tables']['trait_profiles']['Update']
+
+export type FieldObservation = Database['public']['Tables']['field_observations']['Row']
+export type FieldObservationInsert = Database['public']['Tables']['field_observations']['Insert']
+export type FieldObservationUpdate = Database['public']['Tables']['field_observations']['Update']
 
 export type Conversation = Database['public']['Tables']['conversations']['Row']
 export type ConversationInsert = Database['public']['Tables']['conversations']['Insert']
