@@ -10,6 +10,12 @@ const SCHEMA_PATH = path.join(ROOT_DIR, 'schema.sql')
 const DEMO_TRANSCRIPT_PATH = path.join(ROOT_DIR, 'fixtures', 'demo-transcript.txt')
 
 export type AgentDatabase = InstanceType<typeof DatabaseSync>
+export type AgentPocGender = 'male' | 'female'
+
+type AgentPocProfileExtraData = {
+  phone?: string
+  note?: string
+}
 
 export function getAgentDatabasePath() {
   return process.env.AGENT_POC_DB_PATH || DEFAULT_DB_PATH
@@ -243,6 +249,15 @@ function parseJsonCell(value: unknown) {
   }
 }
 
+function parseProfileExtraData(value: unknown): AgentPocProfileExtraData {
+  const parsed = parseJsonCell(value)
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {}
+  }
+
+  return parsed as AgentPocProfileExtraData
+}
+
 function getTableColumns(db: AgentDatabase, table: 'profiles' | 'intentions' | 'trait_profiles') {
   const rows = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>
   return new Set(rows.map((row) => row.name))
@@ -289,6 +304,141 @@ export function getProfileBundle(db: AgentDatabase, profileId: string, conversat
     recentConversations,
     currentConversation,
   }
+}
+
+export function createDraftProfile(
+  db: AgentDatabase,
+  params: {
+    name: string
+    gender: AgentPocGender
+    phone?: string
+    note?: string
+  }
+) {
+  const id = randomUUID()
+  const now = nowIso()
+  const extraData: AgentPocProfileExtraData = {}
+
+  if (params.phone?.trim()) {
+    extraData.phone = params.phone.trim()
+  }
+
+  if (params.note?.trim()) {
+    extraData.note = params.note.trim()
+  }
+
+  db.prepare(`
+    INSERT INTO profiles (id, name, gender, extra_data, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    params.name.trim(),
+    params.gender,
+    Object.keys(extraData).length > 0 ? stringifyJson(extraData) : null,
+    now,
+    now
+  )
+
+  db.prepare(`
+    INSERT INTO intentions (profile_id, created_at, updated_at)
+    VALUES (?, ?, ?)
+  `).run(id, now, now)
+
+  db.prepare(`
+    INSERT INTO trait_profiles (profile_id, created_at, updated_at)
+    VALUES (?, ?, ?)
+  `).run(id, now, now)
+
+  return getProfileSummary(db, id)
+}
+
+export function getProfileSummary(db: AgentDatabase, profileId: string) {
+  const row = db.prepare(`
+    SELECT
+      p.id,
+      p.name,
+      p.gender,
+      p.extra_data,
+      p.created_at,
+      p.updated_at,
+      COUNT(c.id) AS conversation_count,
+      MAX(COALESCE(c.talked_at, c.created_at)) AS latest_conversation_at
+    FROM profiles p
+    LEFT JOIN conversations c ON c.profile_id = p.id
+    WHERE p.id = ?
+    GROUP BY p.id
+  `).get(profileId) as
+    | {
+        id: string
+        name: string | null
+        gender: string | null
+        extra_data: string | null
+        created_at: string
+        updated_at: string
+        conversation_count: number
+        latest_conversation_at: string | null
+      }
+    | undefined
+
+  if (!row) {
+    return null
+  }
+
+  const extraData = parseProfileExtraData(row.extra_data)
+
+  return {
+    id: row.id,
+    name: row.name || '未命名客户',
+    gender: row.gender || 'unknown',
+    phone: extraData.phone || '',
+    note: extraData.note || '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    conversationCount: Number(row.conversation_count || 0),
+    latestConversationAt: row.latest_conversation_at,
+  }
+}
+
+export function listProfileSummaries(db: AgentDatabase) {
+  const rows = db.prepare(`
+    SELECT
+      p.id,
+      p.name,
+      p.gender,
+      p.extra_data,
+      p.created_at,
+      p.updated_at,
+      COUNT(c.id) AS conversation_count,
+      MAX(COALESCE(c.talked_at, c.created_at)) AS latest_conversation_at
+    FROM profiles p
+    LEFT JOIN conversations c ON c.profile_id = p.id
+    GROUP BY p.id
+    ORDER BY COALESCE(MAX(c.created_at), p.updated_at) DESC, p.created_at DESC
+  `).all() as Array<{
+    id: string
+    name: string | null
+    gender: string | null
+    extra_data: string | null
+    created_at: string
+    updated_at: string
+    conversation_count: number
+    latest_conversation_at: string | null
+  }>
+
+  return rows.map((row) => {
+    const extraData = parseProfileExtraData(row.extra_data)
+    return {
+      id: row.id,
+      name: row.name || '未命名客户',
+      gender: row.gender || 'unknown',
+      phone: extraData.phone || '',
+      note: extraData.note || '',
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      conversationCount: Number(row.conversation_count || 0),
+      latestConversationAt: row.latest_conversation_at,
+    }
+  })
 }
 
 function buildAssignments(updates: Record<string, unknown>) {

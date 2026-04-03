@@ -5,11 +5,14 @@ import os from 'node:os'
 import path from 'node:path'
 
 import {
+  createDraftProfile,
   createFollowupTasks,
   getConversationById,
+  getProfileSummary,
   getProfileBundle,
   initializeAgentDatabase,
   insertConversation,
+  listProfileSummaries,
   openAgentDatabase,
   saveConversationTranscript,
   saveConversationSummary,
@@ -55,6 +58,36 @@ test('agent poc db can initialize and update local tables', () => {
   assert.equal(bundle.profile?.city, '杭州')
   assert.equal(bundle.intention?.primary_intent, 'marriage')
   assert.deepEqual(bundle.traitProfile?.hobbies, ['健身', '看电影'])
+
+  db.close()
+  fs.rmSync(dbPath, { force: true })
+})
+
+test('agent poc can create and list draft clients before any recording exists', () => {
+  const dbPath = createTempDbPath('draft-client')
+  const db = openAgentDatabase(dbPath)
+  initializeAgentDatabase(db)
+
+  const profile = createDraftProfile(db, {
+    name: '本地测试女嘉宾',
+    gender: 'female',
+    phone: '13800000000',
+    note: '小红书线索',
+  })
+
+  assert.ok(profile)
+  assert.equal(profile?.name, '本地测试女嘉宾')
+  assert.equal(profile?.gender, 'female')
+  assert.equal(profile?.phone, '13800000000')
+  assert.equal(profile?.note, '小红书线索')
+  assert.equal(profile?.conversationCount, 0)
+
+  const sameProfile = getProfileSummary(db, profile!.id)
+  assert.equal(sameProfile?.phone, '13800000000')
+
+  const profiles = listProfileSummaries(db)
+  assert.equal(profiles.length, 1)
+  assert.equal(profiles[0]?.id, profile?.id)
 
   db.close()
   fs.rmSync(dbPath, { force: true })

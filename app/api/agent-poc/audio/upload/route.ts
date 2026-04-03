@@ -8,10 +8,10 @@ import {
   uploadAudioBufferToCos,
 } from '@/lib/cos/client'
 import {
+  getProfileSummary,
   initializeAgentDatabase,
   insertConversation,
   openAgentDatabase,
-  upsertProfileSkeleton,
 } from '@/experiments/agent-worker/db'
 
 export const runtime = 'nodejs'
@@ -28,9 +28,15 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData()
     const file = formData.get('file')
+    const profileIdRaw = formData.get('profileId')
+    const profileId = typeof profileIdRaw === 'string' ? profileIdRaw.trim() : ''
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: '缺少音频文件' }, { status: 400 })
+    }
+
+    if (!profileId) {
+      return NextResponse.json({ error: '缺少 profileId' }, { status: 400 })
     }
 
     if (!hasSupportedAudioExtension(file.name)) {
@@ -41,7 +47,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '音频文件大小需在 0 到 100MB 之间' }, { status: 400 })
     }
 
-    const profileId = 'poc-profile-001'
     const conversationId = randomUUID()
     const objectKey = buildAgentPocAudioObjectKey({
       profileId,
@@ -59,7 +64,10 @@ export async function POST(request: Request) {
     const db = openAgentDatabase()
     try {
       initializeAgentDatabase(db)
-      upsertProfileSkeleton(db, profileId, 'POC 音频测试客户')
+      const profile = getProfileSummary(db, profileId)
+      if (!profile) {
+        return NextResponse.json({ error: '客户不存在，请先创建草稿客户' }, { status: 404 })
+      }
       insertConversation(db, {
         conversationId,
         profileId,

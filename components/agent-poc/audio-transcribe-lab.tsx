@@ -1,8 +1,10 @@
 'use client'
 
 import { type DragEvent as ReactDragEvent, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Loader2, Mic, UploadCloud } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type Step = 'idle' | 'uploading' | 'transcribing' | 'done' | 'error'
 
@@ -47,7 +49,15 @@ const STEP_LABELS: Record<Step, string> = {
   error: '处理失败',
 }
 
-export function AudioTranscribeLab() {
+export function AudioTranscribeLab({
+  profileId,
+  profileName,
+  backHref = '/agent-poc/clients',
+}: {
+  profileId: string
+  profileName: string
+  backHref?: string
+}) {
   const [file, setFile] = useState<File | null>(null)
   const [step, setStep] = useState<Step>('idle')
   const [error, setError] = useState('')
@@ -121,6 +131,7 @@ export function AudioTranscribeLab() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('profileId', profileId)
 
       const uploadResponse = await fetch('/api/agent-poc/audio/upload', {
         method: 'POST',
@@ -158,6 +169,23 @@ export function AudioTranscribeLab() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
       <div className="rounded-[28px] border border-[#e7ddd2] bg-[#fffaf4] p-8 shadow-[0_24px_80px_rgba(55,31,18,0.08)]">
         <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <Link
+              href={backHref}
+              className={cn(
+                buttonVariants({
+                  variant: 'outline',
+                  className: 'rounded-full border-[#eadac8] bg-white text-[#6f5748] hover:bg-[#fbf3ea]',
+                })
+              )}
+            >
+              返回客户列表
+            </Link>
+            <div className="text-right text-sm text-[#7b6557]">
+              <div className="font-medium text-[#241711]">{profileName}</div>
+              <div>profileId: {profileId}</div>
+            </div>
+          </div>
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#eadac8] bg-white px-4 py-1 text-sm text-[#6f5748]">
             <Mic className="h-4 w-4" />
             Agent POC · Audio Transcribe
