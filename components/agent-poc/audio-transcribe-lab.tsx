@@ -1,6 +1,6 @@
 'use client'
 
-import { type DragEvent as ReactDragEvent, useEffect, useState } from 'react'
+import { type DragEvent as ReactDragEvent, type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Loader2, Mic, UploadCloud } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -65,6 +65,7 @@ export function AudioTranscribeLab({
   const [transcribeResult, setTranscribeResult] = useState<TranscribePayload | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragDepth, setDragDepth] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     function preventWindowFileDrop(event: globalThis.DragEvent) {
@@ -86,6 +87,10 @@ export function AudioTranscribeLab({
       setError('')
       setStep('idle')
     }
+  }
+
+  function openFilePicker() {
+    fileInputRef.current?.click()
   }
 
   function handleDragEnter(event: ReactDragEvent<HTMLDivElement>) {
@@ -114,6 +119,13 @@ export function AudioTranscribeLab({
     setDragDepth(0)
     setIsDragging(false)
     handleSelectedFile(event.dataTransfer.files?.[0] || null)
+  }
+
+  function handlePickerKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      openFilePicker()
+    }
   }
 
   async function handleRun() {
@@ -212,27 +224,42 @@ export function AudioTranscribeLab({
                   ? 'border-[#8a6447] bg-[#f5e9db] text-[#4f372b] shadow-[0_18px_40px_rgba(86,53,31,0.10)]'
                   : 'border-[#d7c5b2] bg-[#fdf8f2] text-[#6c5647]'
               }`}
+              role="button"
+              tabIndex={0}
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
+              onClick={openFilePicker}
+              onKeyDown={handlePickerKeyDown}
             >
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".mp3,.m4a,.wav,.ogg,audio/*"
-                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                onChange={(event) => handleSelectedFile(event.target.files?.[0] || null)}
-                onDragEnter={handleDragEnter}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
+                className="hidden"
+                onChange={(event) => {
+                  handleSelectedFile(event.target.files?.[0] || null)
+                  event.currentTarget.value = ''
+                }}
               />
-              <div className="pointer-events-none flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
+              <div className="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
                 <UploadCloud className="h-8 w-8 text-[#8d6d56]" />
                 <span className="text-sm">
                   {isDragging ? '松开即可上传这段音频' : '点击选择，或直接拖拽 MP3 / M4A / WAV / OGG 音频到这里'}
                 </span>
                 <span className="text-xs text-[#9b8372]">当前只做上传与转录，不做结构化提取</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-2 rounded-full border-[#d7c5b2] bg-white text-[#5b4638] hover:bg-[#f7eee4]"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    openFilePicker()
+                  }}
+                >
+                  选择音频文件
+                </Button>
               </div>
             </div>
 
