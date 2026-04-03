@@ -1,3 +1,5 @@
+import { jsonrepair } from 'jsonrepair'
+
 export function stripJsonCodeFence(text: string) {
   return text
     .replace(/```json\s*/gi, '')
@@ -61,19 +63,34 @@ function findBalancedJsonCandidate(text: string) {
   return normalized.slice(startIndex)
 }
 
+function tryParseCandidate(candidate: string) {
+  return JSON.parse(candidate)
+}
+
 export function parseJsonFromModelOutput(text: string) {
   const stripped = stripJsonCodeFence(text)
+  const candidate = findBalancedJsonCandidate(stripped)
+  const parseCandidates = Array.from(new Set([stripped, candidate].filter(Boolean)))
+  const repairCandidates = Array.from(new Set([candidate, stripped].filter(Boolean)))
+  let lastError: unknown
 
-  try {
-    return JSON.parse(stripped)
-  } catch (error) {
-    const candidate = findBalancedJsonCandidate(stripped)
-    if (!candidate || candidate === stripped) {
-      throw error
+  for (const item of parseCandidates) {
+    try {
+      return tryParseCandidate(item)
+    } catch (error) {
+      lastError = error
     }
-
-    return JSON.parse(candidate)
   }
+
+  for (const item of repairCandidates) {
+    try {
+      return tryParseCandidate(jsonrepair(item))
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  throw lastError ?? new SyntaxError('Unable to parse model output as JSON')
 }
 
 export function isLikelyTruncatedJsonOutput(text: string, error: unknown, finishReason?: string | null) {
