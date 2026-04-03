@@ -1,6 +1,6 @@
 'use client'
 
-import { DragEvent, useState } from 'react'
+import { type DragEvent as ReactDragEvent, useEffect, useRef, useState } from 'react'
 import { Loader2, Mic, UploadCloud } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -54,6 +54,22 @@ export function AudioTranscribeLab() {
   const [uploadResult, setUploadResult] = useState<UploadPayload | null>(null)
   const [transcribeResult, setTranscribeResult] = useState<TranscribePayload | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [dragDepth, setDragDepth] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    function preventWindowFileDrop(event: globalThis.DragEvent) {
+      event.preventDefault()
+    }
+
+    window.addEventListener('dragover', preventWindowFileDrop)
+    window.addEventListener('drop', preventWindowFileDrop)
+
+    return () => {
+      window.removeEventListener('dragover', preventWindowFileDrop)
+      window.removeEventListener('drop', preventWindowFileDrop)
+    }
+  }, [])
 
   function handleSelectedFile(nextFile: File | null) {
     setFile(nextFile)
@@ -63,18 +79,30 @@ export function AudioTranscribeLab() {
     }
   }
 
-  function handleDragOver(event: DragEvent<HTMLLabelElement>) {
+  function handleDragEnter(event: ReactDragEvent<HTMLDivElement>) {
     event.preventDefault()
+    setDragDepth((current) => current + 1)
     setIsDragging(true)
   }
 
-  function handleDragLeave(event: DragEvent<HTMLLabelElement>) {
+  function handleDragOver(event: ReactDragEvent<HTMLDivElement>) {
     event.preventDefault()
-    setIsDragging(false)
   }
 
-  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+  function handleDragLeave(event: ReactDragEvent<HTMLDivElement>) {
     event.preventDefault()
+    setDragDepth((current) => {
+      const nextDepth = Math.max(0, current - 1)
+      if (nextDepth === 0) {
+        setIsDragging(false)
+      }
+      return nextDepth
+    })
+  }
+
+  function handleDrop(event: ReactDragEvent<HTMLDivElement>) {
+    event.preventDefault()
+    setDragDepth(0)
     setIsDragging(false)
     handleSelectedFile(event.dataTransfer.files?.[0] || null)
   }
@@ -151,14 +179,23 @@ export function AudioTranscribeLab() {
           </div>
 
           <div className="mt-5 space-y-4">
-            <label
+            <div
+              role="button"
+              tabIndex={0}
               className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed px-5 py-10 text-center transition ${
                 isDragging
                   ? 'border-[#8a6447] bg-[#f5e9db] text-[#4f372b] shadow-[0_18px_40px_rgba(86,53,31,0.10)]'
                   : 'border-[#d7c5b2] bg-[#fdf8f2] text-[#6c5647]'
               }`}
+              onClick={() => inputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  inputRef.current?.click()
+                }
+              }}
+              onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
-              onDragEnter={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
@@ -168,12 +205,13 @@ export function AudioTranscribeLab() {
               </span>
               <span className="text-xs text-[#9b8372]">当前只做上传与转录，不做结构化提取</span>
               <input
+                ref={inputRef}
                 type="file"
                 accept=".mp3,.m4a,.wav,.ogg,audio/*"
                 className="hidden"
                 onChange={(event) => handleSelectedFile(event.target.files?.[0] || null)}
               />
-            </label>
+            </div>
 
             <div className="rounded-[18px] bg-[#f6efe7] px-4 py-3 text-sm text-[#5f4a3d]">
               <div>当前状态：{STEP_LABELS[step]}</div>
