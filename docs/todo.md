@@ -386,9 +386,9 @@
 
 - [x] 清理 `.env` 说明与部署文档
 - [ ] 校验生产数据库 migration 顺序
-- [ ] 校验 Vercel / Supabase 环境变量
+- [x] 校验 Vercel / Supabase 环境变量
 - [x] 校验生产构建
-- [ ] 完成上线前 smoke test
+- [x] 完成上线前 smoke test
 
 ---
 
