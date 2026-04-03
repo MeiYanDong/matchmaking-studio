@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { CSSProperties, ReactNode } from 'react'
+import { ExtensionErrorGuard } from '@/components/dev/extension-error-guard'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased" style={rootStyle}>
       <body className="min-h-full flex flex-col">
+        {process.env.NODE_ENV === 'development' ? <ExtensionErrorGuard /> : null}
         {children}
         <Toaster richColors position="top-right" />
       </body>
