@@ -45,21 +45,118 @@ const taskTypeLabel: Record<string, string> = {
   relationship_followup: '关系跟进',
 }
 
+const taskTypeRank: Record<string, number> = {
+  sensitive_confirmation: 4,
+  relationship_followup: 3,
+  verification: 2,
+  missing_field: 1,
+}
+
+const priorityRank: Record<string, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+}
+
+type TaskGroup = {
+  id: string
+  taskIds: string[]
+  matchIds: string[]
+  taskType: FollowupTask['task_type']
+  priority: FollowupTask['priority']
+  updatedAt: string
+  fieldKeys: string[]
+  questions: string[]
+  rationaleList: string[]
+}
+
+function unique(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)))
+}
+
+function intersects(left: string[], right: string[]) {
+  return left.some((item) => right.includes(item))
+}
+
+function chooseTaskType(left: FollowupTask['task_type'], right: FollowupTask['task_type']) {
+  return taskTypeRank[right] > taskTypeRank[left] ? right : left
+}
+
+function choosePriority(left: FollowupTask['priority'], right: FollowupTask['priority']) {
+  return priorityRank[right] > priorityRank[left] ? right : left
+}
+
+function groupTasks(tasks: FollowupTask[]) {
+  const sortedTasks = [...tasks].sort(
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  )
+
+  const groups: TaskGroup[] = []
+
+  for (const task of sortedTasks) {
+    const fieldKeys = unique(task.field_keys ?? [])
+    const questions = unique(task.question_list ?? [])
+    const rationale = task.rationale ? humanizeAIText(task.rationale) : ''
+
+    const reusable = groups.find((group) => {
+      const sameTypeFamily =
+        group.taskType === task.task_type
+        || (group.taskType === 'relationship_followup' && task.task_type === 'sensitive_confirmation')
+        || (group.taskType === 'sensitive_confirmation' && task.task_type === 'relationship_followup')
+
+      return sameTypeFamily
+        && (
+          (fieldKeys.length > 0 && intersects(group.fieldKeys, fieldKeys))
+          || (questions.length > 0 && intersects(group.questions, questions))
+        )
+    })
+
+    if (!reusable) {
+      groups.push({
+        id: task.id,
+        taskIds: [task.id],
+        matchIds: task.match_id ? [task.match_id] : [],
+        taskType: task.task_type,
+        priority: task.priority,
+        updatedAt: task.updated_at,
+        fieldKeys,
+        questions,
+        rationaleList: rationale ? [rationale] : [],
+      })
+      continue
+    }
+
+    reusable.taskIds = unique([...reusable.taskIds, task.id])
+    reusable.matchIds = unique([...reusable.matchIds, ...(task.match_id ? [task.match_id] : [])])
+    reusable.fieldKeys = unique([...reusable.fieldKeys, ...fieldKeys])
+    reusable.questions = unique([...reusable.questions, ...questions])
+    reusable.rationaleList = unique([...reusable.rationaleList, ...(rationale ? [rationale] : [])])
+    reusable.taskType = chooseTaskType(reusable.taskType, task.task_type)
+    reusable.priority = choosePriority(reusable.priority, task.priority)
+    if (new Date(task.updated_at).getTime() > new Date(reusable.updatedAt).getTime()) {
+      reusable.updatedAt = task.updated_at
+    }
+  }
+
+  return groups
+}
+
 export function FollowupTab({ matches, tasks }: FollowupTabProps) {
   const router = useRouter()
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
-  const openTasks = tasks.filter((task) => task.status === 'open' || task.status === 'in_progress')
+  const openTasks = groupTasks(tasks.filter((task) => task.status === 'open' || task.status === 'in_progress'))
   const closedTasks = tasks.filter((task) => task.status === 'done' || task.status === 'dismissed')
 
-  async function updateTaskStatus(taskId: string, status: FollowupTask['status']) {
-    setUpdatingTaskId(taskId)
+  async function updateTaskStatus(taskIds: string[], status: FollowupTask['status']) {
+    const targetId = taskIds[0]
+    setUpdatingTaskId(targetId)
     try {
       const supabase = createClient()
       const payload = status === 'done'
         ? { status, completed_at: new Date().toISOString() }
         : { status, completed_at: null }
 
-      const { error } = await supabase.from('followup_tasks').update(payload).eq('id', taskId)
+      const { error } = await supabase.from('followup_tasks').update(payload).in('id', taskIds)
       if (error) throw error
 
       toast.success(status === 'done' ? '任务已完成' : '任务已忽略')
@@ -97,20 +194,34 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                     {task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
                   </Badge>
                   <Badge variant="outline" className="bg-white">
-                    {taskTypeLabel[task.task_type] ?? task.task_type}
+                    {taskTypeLabel[task.taskType] ?? task.taskType}
                   </Badge>
+                  {task.taskIds.length > 1 ? (
+                    <Badge variant="outline" className="bg-white text-[#8b6d58]">
+                      已合并 {task.taskIds.length} 条相近补问
+                    </Badge>
+                  ) : null}
+                  {task.matchIds.length > 1 ? (
+                    <Badge variant="outline" className="bg-white text-[#8b6d58]">
+                      涉及 {task.matchIds.length} 个候选
+                    </Badge>
+                  ) : null}
                   <span className="text-xs text-gray-400 ml-auto">
-                    更新于 {format(new Date(task.updated_at), 'MM月dd日 HH:mm', { locale: zhCN })}
+                    更新于 {format(new Date(task.updatedAt), 'MM月dd日 HH:mm', { locale: zhCN })}
                   </span>
                 </div>
 
-                {task.rationale && (
-                  <p className="mt-3 text-sm text-gray-700">{humanizeAIText(task.rationale)}</p>
+                {!!task.rationaleList.length && (
+                  <p className="mt-3 text-sm text-gray-700">
+                    {task.rationaleList.length > 1
+                      ? 'AI 已将相近补问合并，下面这些问题可以在下一轮沟通里一次性确认。'
+                      : task.rationaleList[0]}
+                  </p>
                 )}
 
-                {!!task.field_keys?.length && (
+                {!!task.fieldKeys.length && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {task.field_keys.map((fieldKey) => (
+                    {task.fieldKeys.map((fieldKey) => (
                       <Badge key={fieldKey} variant="outline" className="bg-white text-gray-600">
                         {getFieldDisplayLabel(fieldKey)}
                       </Badge>
@@ -118,9 +229,9 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                   </div>
                 )}
 
-                {!!task.question_list?.length && (
+                {!!task.questions.length && (
                   <div className="mt-3 space-y-2">
-                    {task.question_list.map((question) => (
+                    {task.questions.map((question) => (
                       <div key={question} className="rounded-lg bg-white/90 p-3 text-sm text-gray-700">
                         {question}
                       </div>
@@ -129,8 +240,8 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {task.match_id ? (
-                    <Link href={`/matchmaker/matches/${task.match_id}`}>
+                  {task.matchIds.length === 1 ? (
+                    <Link href={`/matchmaker/matches/${task.matchIds[0]}`}>
                       <Button size="sm" variant="outline" className="gap-1.5">
                         <Link2 className="w-3.5 h-3.5" />
                         查看匹配
@@ -141,7 +252,7 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                     size="sm"
                     className="bg-emerald-600 hover:bg-emerald-700"
                     disabled={updatingTaskId === task.id}
-                    onClick={() => updateTaskStatus(task.id, 'done')}
+                    onClick={() => updateTaskStatus(task.taskIds, 'done')}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
                     已完成补问
@@ -151,7 +262,7 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                     variant="ghost"
                     className="text-gray-500"
                     disabled={updatingTaskId === task.id}
-                    onClick={() => updateTaskStatus(task.id, 'dismissed')}
+                    onClick={() => updateTaskStatus(task.taskIds, 'dismissed')}
                   >
                     <XCircle className="w-3.5 h-3.5 mr-1.5" />
                     暂不处理

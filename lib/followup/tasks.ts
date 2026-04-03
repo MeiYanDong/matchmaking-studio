@@ -25,6 +25,14 @@ function determinePriority(fieldKeys: string[]): TaskPriority {
   return 'low'
 }
 
+function normalizeStringList(values: string[]) {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)))
+}
+
+function stableStringify(values: string[]) {
+  return JSON.stringify(values.slice().sort())
+}
+
 type SyncTaskInput = {
   supabase: SupabaseClient<Database>
   matchmakerId: string
@@ -72,8 +80,8 @@ export async function syncFollowupTask({
   rationale,
   taskType,
 }: SyncTaskInput) {
-  const dedupedFieldKeys = Array.from(new Set(fieldKeys.filter(Boolean)))
-  const dedupedQuestions = Array.from(new Set(questions.map((item) => item.trim()).filter(Boolean)))
+  const dedupedFieldKeys = normalizeStringList(fieldKeys)
+  const dedupedQuestions = normalizeStringList(questions)
 
   if (!dedupedFieldKeys.length && !dedupedQuestions.length) {
     await closeOpenTasks(supabase, profileId, matchId)
@@ -85,7 +93,7 @@ export async function syncFollowupTask({
 
   let existingQuery = supabase
     .from('followup_tasks')
-    .select('id, field_keys, question_list')
+    .select('id, match_id, task_type, field_keys, question_list, updated_at')
     .eq('matchmaker_id', matchmakerId)
     .in('status', ['open', 'in_progress'])
     .limit(10)
@@ -96,23 +104,27 @@ export async function syncFollowupTask({
     existingQuery = existingQuery.is('profile_id', null)
   }
 
-  if (matchId) {
+  if (!profileId && matchId) {
     existingQuery = existingQuery.eq('match_id', matchId)
-  } else {
+  } else if (!profileId) {
     existingQuery = existingQuery.is('match_id', null)
   }
 
   const { data: existing } = await existingQuery
 
   const reusable = (existing ?? []).find((task) => {
-    const currentFields = JSON.stringify((task.field_keys ?? []).slice().sort())
-    const nextFields = JSON.stringify(dedupedFieldKeys.slice().sort())
+    const currentFields = stableStringify(normalizeStringList(task.field_keys ?? []))
+    const currentQuestions = stableStringify(normalizeStringList(task.question_list ?? []))
+    const nextFields = stableStringify(dedupedFieldKeys)
+    const nextQuestions = stableStringify(dedupedQuestions)
     return currentFields === nextFields
+      && currentQuestions === nextQuestions
+      && task.task_type === nextTaskType
   })
 
   const payload = {
     profile_id: profileId,
-    match_id: matchId,
+    match_id: reusable?.match_id ?? matchId,
     matchmaker_id: matchmakerId,
     task_type: nextTaskType,
     priority: nextPriority,

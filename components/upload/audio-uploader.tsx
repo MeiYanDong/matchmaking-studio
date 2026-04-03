@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { buildAudioStorageObjectKey } from '@/lib/storage/object-key'
 import {
-  SUPABASE_RESUMABLE_UPLOAD_THRESHOLD,
-  uploadAudioToStorageViaResumable,
+  uploadAudioToStorageWithFallback,
 } from '@/lib/storage/resumable-upload'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -325,31 +324,16 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       })
       setPendingObjectKey(fileName)
 
-      if (file.size > SUPABASE_RESUMABLE_UPLOAD_THRESHOLD) {
-        await uploadAudioToStorageViaResumable({
-          accessToken: session.access_token,
-          bucketName: 'audio-files',
-          objectName: fileName,
-          file,
-          onProgress: (nextProgress) => {
-            setUploadProgress((previousProgress) => Math.max(previousProgress, nextProgress))
-          },
-        })
-      } else {
-        setUploadProgress(12)
-        const { error: uploadError } = await supabase.storage
-          .from('audio-files')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false,
-          })
-
-        if (uploadError) {
-          throw new Error('文件上传失败: ' + uploadError.message)
-        }
-
-        setUploadProgress(100)
-      }
+      await uploadAudioToStorageWithFallback({
+        supabase,
+        accessToken: session.access_token,
+        bucketName: 'audio-files',
+        objectName: fileName,
+        file,
+        onProgress: (nextProgress) => {
+          setUploadProgress((previousProgress) => Math.max(previousProgress, nextProgress))
+        },
+      })
 
       // 2. 创建 conversation 记录
       const { data: conv, error: convError } = await supabase
@@ -390,7 +374,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       setStep('done')
     } catch (err) {
       setStep('error')
-      const msg = (err as Error).message
+      const msg = err instanceof Error ? err.message : String(err)
       setError(msg)
       toast.error(msg)
     }

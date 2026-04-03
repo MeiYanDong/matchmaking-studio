@@ -111,3 +111,44 @@ test('缺失字段会生成补问任务', async () => {
   assert.equal((insertOperation?.payload as { task_type: string }).task_type, 'sensitive_confirmation')
   assert.equal((insertOperation?.payload as { priority: string }).priority, 'high')
 })
+
+test('同一客户下完全相同的补问不会因不同匹配重复插入', async () => {
+  const mock = createMockSupabase([
+    {
+      id: 'task-existing',
+      match_id: 'match-older',
+      task_type: 'relationship_followup',
+      field_keys: ['relationship_mode'],
+      question_list: ['你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？'],
+      updated_at: new Date().toISOString(),
+    },
+  ])
+
+  const taskId = await syncFollowupTask({
+    supabase: mock.client as never,
+    matchmakerId: 'mm-1',
+    profileId: 'profile-1',
+    matchId: 'match-new',
+    fieldKeys: ['relationship_mode'],
+    questions: ['你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？'],
+    rationale: '高分候选仍存在待确认敏感字段，需要线下补问',
+    taskType: 'relationship_followup',
+  })
+
+  assert.equal(taskId, 'task-existing')
+
+  const insertOperation = mock.operations.find(
+    (operation) => operation.table === 'followup_tasks' && operation.action === 'insert'
+  )
+  assert.equal(insertOperation, undefined)
+
+  const updateOperation = mock.operations.find(
+    (operation) => operation.table === 'followup_tasks' && operation.action === 'update'
+  )
+  assert.ok(updateOperation)
+  assert.deepEqual((updateOperation?.payload as { field_keys: string[] }).field_keys, ['relationship_mode'])
+  assert.deepEqual(
+    (updateOperation?.payload as { question_list: string[] }).question_list,
+    ['你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？']
+  )
+})
