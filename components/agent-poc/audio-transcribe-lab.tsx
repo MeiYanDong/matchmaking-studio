@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { DragEvent, useState } from 'react'
 import { Loader2, Mic, UploadCloud } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -53,6 +53,31 @@ export function AudioTranscribeLab() {
   const [error, setError] = useState('')
   const [uploadResult, setUploadResult] = useState<UploadPayload | null>(null)
   const [transcribeResult, setTranscribeResult] = useState<TranscribePayload | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  function handleSelectedFile(nextFile: File | null) {
+    setFile(nextFile)
+    if (nextFile) {
+      setError('')
+      setStep('idle')
+    }
+  }
+
+  function handleDragOver(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault()
+    setIsDragging(false)
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault()
+    setIsDragging(false)
+    handleSelectedFile(event.dataTransfer.files?.[0] || null)
+  }
 
   async function handleRun() {
     if (!file) {
@@ -126,15 +151,27 @@ export function AudioTranscribeLab() {
           </div>
 
           <div className="mt-5 space-y-4">
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#d7c5b2] bg-[#fdf8f2] px-5 py-10 text-center text-[#6c5647]">
+            <label
+              className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed px-5 py-10 text-center transition ${
+                isDragging
+                  ? 'border-[#8a6447] bg-[#f5e9db] text-[#4f372b] shadow-[0_18px_40px_rgba(86,53,31,0.10)]'
+                  : 'border-[#d7c5b2] bg-[#fdf8f2] text-[#6c5647]'
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <UploadCloud className="h-8 w-8 text-[#8d6d56]" />
-              <span className="text-sm">选择 MP3 / M4A / WAV / OGG 音频</span>
+              <span className="text-sm">
+                {isDragging ? '松开即可上传这段音频' : '点击选择，或直接拖拽 MP3 / M4A / WAV / OGG 音频到这里'}
+              </span>
               <span className="text-xs text-[#9b8372]">当前只做上传与转录，不做结构化提取</span>
               <input
                 type="file"
                 accept=".mp3,.m4a,.wav,.ogg,audio/*"
                 className="hidden"
-                onChange={(event) => setFile(event.target.files?.[0] || null)}
+                onChange={(event) => handleSelectedFile(event.target.files?.[0] || null)}
               />
             </label>
 
