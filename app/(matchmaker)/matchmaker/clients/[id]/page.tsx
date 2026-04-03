@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { requireSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 import { GENDER_LABELS, STATUS_LABELS } from '@/types/app'
+import { DeleteClientButton } from '@/components/client/delete-client-button'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -108,6 +109,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
+            <DeleteClientButton profileId={id} profileName={profile.name} />
           </div>
         </div>
 

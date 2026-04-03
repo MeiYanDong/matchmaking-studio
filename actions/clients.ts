@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import {
   EducationLevel,
@@ -12,6 +12,48 @@ import {
   RelationshipMode,
   TriState,
 } from '@/types/database'
+import { withSupabaseRetry } from '@/lib/supabase/retry'
+import { extractBucketObjectPath } from '@/lib/storage/object-path'
+
+const STORAGE_DELETE_BATCH_SIZE = 100
+
+function chunk<T>(items: T[], size: number) {
+  const chunks: T[][] = []
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+
+  return chunks
+}
+
+function uniqueNonEmpty(items: Array<string | null | undefined>) {
+  return [...new Set(items.map((item) => item?.trim()).filter(Boolean) as string[])]
+}
+
+async function removeStorageObjects(
+  bucketName: 'audio-files' | 'profile-photos',
+  objectPaths: string[]
+) {
+  const serviceRoleClient = createServiceRoleClient()
+  const warnings: string[] = []
+
+  for (const batch of chunk(uniqueNonEmpty(objectPaths), STORAGE_DELETE_BATCH_SIZE)) {
+    if (batch.length === 0) continue
+
+    const { error } = await withSupabaseRetry(
+      () => serviceRoleClient.storage.from(bucketName).remove(batch),
+      { label: `${bucketName} cleanup` }
+    )
+
+    if (error) {
+      console.error(`[client delete] failed to remove ${bucketName} objects`, { batch, error })
+      warnings.push(bucketName)
+    }
+  }
+
+  return warnings
+}
 
 export async function createClient(formData: {
   name: string
@@ -173,4 +215,68 @@ export async function updateTraitProfile(profileId: string, updates: {
 
   if (error) throw new Error(error.message)
   revalidatePath(`/matchmaker/clients/${profileId}`)
+}
+
+export async function deleteClientProfile(profileId: string) {
+  const supabase = await createSupabaseClient()
+  const serviceRoleClient = createServiceRoleClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未登录')
+
+  const [{ data: roleData }, { data: profile, error: profileError }] = await Promise.all([
+    withSupabaseRetry(
+      () => supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle(),
+      { label: 'delete client role query' }
+    ),
+    withSupabaseRetry(
+      () => supabase.from('profiles').select('id, name, matchmaker_id, photo_urls').eq('id', profileId).maybeSingle(),
+      { label: 'delete client profile query' }
+    ),
+  ])
+
+  if (profileError) throw new Error(profileError.message)
+  if (!profile) throw new Error('客户不存在或已删除。')
+
+  const isAdmin = roleData?.role === 'admin'
+  if (!isAdmin && profile.matchmaker_id !== user.id) {
+    throw new Error('你只能删除自己上传的客户。')
+  }
+
+  const { data: conversations, error: conversationsError } = await withSupabaseRetry(
+    () => serviceRoleClient.from('conversations').select('audio_url').eq('profile_id', profileId),
+    { label: 'delete client conversations query' }
+  )
+
+  if (conversationsError) throw new Error(conversationsError.message)
+
+  const audioPaths = uniqueNonEmpty(
+    (conversations ?? []).map((conversation) => extractBucketObjectPath(conversation.audio_url, 'audio-files'))
+  )
+  const photoPaths = uniqueNonEmpty(
+    (profile.photo_urls ?? []).map((photoUrl) => extractBucketObjectPath(photoUrl, 'profile-photos'))
+  )
+
+  const cleanupWarnings = [
+    ...(await removeStorageObjects('audio-files', audioPaths)),
+    ...(await removeStorageObjects('profile-photos', photoPaths)),
+  ]
+
+  const { error: deleteError } = await withSupabaseRetry(
+    () => serviceRoleClient.from('profiles').delete().eq('id', profileId),
+    { label: 'delete client profile mutation' }
+  )
+
+  if (deleteError) throw new Error(deleteError.message)
+
+  revalidatePath('/matchmaker/clients')
+  revalidatePath(`/matchmaker/clients/${profileId}`)
+  revalidatePath('/matchmaker/reminders')
+  revalidatePath('/matchmaker/matches')
+  revalidatePath('/admin/clients')
+
+  return {
+    deletedId: profileId,
+    deletedName: profile.name,
+    cleanupWarnings,
+  }
 }
