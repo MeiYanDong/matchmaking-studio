@@ -1,0 +1,168 @@
+'use client'
+
+import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
+import { Camera, ImagePlus, Loader2 } from 'lucide-react'
+import { ProfileAvatar } from '@/components/client/profile-avatar'
+
+interface ProfilePhotoManagerProps {
+  profileId: string
+  name: string
+  avatarUrl?: string | null
+  lifestylePhotoUrls?: string[] | null
+}
+
+export function ProfilePhotoManager({
+  profileId,
+  name,
+  avatarUrl,
+  lifestylePhotoUrls,
+}: ProfilePhotoManagerProps) {
+  const router = useRouter()
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
+  const lifestyleInputRef = useRef<HTMLInputElement | null>(null)
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(avatarUrl ?? null)
+  const [currentLifestylePhotoUrls, setCurrentLifestylePhotoUrls] = useState(lifestylePhotoUrls ?? [])
+  const [uploadingKind, setUploadingKind] = useState<'avatar' | 'lifestyle' | null>(null)
+
+  async function uploadFiles(kind: 'avatar' | 'lifestyle', files: FileList | null) {
+    if (!files?.length) return
+
+    setUploadingKind(kind)
+
+    try {
+      for (const file of Array.from(files)) {
+        const body = new FormData()
+        body.set('profileId', profileId)
+        body.set('kind', kind)
+        body.set('file', file)
+
+        const response = await fetch('/api/profile-photos', {
+          method: 'POST',
+          body,
+        })
+
+        const payload = await response.json().catch(() => null)
+
+        if (!response.ok || !payload?.success) {
+          throw new Error(payload?.message || '上传失败')
+        }
+
+        if (kind === 'avatar') {
+          setCurrentAvatarUrl(payload.photoUrl)
+        } else {
+          if (Array.isArray(payload.lifestylePhotoUrls)) {
+            setCurrentLifestylePhotoUrls(payload.lifestylePhotoUrls)
+          } else {
+            setCurrentLifestylePhotoUrls((previous) => [...previous, payload.photoUrl])
+          }
+        }
+      }
+
+      toast.success(kind === 'avatar' ? '头像已更新' : '生活照已上传')
+      router.refresh()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '上传失败'
+      toast.error(message)
+    } finally {
+      setUploadingKind(null)
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+      if (lifestyleInputRef.current) lifestyleInputRef.current.value = ''
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-[#e8ddd1] bg-[#fcfaf7] p-4 md:p-5">
+      <div className="grid gap-5 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label className="text-sm text-[#5f4d41]">头像</Label>
+            <p className="text-xs leading-5 text-[#8a776a]">
+              头像只用于客户识别，会显示在客户列表和详情页头部。
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <ProfileAvatar
+              name={name}
+              avatarUrl={currentAvatarUrl}
+              className="h-24 w-24 overflow-hidden rounded-[24px] border border-[#eadfce] bg-white shadow-sm"
+              imageClassName="h-full w-full object-cover"
+              iconClassName="h-8 w-8 text-[#b87e74]"
+              fallbackLabel="未上传头像"
+            />
+
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-[#ddcbbb] bg-white/85 text-[#5f4d41] hover:bg-white"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingKind !== null}
+              >
+                {uploadingKind === 'avatar' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+                上传头像
+              </Button>
+              <p className="text-xs text-[#9a8779]">建议上传清晰正脸图，方便红娘一眼识别。</p>
+            </div>
+          </div>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => uploadFiles('avatar', event.target.files)}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm text-[#5f4d41]">生活照</Label>
+              <p className="text-xs leading-5 text-[#8a776a]">
+                生活照用于补充资料展示，不会自动拿来顶替头像。
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-[#ddcbbb] bg-white/85 text-[#5f4d41] hover:bg-white"
+              onClick={() => lifestyleInputRef.current?.click()}
+              disabled={uploadingKind !== null}
+            >
+              {uploadingKind === 'lifestyle' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImagePlus className="mr-2 h-4 w-4" />}
+              上传生活照
+            </Button>
+          </div>
+
+          <input
+            ref={lifestyleInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(event) => uploadFiles('lifestyle', event.target.files)}
+          />
+
+          {currentLifestylePhotoUrls.length ? (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              {currentLifestylePhotoUrls.map((url) => (
+                <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-2xl border border-[#eadfce] bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`${name} 生活照`} className="h-28 w-full object-cover" />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-[#e2d4c4] bg-white/75 px-4 py-5 text-sm text-[#8a776a]">
+              还没有上传生活照。后续可以补充气质照、旅行照或日常生活照。
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

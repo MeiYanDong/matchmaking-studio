@@ -45,6 +45,8 @@ function createProfile(overrides: Partial<Profile> = {}): Profile {
     income_verified: null,
     assets_verified: null,
     appearance_score: null,
+    avatar_url: null,
+    lifestyle_photo_urls: null,
     photo_urls: null,
     marital_history: null,
     marital_history_verified: null,

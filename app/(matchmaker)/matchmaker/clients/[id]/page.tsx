@@ -9,6 +9,7 @@ import { requireSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 import { GENDER_LABELS, STATUS_LABELS } from '@/types/app'
 import { DeleteClientButton } from '@/components/client/delete-client-button'
+import { ProfileAvatar } from '@/components/client/profile-avatar'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -70,29 +71,40 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
       <section className="overflow-hidden rounded-[34px] border border-[#decebf] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(252,247,241,0.98)_48%,rgba(247,238,229,0.95))] shadow-[0_28px_70px_-48px_rgba(35,24,21,0.55)]">
         <div className="flex flex-wrap items-start justify-between gap-5 px-6 pb-6 pt-7 lg:px-8">
-          <div className="max-w-3xl">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <Badge className="border border-[#decebf] bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-[#7b5f4b]">
-                {GENDER_LABELS[profile.gender]}
-              </Badge>
-              <Badge className="border border-[#decebf] bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-[#7b5f4b]">
-                {STATUS_LABELS[profile.status]}
-              </Badge>
-              {intention?.relationship_mode && (
-                <Badge className="border border-[#ead8c7] bg-[#fff6ee] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#8f3c32]">
-                  {intention.relationship_mode === 'marriage_standard' ? '标准婚恋' : intention.relationship_mode === 'compensated_dating' ? '恋爱' : '生育资产型'}
+          <div className="flex max-w-3xl items-start gap-4">
+            <ProfileAvatar
+              name={profile.name}
+              avatarUrl={profile.avatar_url}
+              className="h-24 w-24 shrink-0 overflow-hidden rounded-[28px] border border-[#eadfce] bg-white shadow-[0_18px_36px_-24px_rgba(35,24,21,0.4)]"
+              imageClassName="h-full w-full object-cover"
+              iconClassName="h-8 w-8 text-[#b87e74]"
+              fallbackLabel="未上传头像"
+            />
+
+            <div>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Badge className="border border-[#decebf] bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-[#7b5f4b]">
+                  {GENDER_LABELS[profile.gender]}
                 </Badge>
-              )}
-            </div>
-            <h2 className="font-heading text-4xl leading-tight text-[#231815]">{profile.name}</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#665548]">
-              {profile.ai_summary || '当前客户已进入 AI-first 工作流，可通过最新录音、待确认字段和下一轮补问持续推进。'}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3 text-sm text-[#4f4035]">
-              {profile.age ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.age} 岁</span> : null}
-              {profile.city ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.city}</span> : null}
-              {profile.occupation ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.occupation}</span> : null}
-              {profile.annual_income ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">约 {profile.annual_income} 万 / 年</span> : null}
+                <Badge className="border border-[#decebf] bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-[#7b5f4b]">
+                  {STATUS_LABELS[profile.status]}
+                </Badge>
+                {intention?.relationship_mode && (
+                  <Badge className="border border-[#ead8c7] bg-[#fff6ee] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#8f3c32]">
+                    {intention.relationship_mode === 'marriage_standard' ? '标准婚恋' : intention.relationship_mode === 'compensated_dating' ? '恋爱' : '生育资产型'}
+                  </Badge>
+                )}
+              </div>
+              <h2 className="font-heading text-4xl leading-tight text-[#231815]">{profile.name}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#665548]">
+                {profile.ai_summary || '当前客户已进入 AI-first 工作流，可通过最新录音、待确认字段和下一轮补问持续推进。'}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm text-[#4f4035]">
+                {profile.age ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.age} 岁</span> : null}
+                {profile.city ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.city}</span> : null}
+                {profile.occupation ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">{profile.occupation}</span> : null}
+                {profile.annual_income ? <span className="rounded-full border border-[#eadfce] bg-white/75 px-3 py-1.5">约 {profile.annual_income} 万 / 年</span> : null}
+              </div>
             </div>
           </div>
 

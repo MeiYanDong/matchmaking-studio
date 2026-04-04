@@ -5,33 +5,14 @@ import { GENDER_LABELS, EDUCATION_LABELS, INTENT_LABELS, STATUS_LABELS, TRI_STAT
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { User, MapPin, Briefcase, GraduationCap, Heart, DollarSign, Printer, Images, Scale, Sparkles } from 'lucide-react'
+import { MapPin, Briefcase, GraduationCap, Heart, DollarSign, Printer, Scale, Sparkles } from 'lucide-react'
+import { ProfileAvatar } from '@/components/client/profile-avatar'
 
 interface ProfileCardProps {
   profile: Profile
   intention?: Intention | null
   compact?: boolean
   printable?: boolean
-}
-
-function renderPhoto(profile: Profile) {
-  const photoUrl = profile.photo_urls?.[0]
-
-  if (photoUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={photoUrl} alt={profile.name} className="w-full h-full object-cover" />
-    )
-  }
-
-  return (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-rose-50 to-amber-50 text-gray-400">
-      <div className="text-center">
-        <Images className="w-8 h-8 mx-auto mb-2" />
-        <p className="text-xs">暂无照片</p>
-      </div>
-    </div>
-  )
 }
 
 export function ProfileCard({ profile, intention, compact = false, printable = false }: ProfileCardProps) {
@@ -41,9 +22,13 @@ export function ProfileCard({ profile, intention, compact = false, printable = f
   if (compact) {
     return (
       <div className="flex items-center gap-3 p-3 bg-white rounded-lg border">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${genderColor}`}>
-          <User className="w-5 h-5" />
-        </div>
+        <ProfileAvatar
+          name={profile.name}
+          avatarUrl={profile.avatar_url}
+          className={`h-10 w-10 rounded-full overflow-hidden border ${genderColor} border-white/60 shadow-sm`}
+          imageClassName="h-full w-full object-cover"
+          iconClassName="h-5 w-5"
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-medium text-sm">{profile.name}</span>
@@ -65,7 +50,14 @@ export function ProfileCard({ profile, intention, compact = false, printable = f
         <div className="grid lg:grid-cols-[220px_1fr]">
           <div className="bg-gray-50 border-r border-gray-100">
             <div className="aspect-[3/4] overflow-hidden">
-              {renderPhoto(profile)}
+              <ProfileAvatar
+                name={profile.name}
+                avatarUrl={profile.avatar_url}
+                className="h-full w-full rounded-none border-0"
+                imageClassName="h-full w-full object-cover"
+                iconClassName="h-10 w-10 text-[#b87e74]"
+                fallbackLabel="暂无头像"
+              />
             </div>
             <div className="p-4 space-y-3">
               <div className="flex items-center gap-2">

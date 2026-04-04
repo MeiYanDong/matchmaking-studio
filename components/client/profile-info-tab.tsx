@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { updateProfile, updateIntention, updateTraitProfile } from '@/actions/clients'
 import { Edit, Save, X } from 'lucide-react'
 import { formatFieldValueLines, parseEditableFieldValue, toEditableFieldValue } from '@/lib/ai/field-presentation'
+import { ProfilePhotoManager } from '@/components/client/profile-photo-manager'
 
 interface ProfileInfoTabProps {
   profile: Profile
@@ -50,7 +51,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
     income_range: profile.income_range ?? '',
     assets: profile.assets ?? '',
     appearance_score: profile.appearance_score?.toString() ?? '',
-    photo_urls: profile.photo_urls?.join('\n') ?? '',
     hobbies: profile.hobbies?.join('、') ?? '',
     marital_history: profile.marital_history ?? '',
     has_children: booleanToForm(profile.has_children),
@@ -127,7 +127,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
           income_range: emptyToNull(profileForm.income_range),
           assets: emptyToNull(profileForm.assets),
           appearance_score: parseOptionalNumber(profileForm.appearance_score),
-          photo_urls: splitList(profileForm.photo_urls),
           hobbies: splitList(profileForm.hobbies),
           marital_history: emptyToNull(profileForm.marital_history),
           has_children: parseOptionalBoolean(profileForm.has_children),
@@ -229,6 +228,14 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
 
         {editingProfile ? (
           <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <ProfilePhotoManager
+                profileId={profile.id}
+                name={profile.name}
+                avatarUrl={profile.avatar_url}
+                lifestylePhotoUrls={profile.lifestyle_photo_urls ?? profile.photo_urls}
+              />
+            </div>
             <FieldInput label="姓名" value={profileForm.name} onChange={v => setProfileForm((p) => ({ ...p, name: v }))} />
             <SelectField
               label="性别"
@@ -297,9 +304,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
               <FieldInput label="性格标签" value={profileForm.personality_tags} onChange={v => setProfileForm((p) => ({ ...p, personality_tags: v }))} placeholder="慢热、稳重、外向" />
             </div>
             <div className="col-span-2">
-              <FieldTextarea label="照片 URL（每行一条）" value={profileForm.photo_urls} onChange={v => setProfileForm((p) => ({ ...p, photo_urls: v }))} rows={3} placeholder="https://..." />
-            </div>
-            <div className="col-span-2">
               <FieldTextarea label="家庭责任/压力说明" value={profileForm.family_burden_notes} onChange={v => setProfileForm((p) => ({ ...p, family_burden_notes: v }))} rows={2} />
             </div>
             <div className="col-span-2">
@@ -328,6 +332,12 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
           </div>
         ) : (
           <div className="space-y-5">
+            <ProfilePhotoManager
+              profileId={profile.id}
+              name={profile.name}
+              avatarUrl={profile.avatar_url}
+              lifestylePhotoUrls={profile.lifestyle_photo_urls ?? profile.photo_urls}
+            />
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <InfoField label="姓名" value={profile.name} />
               <InfoField label="性别" value={GENDER_LABELS[profile.gender]} />
@@ -355,7 +365,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             <InfoTags label="兴趣爱好" items={profile.hobbies} tone="rose" />
             <InfoTags label="生活方式" items={profile.lifestyle_tags} tone="emerald" />
             <InfoTags label="性格标签" items={profile.personality_tags} tone="blue" />
-            <PhotoGrid name={profile.name} urls={profile.photo_urls} />
             <InfoPanel label="孩子情况" value={profile.children_notes} tone="slate" />
             <InfoPanel label="家庭责任/压力" value={profile.family_burden_notes} tone="amber" />
             <InfoPanel label="父母介入程度" value={profile.parental_involvement} tone="orange" />
@@ -714,24 +723,6 @@ function InfoPanel({
     <div>
       <dt className="text-gray-400 text-xs mb-1">{label}</dt>
       <dd className={`rounded p-2 whitespace-pre-wrap ${toneClass} ${small ? 'text-xs' : 'text-sm'}`}>{value}</dd>
-    </div>
-  )
-}
-
-function PhotoGrid({ name, urls }: { name: string; urls?: string[] | null }) {
-  if (!urls?.length) return null
-
-  return (
-    <div>
-      <dt className="text-gray-400 text-xs mb-1">资料照片</dt>
-      <dd className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {urls.map((url) => (
-          <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border bg-gray-50">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={`${name} 照片`} className="h-28 w-full object-cover" />
-          </a>
-        ))}
-      </dd>
     </div>
   )
 }

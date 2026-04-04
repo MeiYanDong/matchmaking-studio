@@ -114,6 +114,8 @@ export interface Database {
           income_verified: boolean | null
           assets_verified: boolean | null
           appearance_score: number | null
+          avatar_url: string | null
+          lifestyle_photo_urls: string[] | null
           photo_urls: string[] | null
           marital_history: string | null
           marital_history_verified: boolean | null
@@ -176,6 +178,8 @@ export interface Database {
           income_verified?: boolean | null
           assets_verified?: boolean | null
           appearance_score?: number | null
+          avatar_url?: string | null
+          lifestyle_photo_urls?: string[] | null
           photo_urls?: string[] | null
           marital_history?: string | null
           marital_history_verified?: boolean | null
@@ -238,6 +242,8 @@ export interface Database {
           income_verified?: boolean | null
           assets_verified?: boolean | null
           appearance_score?: number | null
+          avatar_url?: string | null
+          lifestyle_photo_urls?: string[] | null
           photo_urls?: string[] | null
           marital_history?: string | null
           marital_history_verified?: boolean | null

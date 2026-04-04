@@ -106,6 +106,8 @@ export async function updateProfile(profileId: string, updates: {
   income_range?: string | null
   assets?: string | null
   appearance_score?: number | null
+  avatar_url?: string | null
+  lifestyle_photo_urls?: string[] | null
   photo_urls?: string[] | null
   hobbies?: string[] | null
   marital_history?: string | null
@@ -229,7 +231,11 @@ export async function deleteClientProfile(profileId: string) {
       { label: 'delete client role query' }
     ),
     withSupabaseRetry(
-      () => supabase.from('profiles').select('id, name, matchmaker_id, photo_urls').eq('id', profileId).maybeSingle(),
+      () => supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .maybeSingle(),
       { label: 'delete client profile query' }
     ),
   ])
@@ -253,7 +259,11 @@ export async function deleteClientProfile(profileId: string) {
     (conversations ?? []).map((conversation) => extractBucketObjectPath(conversation.audio_url, 'audio-files'))
   )
   const photoPaths = uniqueNonEmpty(
-    (profile.photo_urls ?? []).map((photoUrl) => extractBucketObjectPath(photoUrl, 'profile-photos'))
+    [
+      profile.avatar_url,
+      ...(profile.lifestyle_photo_urls ?? []),
+      ...(profile.photo_urls ?? []),
+    ].map((photoUrl) => extractBucketObjectPath(photoUrl, 'profile-photos'))
   )
 
   const cleanupWarnings = [
