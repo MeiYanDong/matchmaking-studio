@@ -298,9 +298,9 @@ test('parseExtractionContract 兼容对象形式的缺失字段与补问', () =>
     'accepts_partner_children',
   ])
   assert.deepEqual(parsed.suggested_followup_questions, [
-    '你现在更明确是哪种关系模式？',
-    '你有没有想过以后要孩子？',
-    '如果对方有孩子，你这边能接受吗？',
+    '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
+    '你自己未来有没有想生孩子的打算？',
+    '对方如果有孩子，你这边能接受吗？',
   ])
 })
 

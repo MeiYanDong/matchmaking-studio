@@ -105,7 +105,7 @@ test('缺失字段会生成补问任务', async () => {
     'accepts_partner_children',
   ])
   assert.deepEqual((insertOperation?.payload as { question_list: string[] }).question_list, [
-    '请确认是否接受对方有孩子？',
+    '对方如果有孩子，你这边能接受吗？',
     '请确认最低收入要求？',
   ])
   assert.equal((insertOperation?.payload as { task_type: string }).task_type, 'sensitive_confirmation')
@@ -150,5 +150,55 @@ test('同一客户下完全相同的补问不会因不同匹配重复插入', as
   assert.deepEqual(
     (updateOperation?.payload as { question_list: string[] }).question_list,
     ['你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？']
+  )
+})
+
+test('同一字段的近义补问会在入库前折叠为标准问法', async () => {
+  const mock = createMockSupabase([
+    {
+      id: 'task-existing',
+      match_id: null,
+      task_type: 'sensitive_confirmation',
+      field_keys: ['marital_history', 'accepts_partner_children', 'fertility_preference'],
+      question_list: [
+        '你之前有过婚史吗，还是一直未婚？',
+        '对方如果有孩子，你这边能接受吗？',
+        '你自己未来有没有想生孩子的打算？',
+      ],
+      updated_at: new Date().toISOString(),
+    },
+  ])
+
+  const taskId = await syncFollowupTask({
+    supabase: mock.client as never,
+    matchmakerId: 'mm-1',
+    profileId: 'profile-1',
+    fieldKeys: ['marital_history', 'accepts_partner_children', 'fertility_preference'],
+    questions: [
+      '你之前有过婚史吗，还是一直是未婚状态？',
+      '对方有孩子的话，你这边能考虑吗？',
+      '你自己以后想要孩子吗？',
+    ],
+    rationale: '来自最近一次录音的缺口分析',
+  })
+
+  assert.equal(taskId, 'task-existing')
+
+  const insertOperation = mock.operations.find(
+    (operation) => operation.table === 'followup_tasks' && operation.action === 'insert'
+  )
+  assert.equal(insertOperation, undefined)
+
+  const updateOperation = mock.operations.find(
+    (operation) => operation.table === 'followup_tasks' && operation.action === 'update'
+  )
+  assert.ok(updateOperation)
+  assert.deepEqual(
+    (updateOperation?.payload as { question_list: string[] }).question_list,
+    [
+      '你之前有过婚史吗，还是一直未婚？',
+      '对方如果有孩子，你这边能接受吗？',
+      '你自己未来有没有想生孩子的打算？',
+    ]
   )
 })

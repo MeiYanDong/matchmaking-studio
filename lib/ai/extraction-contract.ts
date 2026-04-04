@@ -6,6 +6,7 @@ import {
   V1_SUMMARY_FIELD_KEYS,
   type V1FieldKey,
 } from '@/lib/ai/field-spec'
+import { buildDisplayFollowupQuestions } from '@/lib/followup/presentation'
 
 export type ExtractionConfidence = 'high' | 'medium' | 'low'
 export type ExtractionAction = 'set' | 'append_unique' | 'replace' | 'no_change' | 'review'
@@ -370,6 +371,10 @@ export function parseExtractionContract(raw: unknown): ExtractionContract {
     processingNotes.push(`已忽略不受支持的总结字段: ${Array.from(new Set(unknownSummaryFields)).join('、')}`)
   }
 
+  const normalizedMissingCriticalFields = Array.from(
+    new Set(parsed.missing_critical_fields.filter((fieldKey): fieldKey is V1FieldKey => isFieldKey(fieldKey)))
+  )
+
   return {
     field_updates: parsed.field_updates
       .filter((item): item is typeof item & { field_key: V1FieldKey } => isFieldKey(item.field_key))
@@ -377,11 +382,10 @@ export function parseExtractionContract(raw: unknown): ExtractionContract {
     review_required: parsed.review_required
       .filter((item) => isFieldKey(item.field_key) || SYSTEM_REVIEW_FIELD_KEYS.has(item.field_key))
       .map((item) => withResolvedFieldLabel(item)),
-    missing_critical_fields: Array.from(
-      new Set(parsed.missing_critical_fields.filter((fieldKey): fieldKey is V1FieldKey => isFieldKey(fieldKey)))
-    ),
-    suggested_followup_questions: Array.from(
-      new Set(parsed.suggested_followup_questions.map((item) => item.trim()).filter(Boolean))
+    missing_critical_fields: normalizedMissingCriticalFields,
+    suggested_followup_questions: buildDisplayFollowupQuestions(
+      normalizedMissingCriticalFields,
+      parsed.suggested_followup_questions.map((item) => item.trim()).filter(Boolean)
     ),
     summary_updates: normalizedSummaryUpdates,
     processing_notes: Array.from(new Set(processingNotes.map((item) => item.trim()).filter(Boolean))),

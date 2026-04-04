@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database, FollowupTaskType, TaskPriority } from '@/types/database'
+import { buildDisplayFollowupQuestions } from '@/lib/followup/presentation'
 
 const HIGH_PRIORITY_FIELD_KEYS = new Set([
   'relationship_mode',
@@ -81,7 +82,10 @@ export async function syncFollowupTask({
   taskType,
 }: SyncTaskInput) {
   const dedupedFieldKeys = normalizeStringList(fieldKeys)
-  const dedupedQuestions = normalizeStringList(questions)
+  const dedupedQuestions = buildDisplayFollowupQuestions(
+    dedupedFieldKeys,
+    normalizeStringList(questions)
+  )
 
   if (!dedupedFieldKeys.length && !dedupedQuestions.length) {
     await closeOpenTasks(supabase, profileId, matchId)

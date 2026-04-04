@@ -35,7 +35,7 @@ const FIELD_QUESTION_PATTERNS: Array<{ fieldKey: string; patterns: RegExp[] }> =
   },
   {
     fieldKey: 'fertility_preference',
-    patterns: [/想生孩子/, /想要孩子/, /未来.*孩子/, /生孩子.*打算/, /生育意愿/],
+    patterns: [/想生孩子/, /想要孩子/, /未来.*孩子/, /以后.*孩子/, /想过.*孩子/, /生孩子.*打算/, /生育意愿/],
   },
   {
     fieldKey: 'accepts_mode_marriage_standard',
