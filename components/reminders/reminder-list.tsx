@@ -23,16 +23,16 @@ const typeIcon: Record<string, React.ReactNode> = {
 }
 
 const typeBg: Record<string, string> = {
-  no_followup: 'border-l-rose-200 bg-white',
-  no_new_info: 'border-l-sky-200 bg-white',
-  meeting_reminder: 'border-l-orange-200 bg-white',
-  pending_confirmation: 'border-l-primary/25 bg-white',
+  no_followup: 'border-l-rose-200 bg-white dark:border-l-rose-400/40 dark:bg-[linear-gradient(145deg,rgba(24,18,22,0.96),rgba(15,12,17,0.98))]',
+  no_new_info: 'border-l-sky-200 bg-white dark:border-l-sky-400/40 dark:bg-[linear-gradient(145deg,rgba(18,24,30,0.96),rgba(12,16,22,0.98))]',
+  meeting_reminder: 'border-l-orange-200 bg-white dark:border-l-orange-400/40 dark:bg-[linear-gradient(145deg,rgba(27,22,17,0.96),rgba(16,13,10,0.98))]',
+  pending_confirmation: 'border-l-primary/25 bg-white dark:border-l-primary/40 dark:bg-[linear-gradient(145deg,rgba(18,25,35,0.96),rgba(11,16,24,0.98))]',
 }
 
 const priorityTone: Record<ReminderPriority, string> = {
-  high: 'border-primary/10 bg-primary/8 text-primary',
-  medium: 'border-border/80 bg-white/85 text-foreground/70',
-  low: 'border-border/80 bg-muted/60 text-muted-foreground',
+  high: 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary-foreground',
+  medium: 'border-border/80 bg-white/85 text-foreground/70 dark:border-border/70 dark:bg-white/[0.08] dark:text-foreground/70',
+  low: 'border-border/80 bg-muted/60 text-muted-foreground dark:border-border/70 dark:bg-white/[0.04] dark:text-foreground/52',
 }
 
 export function getReminderPriority(type: Reminder['type']): ReminderPriority {
@@ -70,7 +70,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
 
   if (!reminders.length) {
     return (
-      <div className="py-16 text-center text-muted-foreground">
+      <div className="py-16 text-center text-muted-foreground dark:text-foreground/54">
         <BellOff className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p className="font-medium">暂无提醒</p>
       </div>
@@ -81,7 +81,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
     <div className="space-y-4">
       {unread.length > 0 && (
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={markAllRead} className="text-muted-foreground">
+          <Button variant="outline" size="sm" onClick={markAllRead} className="text-muted-foreground dark:text-foreground/66 dark:hover:bg-white/[0.06]">
             <BellOff className="w-4 h-4 mr-1.5" />全部标为已读
           </Button>
         </div>
@@ -100,30 +100,30 @@ export function ReminderList({ reminders }: ReminderListProps) {
           return (
             <div
               key={reminder.id}
-              className={`flex items-start gap-3 rounded-[24px] border border-border/80 border-l-4 p-4 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.14)] transition-opacity ${typeBg[reminder.type]} ${isRead ? 'opacity-60' : ''}`}
+              className={`flex items-start gap-3 rounded-[24px] border border-border/80 border-l-4 p-4 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.14)] transition-opacity dark:border-border/70 dark:shadow-[0_26px_64px_-46px_rgba(0,0,0,0.6)] ${typeBg[reminder.type]} ${isRead ? 'opacity-60' : ''}`}
             >
               <div className="mt-0.5">{typeIcon[reminder.type]}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="outline" className="text-xs px-2 py-0">{REMINDER_TYPE_LABELS[reminder.type]}</Badge>
+                  <Badge variant="outline" className="text-xs px-2 py-0 dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/72">{REMINDER_TYPE_LABELS[reminder.type]}</Badge>
                   <Badge variant="outline" className={`text-[11px] ${priorityTone[priority]}`}>
                     {priority === 'high' ? '高优先级' : priority === 'medium' ? '中优先级' : '低优先级'}
                   </Badge>
                   {!isRead && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
                 </div>
-                <p className="text-sm text-foreground/80">{reminder.message}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-sm text-foreground/80 dark:text-foreground/78">{reminder.message}</p>
+                <p className="mt-1 text-xs text-muted-foreground dark:text-foreground/50">
                   {format(new Date(reminder.created_at), 'MM月dd日 HH:mm', { locale: zhCN })}
                 </p>
               </div>
               <div className="flex flex-col gap-1.5">
                 {href && (
                   <Link href={href}>
-                    <Button size="sm" variant="outline" className="text-xs h-7 px-2">查看</Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-2 dark:hover:bg-white/[0.06]">查看</Button>
                   </Link>
                 )}
                 {!isRead && (
-                  <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-muted-foreground" onClick={() => markAsRead(reminder.id)}>
+                  <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-muted-foreground dark:text-foreground/58 dark:hover:bg-white/[0.06]" onClick={() => markAsRead(reminder.id)}>
                     已读
                   </Button>
                 )}

@@ -101,7 +101,7 @@ export default async function MatchesPage({
             >
               <Badge
                 variant={params.status === tab.value || (!params.status && !tab.value) ? 'secondary' : 'outline'}
-                className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${params.status === tab.value || (!params.status && !tab.value) ? 'border-primary/10 bg-primary text-white hover:bg-primary/92' : 'border-border/80 bg-[color:var(--surface-soft-strong)] text-foreground/70 hover:bg-[color:var(--surface-contrast)] hover:text-foreground'}`}
+                className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${params.status === tab.value || (!params.status && !tab.value) ? 'border-primary/10 bg-primary text-white hover:bg-primary/92 dark:border-primary/20 dark:bg-primary-foreground dark:text-primary dark:hover:bg-primary-foreground/92' : 'border-border/80 bg-[color:var(--surface-soft-strong)] text-foreground/70 hover:bg-[color:var(--surface-contrast)] hover:text-foreground dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/66 dark:hover:bg-white/[0.1] dark:hover:text-foreground'}`}
               >
                 {tab.label}
               </Badge>
@@ -132,13 +132,13 @@ export default async function MatchesPage({
               </div>
               <div className="space-y-4">
                 {topConfirmed ? (
-                  <section className="rounded-[28px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(246,250,255,0.95)_52%,rgba(241,246,252,0.93))] p-5 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.16)]">
+                  <section className="rounded-[28px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(246,250,255,0.95)_52%,rgba(241,246,252,0.93))] p-5 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.16)] dark:border-border/70 dark:bg-[linear-gradient(145deg,rgba(18,25,35,0.96),rgba(12,17,25,0.97)_52%,rgba(9,13,19,0.98))] dark:shadow-[0_30px_68px_-46px_rgba(0,0,0,0.62)]">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Top 1 Confirmed</p>
-                        <h3 className="mt-2 font-heading text-2xl text-foreground">最值得立即推进的候选</h3>
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground dark:text-foreground/45">Top 1 Confirmed</p>
+                        <h3 className="mt-2 font-heading text-2xl text-foreground dark:text-foreground">最值得立即推进的候选</h3>
                       </div>
-                      <Badge className="border border-border/80 bg-white/85 px-3 py-1 text-xs tracking-[0.12em] text-muted-foreground">
+                      <Badge className="border border-border/80 bg-white/85 px-3 py-1 text-xs tracking-[0.12em] text-muted-foreground dark:border-border/70 dark:bg-white/[0.08] dark:text-foreground/66">
                         {RECOMMENDATION_TYPE_LABELS.confirmed}
                       </Badge>
                     </div>
@@ -182,13 +182,13 @@ export default async function MatchesPage({
               </div>
               <div className="space-y-4">
                 {topPending ? (
-                  <section className="rounded-[28px] border border-primary/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(243,247,255,0.94)_55%,rgba(236,243,255,0.92))] p-5 shadow-[0_24px_60px_-42px_rgba(59,130,246,0.12)]">
+                  <section className="rounded-[28px] border border-primary/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(243,247,255,0.94)_55%,rgba(236,243,255,0.92))] p-5 shadow-[0_24px_60px_-42px_rgba(59,130,246,0.12)] dark:border-primary/20 dark:bg-[linear-gradient(145deg,rgba(18,25,35,0.96),rgba(13,20,31,0.97)_55%,rgba(9,15,25,0.98))] dark:shadow-[0_30px_68px_-46px_rgba(18,63,140,0.38)]">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Top 1 Pending</p>
-                        <h3 className="mt-2 font-heading text-2xl text-foreground">最值得优先补问的候选</h3>
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground dark:text-foreground/45">Top 1 Pending</p>
+                        <h3 className="mt-2 font-heading text-2xl text-foreground dark:text-foreground">最值得优先补问的候选</h3>
                       </div>
-                      <Badge className="border border-primary/10 bg-white/90 px-3 py-1 text-xs tracking-[0.12em] text-primary">
+                      <Badge className="border border-primary/10 bg-white/90 px-3 py-1 text-xs tracking-[0.12em] text-primary dark:border-primary/20 dark:bg-white/[0.08] dark:text-primary-foreground">
                         {RECOMMENDATION_TYPE_LABELS.pending_confirmation}
                       </Badge>
                     </div>
