@@ -56,16 +56,16 @@ const STATUS_FLOW: Record<MatchStatus, { next: MatchStatus; label: string; color
 }
 
 const statusBg: Record<string, string> = {
-  pending: 'border border-border/80 bg-secondary text-foreground/72 dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/72',
+  pending: 'border border-border/80 bg-secondary text-foreground/72 dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/72',
   reviewing: 'border border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary',
-  contacted_male: 'border border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-200',
-  contacted_female: 'border border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-500/25 dark:bg-pink-500/10 dark:text-pink-200',
-  both_agreed: 'border border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/25 dark:bg-purple-500/10 dark:text-purple-200',
-  meeting_scheduled: 'border border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/25 dark:bg-orange-500/10 dark:text-orange-200',
-  met: 'border border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-500/25 dark:bg-yellow-500/10 dark:text-yellow-200',
-  succeeded: 'border border-green-200 bg-green-50 text-green-700 dark:border-green-500/25 dark:bg-green-500/10 dark:text-green-200',
-  failed: 'border border-red-200 bg-red-50 text-red-600 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-200',
-  dismissed: 'border border-border bg-muted text-muted-foreground dark:border-border/70 dark:bg-white/[0.04] dark:text-foreground/50',
+  contacted_male: 'border border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-500/25 dark:bg-[linear-gradient(145deg,rgba(24,55,71,0.42),rgba(13,24,33,0.72))] dark:text-cyan-200',
+  contacted_female: 'border border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-500/25 dark:bg-[linear-gradient(145deg,rgba(72,29,53,0.4),rgba(22,17,28,0.72))] dark:text-pink-200',
+  both_agreed: 'border border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/25 dark:bg-[linear-gradient(145deg,rgba(55,33,78,0.42),rgba(19,17,31,0.72))] dark:text-purple-200',
+  meeting_scheduled: 'border border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/25 dark:bg-[linear-gradient(145deg,rgba(84,50,22,0.44),rgba(28,21,16,0.74))] dark:text-orange-200',
+  met: 'border border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-500/25 dark:bg-[linear-gradient(145deg,rgba(72,62,22,0.42),rgba(25,22,15,0.74))] dark:text-yellow-200',
+  succeeded: 'border border-green-200 bg-green-50 text-green-700 dark:border-green-500/25 dark:bg-[linear-gradient(145deg,rgba(24,67,49,0.42),rgba(15,25,19,0.74))] dark:text-green-200',
+  failed: 'border border-red-200 bg-red-50 text-red-600 dark:border-red-500/25 dark:bg-[linear-gradient(145deg,rgba(82,30,30,0.42),rgba(27,16,17,0.74))] dark:text-red-200',
+  dismissed: 'border border-border bg-muted text-muted-foreground dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/50',
 }
 
 export function MatchDetailClient({ match, maleProfile, femaleProfile, maleIntention, femaleIntention }: MatchDetailClientProps) {
@@ -139,7 +139,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
         <div>
           <span className="text-sm font-medium">当前状态：</span>
           <span className="font-bold text-lg ml-2">{MATCH_STATUS_LABELS[status]}</span>
-          <span className="ml-3 rounded-full bg-white/80 px-2 py-1 text-xs dark:bg-white/[0.08] dark:text-foreground/72">
+          <span className="ml-3 rounded-full bg-white/80 px-2 py-1 text-xs dark:bg-[color:var(--surface-soft-strong)] dark:text-foreground/72">
             {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
           </span>
         </div>
@@ -157,7 +157,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
               return (
                 <div key={key} className="text-center">
                   <div className="mb-1 text-xs text-muted-foreground dark:text-foreground/54">{label}</div>
-                  <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-white/[0.08]">
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[color:var(--surface-soft)]">
                     <div className="h-full rounded-full bg-rose-400 transition-all dark:bg-primary" style={{ width: `${pct}%` }} />
                   </div>
                   <div className="mt-1 text-sm font-bold text-foreground dark:text-foreground">{Math.round(score)}<span className="text-xs text-gray-400 dark:text-foreground/56">/{max}</span></div>
@@ -167,12 +167,12 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
           </div>
           {(breakdown.pending_fields.length > 0 || breakdown.hard_conflicts.length > 0) && (
             <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <div className="rounded-[20px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/25 dark:bg-amber-500/10">
+              <div className="rounded-[20px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/25 dark:bg-[linear-gradient(145deg,rgba(84,58,24,0.34),rgba(27,21,15,0.62))]">
                 <p className="mb-2 text-xs font-medium text-amber-800 dark:text-amber-200">待确认字段</p>
                 {breakdown.pending_fields.length ? (
                   <div className="flex flex-wrap gap-2">
                     {breakdown.pending_fields.map((field) => (
-                      <span key={field} className="rounded-full bg-white px-2 py-1 text-xs text-amber-700 dark:bg-white/[0.08] dark:text-amber-100">
+                      <span key={field} className="rounded-full bg-white px-2 py-1 text-xs text-amber-700 dark:bg-amber-400/[0.12] dark:text-amber-100">
                         {getFieldDisplayLabel(field)}
                       </span>
                     ))}
@@ -181,7 +181,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
                   <p className="text-xs text-amber-700 dark:text-amber-200">无</p>
                 )}
               </div>
-              <div className="rounded-[20px] border border-red-200 bg-red-50 p-3 dark:border-red-500/25 dark:bg-red-500/10">
+              <div className="rounded-[20px] border border-red-200 bg-red-50 p-3 dark:border-red-500/25 dark:bg-[linear-gradient(145deg,rgba(84,34,36,0.34),rgba(26,16,18,0.62))]">
                 <p className="mb-2 text-xs font-medium text-red-700 dark:text-red-200">硬冲突字段</p>
                 {breakdown.hard_conflicts.length ? (
                   <div className="space-y-1">
@@ -196,7 +196,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
             </div>
           )}
           {match.match_reason && (
-            <div className="mt-3 rounded-[20px] border border-rose-200 bg-rose-50 p-3 dark:border-rose-500/25 dark:bg-rose-500/10">
+            <div className="mt-3 rounded-[20px] border border-rose-200 bg-rose-50 p-3 dark:border-rose-500/25 dark:bg-[linear-gradient(145deg,rgba(76,30,48,0.34),rgba(23,16,25,0.62))]">
               <p className="text-sm text-rose-700 dark:text-rose-200">{humanizeAIText(match.match_reason)}</p>
             </div>
           )}
@@ -205,7 +205,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
 
       {(match.pending_reasons?.length || match.suggested_followup_questions?.length) && (
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/25 dark:bg-amber-500/10">
+          <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/25 dark:bg-[linear-gradient(145deg,rgba(84,58,24,0.34),rgba(27,21,15,0.62))]">
             <h3 className="mb-2 text-sm font-semibold text-amber-900 dark:text-amber-100">待确认原因</h3>
             {match.pending_reasons?.length ? (
               <div className="space-y-2">
@@ -217,7 +217,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
               <p className="text-sm text-amber-700 dark:text-amber-200">当前无待确认原因。</p>
             )}
           </div>
-          <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 dark:border-rose-500/25 dark:bg-rose-500/10">
+          <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 dark:border-rose-500/25 dark:bg-[linear-gradient(145deg,rgba(76,30,48,0.34),rgba(23,16,25,0.62))]">
             <h3 className="mb-2 text-sm font-semibold text-rose-900 dark:text-rose-100">下一步建议补问</h3>
             {match.suggested_followup_questions?.length ? (
               <div className="space-y-2">
@@ -289,7 +289,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
 
         {/* Status actions */}
         {nextSteps.length > 0 && status !== 'dismissed' && (
-          <div className="border-t border-gray-100 pt-2 dark:border-white/[0.08]">
+          <div className="border-t border-border/70 pt-2 dark:border-white/[0.08]">
             <p className="mb-2 text-xs text-gray-500 dark:text-foreground/50">推进跟进状态：</p>
             <div className="flex flex-wrap gap-2">
               {nextSteps.map(step => (
@@ -303,7 +303,7 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
                   {step.label}
                 </Button>
               ))}
-              <Button size="sm" variant="outline" onClick={() => setShowDismiss(true)} className="text-gray-500 dark:text-foreground/60 dark:hover:bg-white/[0.06]">
+              <Button size="sm" variant="outline" onClick={() => setShowDismiss(true)} className="text-gray-500 dark:text-foreground/60 dark:border-white/12 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]">
                 <X className="w-3.5 h-3.5 mr-1" />放弃推荐
               </Button>
             </div>
