@@ -95,8 +95,8 @@ export const RELATIONSHIP_MODE_LABELS: Record<RelationshipMode, string> = {
 
 export const TRI_STATE_LABELS: Record<TriState, string> = {
   yes: '接受',
-  no: '拒绝',
-  unknown: '未知',
+  no: '不接受',
+  unknown: '待确认',
 }
 
 export const IMPORTANCE_LEVEL_LABELS: Record<ImportanceLevel, string> = {

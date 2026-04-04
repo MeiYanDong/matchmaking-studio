@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { EducationChipSelect } from '@/components/ui/education-chip-select'
 import { PreferenceImportanceEditor } from '@/components/ui/preference-importance-editor'
 import { toast } from 'sonner'
@@ -318,7 +318,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             <FieldInput label="饮酒习惯" value={traitForm.drinking_habit} onChange={v => setTraitForm((p) => ({ ...p, drinking_habit: v }))} placeholder="偶尔饮酒 / 不饮酒" />
             <FieldInput label="社交偏好" value={traitForm.social_preference} onChange={v => setTraitForm((p) => ({ ...p, social_preference: v }))} placeholder="偏宅 / 平衡 / 爱社交" />
             <FieldInput label="消费方式" value={traitForm.spending_style} onChange={v => setTraitForm((p) => ({ ...p, spending_style: v }))} placeholder="理性 / 品质优先 / 愿意为体验花钱" />
-            <FieldInput label="情绪稳定" value={traitForm.emotional_stability} onChange={v => setTraitForm((p) => ({ ...p, emotional_stability: v }))} placeholder="稳定 / 一般 / 敏感 / unknown" />
+            <FieldInput label="情绪稳定" value={traitForm.emotional_stability} onChange={v => setTraitForm((p) => ({ ...p, emotional_stability: v }))} placeholder="稳定 / 一般 / 敏感" />
             <div className="col-span-2">
               <FieldTextarea label="AI 综合描述" value={profileForm.ai_summary} onChange={v => setProfileForm((p) => ({ ...p, ai_summary: v }))} rows={3} />
             </div>
@@ -413,18 +413,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             <FieldInput label="期望对方最大年龄" value={intentForm.preferred_age_max} onChange={v => setIntentForm((p) => ({ ...p, preferred_age_max: v }))} type="number" />
             <FieldInput label="期望对方最低身高(cm)" value={intentForm.preferred_height_min} onChange={v => setIntentForm((p) => ({ ...p, preferred_height_min: v }))} type="number" />
             <FieldInput label="期望对方最低年薪(万)" value={intentForm.preferred_income_min} onChange={v => setIntentForm((p) => ({ ...p, preferred_income_min: v }))} type="number" />
-            <SelectField
-              label="男方关系模式"
-              value={intentForm.relationship_mode}
-              onChange={(value) => setIntentForm((p) => ({ ...p, relationship_mode: value as RelationshipMode }))}
-              options={[
-                { value: 'marriage_standard', label: '奔着结婚去的标准婚恋' },
-                { value: 'compensated_dating', label: '恋爱' },
-                { value: 'fertility_asset_arrangement', label: '生育资产安排型' },
-              ]}
-              placeholder="选择关系模式"
-              className="col-span-2"
-            />
             <div className="col-span-2">
               <FieldInput label="可接受城市（逗号、顿号或换行分隔）" value={intentForm.preferred_cities} onChange={v => setIntentForm((p) => ({ ...p, preferred_cities: v }))} />
             </div>
@@ -492,19 +480,32 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
                 onChange={(value) => setIntentForm((p) => ({ ...p, preference_importance: value }))}
               />
             </div>
+            {profile.gender === 'male' && (
+              <div className="col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+                <div className="mb-3">
+                  <p className="text-sm font-medium text-amber-900">特殊模式（V1 后置）</p>
+                  <p className="mt-1 text-xs leading-5 text-amber-700">
+                    仅在男方明确表达特殊关系模式时才填写。该字段不作为 V1 常规信息补全主视图的默认项。
+                  </p>
+                </div>
+                <SelectField
+                  label="男方关系模式"
+                  value={intentForm.relationship_mode}
+                  onChange={(value) => setIntentForm((p) => ({ ...p, relationship_mode: value as RelationshipMode }))}
+                  options={[
+                    { value: 'marriage_standard', label: '奔着结婚去的标准婚恋' },
+                    { value: 'compensated_dating', label: '恋爱' },
+                    { value: 'fertility_asset_arrangement', label: '生育资产安排型' },
+                  ]}
+                  placeholder="请选择"
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-5">
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <InfoField label="主意图" value={intention?.primary_intent ? INTENT_LABELS[intention.primary_intent] : ''} />
-              <InfoField
-                label="男方关系模式"
-                value={intention?.relationship_mode ? ({
-                  marriage_standard: '奔着结婚去的标准婚恋',
-                  compensated_dating: '恋爱',
-                  fertility_asset_arrangement: '生育资产安排型',
-                }[intention.relationship_mode]) : ''}
-              />
               <InfoField label="是否接受异地" value={formatTriState(intention?.accepts_long_distance)} />
               <InfoField label="是否愿意迁居" value={formatTriState(intention?.relocation_willingness)} />
               <InfoField label="是否接受对方有孩子" value={formatTriState(intention?.accepts_partner_children)} />
@@ -535,6 +536,17 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             <InfoPanel label="容忍边界说明" value={intention?.tolerance_notes} tone="yellow" />
             <InfoPanel label="异地说明" value={intention?.long_distance_notes} tone="blue" />
             <InfoPanel label="隐性意图（AI/红娘判断）" value={intention?.implicit_intent_notes} tone="purple" />
+            {profile.gender === 'male' && intention?.relationship_mode && (
+              <InfoPanel
+                label="特殊模式（V1 后置）"
+                value={{
+                  marriage_standard: '奔着结婚去的标准婚恋',
+                  compensated_dating: '恋爱',
+                  fertility_asset_arrangement: '生育资产安排型',
+                }[intention.relationship_mode]}
+                tone="amber"
+              />
+            )}
           </div>
         )}
       </div>
@@ -547,7 +559,7 @@ function InfoField({ label, value }: { label: string; value?: string | null }) {
     return (
       <div>
         <dt className="text-gray-400 text-xs">{label}</dt>
-        <dd className="text-gray-300 text-sm">-</dd>
+        <dd className="text-gray-300 text-sm">未填写</dd>
       </div>
     )
   }
@@ -621,7 +633,11 @@ function SelectField({
     <div className={`space-y-1 ${className ?? ''}`}>
       <Label className="text-sm text-gray-600">{label}</Label>
       <Select value={value} onValueChange={(nextValue) => onChange(nextValue ?? '')}>
-        <SelectTrigger><SelectValue placeholder={placeholder} /></SelectTrigger>
+        <SelectTrigger>
+          <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
+            {options.find((option) => option.value === value)?.label ?? placeholder}
+          </span>
+        </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
@@ -760,8 +776,8 @@ function booleanToForm(value?: boolean | null) {
 }
 
 function triStateToForm(value?: TriState | null) {
-  if (value === 'yes' || value === 'no' || value === 'unknown') return value
-  return 'unknown'
+  if (value === 'yes' || value === 'no') return value
+  return ''
 }
 
 function formatBoolean(value?: boolean | null) {
