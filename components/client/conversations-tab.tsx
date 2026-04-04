@@ -122,7 +122,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
       </div>
 
       {!conversations.length ? (
-        <div className="rounded-[28px] border border-dashed border-gray-200 bg-white/80 px-6 py-16 text-center text-gray-400">
+        <div className="rounded-[28px] border border-dashed border-gray-200 bg-white/80 px-6 py-16 text-center text-gray-400 dark:border-white/10 dark:bg-white/[0.035] dark:text-foreground/50">
           <Mic className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="font-medium">暂无录音记录</p>
           <p className="text-sm mt-1">上传与客户的对话录音，AI 会自动更新客户快照并生成补问建议</p>
@@ -130,14 +130,14 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
       ) : (
         <div className="space-y-4">
           {latestConversation && (
-          <div className="overflow-hidden rounded-[30px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_52%,rgba(247,250,255,0.94))] shadow-[0_24px_56px_-42px_rgba(15,23,42,0.16)]">
+          <div className="overflow-hidden rounded-[30px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_52%,rgba(247,250,255,0.94))] shadow-[0_24px_56px_-42px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[radial-gradient(circle_at_top_left,rgba(82,145,243,0.16),transparent_34%),linear-gradient(145deg,rgba(16,24,36,0.98),rgba(10,15,23,0.98)_58%,rgba(9,13,21,0.96))] dark:shadow-[0_30px_72px_-42px_rgba(0,0,0,0.68)]">
               <div className="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold text-gray-900">最近一次 AI 更新</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-foreground">最近一次 AI 更新</h3>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-foreground/60">
                     {format(new Date(latestConversation.created_at), 'MM月dd日 HH:mm', { locale: zhCN })}
                     {latestConversation.reviewed_at ? ' · 异常已处理' : ' · 已按默认规则自动入库'}
                   </p>
@@ -147,7 +147,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
                 </Badge>
               </div>
 
-              <div className="grid gap-3 border-t border-white/80 px-6 py-5 md:grid-cols-3">
+              <div className="grid gap-3 border-t border-white/80 px-6 py-5 dark:border-white/8 md:grid-cols-3">
                 <SummaryCard
                   title="自动写入字段"
                   value={String(latestExtracted?.applied_field_updates?.length ?? 0)}
@@ -169,11 +169,11 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
               </div>
 
               {!!latestMissingFields.length && (
-                <div className="border-t border-white/70 px-6 pb-5 pt-1">
-                  <p className="text-xs font-medium text-gray-500 mb-2">关键缺口</p>
+                <div className="border-t border-white/70 px-6 pb-5 pt-1 dark:border-white/8">
+                  <p className="text-xs font-medium text-gray-500 mb-2 dark:text-foreground/50">关键缺口</p>
                   <div className="flex flex-wrap gap-2">
                     {latestMissingFields.map((field) => (
-                      <Badge key={field} variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+                      <Badge key={field} variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-300/12 dark:bg-amber-400/[0.08] dark:text-amber-100">
                         {getFieldDisplayLabel(field)}
                       </Badge>
                     ))}
@@ -198,7 +198,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
       )}
 
       <Dialog open={!!selectedConversation} onOpenChange={(open) => !open && setSelectedConversation(null)}>
-        <DialogContent className="max-w-[calc(100vw-1rem)] gap-0 overflow-hidden rounded-[30px] border-0 bg-[linear-gradient(180deg,rgba(252,253,255,0.98),rgba(245,248,252,0.97))] p-0 shadow-[0_32px_120px_-48px_rgba(15,23,42,0.5)] sm:max-w-[min(1180px,calc(100vw-2.5rem))]">
+        <DialogContent className="max-w-[calc(100vw-1rem)] gap-0 overflow-hidden rounded-[30px] border-0 bg-[linear-gradient(180deg,rgba(252,253,255,0.98),rgba(245,248,252,0.97))] p-0 shadow-[0_32px_120px_-48px_rgba(15,23,42,0.5)] dark:bg-[linear-gradient(180deg,rgba(10,14,21,0.98),rgba(7,10,16,0.98))] dark:shadow-[0_40px_120px_-52px_rgba(0,0,0,0.82)] sm:max-w-[min(1180px,calc(100vw-2.5rem))]">
           {selectedConversation && <ConversationDetail conversation={selectedConversation} />}
         </DialogContent>
       </Dialog>
@@ -244,27 +244,27 @@ function ConversationCard({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-[28px] border bg-[linear-gradient(140deg,rgba(255,255,255,0.98),rgba(249,250,251,0.96)_46%,rgba(255,247,237,0.92))] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_42px_-28px_rgba(15,23,42,0.4)]',
-        isLatest ? 'border-primary/12' : 'border-gray-200/90'
+        'overflow-hidden rounded-[28px] border bg-[linear-gradient(140deg,rgba(255,255,255,0.98),rgba(249,250,251,0.96)_46%,rgba(255,247,237,0.92))] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_42px_-28px_rgba(15,23,42,0.4)] dark:bg-[linear-gradient(145deg,rgba(14,19,29,0.96),rgba(10,15,22,0.94))] dark:shadow-[0_26px_64px_-40px_rgba(0,0,0,0.66)]',
+        isLatest ? 'border-primary/12 dark:border-primary/14' : 'border-gray-200/90 dark:border-white/8'
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3 px-5 pb-3 pt-5">
         <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-800">
+          <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-800 dark:text-foreground/82">
             {statusIcon[conversation.status]}
             <span>{format(new Date(conversation.created_at), 'MM月dd日 HH:mm', { locale: zhCN })}</span>
             {conversation.audio_duration ? (
-              <span className="rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-normal text-gray-500">
+              <span className="rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-normal text-gray-500 dark:bg-white/[0.05] dark:text-foreground/52">
                 {Math.floor(conversation.audio_duration / 60)}分{conversation.audio_duration % 60}秒
               </span>
             ) : null}
             {conversation.reviewed_at ? (
-              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/[0.1] dark:text-emerald-100">
                 已处理异常
               </span>
             ) : null}
           </div>
-          <p className="text-xs tracking-[0.16em] text-gray-400 uppercase">
+          <p className="text-xs tracking-[0.16em] text-gray-400 uppercase dark:text-foreground/46">
             {conversation.status === 'done' ? '会话摘要' : '处理中'}
           </p>
         </div>
@@ -292,12 +292,12 @@ function ConversationCard({
       </div>
 
       {conversation.error_message && (
-        <div className="mx-5 mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mx-5 mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-300/12 dark:bg-red-400/[0.08] dark:text-red-100">
           {conversation.error_message}
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.05] bg-white/55 px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.05] bg-white/55 px-5 py-4 dark:border-white/8 dark:bg-white/[0.03]">
         <div className="flex flex-wrap gap-2">
           {autoAppliedCount > 0 && <CountChip tone="emerald" label={`自动写入 ${autoAppliedCount}`} />}
           {reviewRequiredCount > 0 && <CountChip tone="amber" label={`异常 ${reviewRequiredCount}`} />}
@@ -308,13 +308,13 @@ function ConversationCard({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="ghost" className="text-gray-600" onClick={onOpen}>
+          <Button size="sm" variant="ghost" className="text-gray-600 dark:text-foreground/62 dark:hover:bg-white/[0.04] dark:hover:text-foreground" onClick={onOpen}>
             <FileText className="w-4 h-4 mr-1.5" />
             查看详情
           </Button>
           {shouldReview && (
             <Link href={`/matchmaker/clients/${profileId}/conversations/${conversation.id}/review`}>
-              <Button size="sm" variant="outline" className="border-primary/15 bg-white text-primary hover:bg-primary/8">
+              <Button size="sm" variant="outline" className="border-primary/15 bg-white text-primary hover:bg-primary/8 dark:border-primary/16 dark:bg-white/[0.05] dark:text-primary dark:hover:bg-primary/12">
                 处理异常
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -324,7 +324,7 @@ function ConversationCard({
             <Button
               size="sm"
               variant="outline"
-              className="border-blue-200 bg-white text-blue-600 hover:bg-blue-50"
+              className="border-blue-200 bg-white text-blue-600 hover:bg-blue-50 dark:border-blue-300/12 dark:bg-white/[0.05] dark:text-blue-200 dark:hover:bg-blue-400/[0.08]"
               onClick={onRetry}
               disabled={retrying}
             >
@@ -357,18 +357,18 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
 
   return (
     <div className="flex h-[min(86vh,920px)] min-h-[70vh] flex-col">
-      <DialogHeader className="border-b border-black/5 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_44%,rgba(247,250,255,0.94))] px-6 py-5">
+      <DialogHeader className="border-b border-black/5 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_44%,rgba(247,250,255,0.94))] px-6 py-5 dark:border-white/8 dark:bg-[radial-gradient(circle_at_top_left,rgba(82,145,243,0.14),transparent_34%),linear-gradient(145deg,rgba(14,20,31,0.98),rgba(9,13,21,0.98))]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
-            <DialogTitle className="text-xl text-slate-900">录音处理详情</DialogTitle>
-            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <DialogTitle className="text-xl text-slate-900 dark:text-foreground">录音处理详情</DialogTitle>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-foreground/60">
               <span>{format(new Date(conversation.created_at), 'MM月dd日 HH:mm', { locale: zhCN })}</span>
               {conversation.audio_duration ? (
-                <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-slate-500 shadow-sm ring-1 ring-black/5">
+                <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-slate-500 shadow-sm ring-1 ring-black/5 dark:bg-white/[0.06] dark:text-foreground/50 dark:ring-white/8">
                   {Math.floor(conversation.audio_duration / 60)}分{conversation.audio_duration % 60}秒
                 </span>
               ) : null}
-              <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-slate-500 shadow-sm ring-1 ring-black/5">
+              <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-slate-500 shadow-sm ring-1 ring-black/5 dark:bg-white/[0.06] dark:text-foreground/50 dark:ring-white/8">
                 {conversation.reviewed_at ? '异常已处理' : '工作流详情'}
               </span>
             </div>
@@ -386,7 +386,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
       </DialogHeader>
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1.4fr)_420px]">
-        <div className="flex min-h-0 flex-col border-b border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,250,252,0.9))] lg:border-b-0 lg:border-r">
+        <div className="flex min-h-0 flex-col border-b border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,250,252,0.9))] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(12,17,26,0.92),rgba(8,12,19,0.94))] lg:border-b-0 lg:border-r">
           <div className="grid gap-3 border-b border-black/5 px-6 py-5 sm:grid-cols-3">
             <SummaryCard title="自动写入字段" value={String(appliedUpdates.length)} description="AI 已同步更新" tone="emerald" />
             <SummaryCard title="待确认异常" value={String(reviewRequired.length)} description="需要人工复核" tone="amber" />
@@ -394,16 +394,16 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_50px_-42px_rgba(15,23,42,0.5)]">
-              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_50px_-42px_rgba(15,23,42,0.5)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,20,31,0.98),rgba(9,13,21,0.98))] dark:shadow-[0_32px_80px_-48px_rgba(0,0,0,0.74)]">
+              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-white/8">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-foreground/82">
                   <FileText className="w-4 h-4 text-slate-500" />
                   转录全文
                 </div>
-                <span className="text-xs text-slate-400">滚动查看完整内容</span>
+                <span className="text-xs text-slate-400 dark:text-foreground/46">滚动查看完整内容</span>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
-                <div className="mx-auto max-w-4xl whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
+                <div className="mx-auto max-w-4xl whitespace-pre-wrap text-[15px] leading-8 text-slate-700 dark:text-foreground/78">
                   {conversation.transcript || '暂无转录文本'}
                 </div>
               </div>
@@ -411,7 +411,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
           </div>
         </div>
 
-        <div className="min-h-0 overflow-y-auto bg-[linear-gradient(180deg,rgba(248,250,253,0.94),rgba(255,255,255,0.98))] px-5 py-5">
+        <div className="min-h-0 overflow-y-auto bg-[linear-gradient(180deg,rgba(248,250,253,0.94),rgba(255,255,255,0.98))] px-5 py-5 dark:bg-[linear-gradient(180deg,rgba(10,14,21,0.94),rgba(7,10,16,0.98))]">
           <div className="space-y-4">
             <DetailPanel
               title="AI 处理摘要"
@@ -421,7 +421,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
               {conversation.extraction_notes ? (
                 <p className="text-sm leading-7 text-slate-700">{humanizeAIText(conversation.extraction_notes)}</p>
               ) : (
-                <p className="text-sm text-gray-400">当前没有额外摘要。</p>
+                <p className="text-sm text-gray-400 dark:text-foreground/48">当前没有额外摘要。</p>
               )}
             </DetailPanel>
 
@@ -433,7 +433,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
               >
                 <div className="space-y-2">
                   {suggestedQuestions.map((question) => (
-                    <div key={question} className="rounded-2xl border border-primary/12 bg-white/92 px-4 py-3 text-sm leading-6 text-slate-700">
+                    <div key={question} className="rounded-2xl border border-primary/12 bg-white/92 px-4 py-3 text-sm leading-6 text-slate-700 dark:border-primary/16 dark:bg-white/[0.05] dark:text-foreground/76">
                       {question}
                     </div>
                   ))}
@@ -501,7 +501,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
               >
                 <div className="flex flex-wrap gap-2">
                   {missingCriticalFields.map((field) => (
-                    <Badge key={field} variant="outline" className="border-amber-200 bg-white text-amber-700">
+                    <Badge key={field} variant="outline" className="border-amber-200 bg-white text-amber-700 dark:border-amber-300/12 dark:bg-white/[0.05] dark:text-amber-100">
                       {getFieldDisplayLabel(field)}
                     </Badge>
                   ))}
@@ -519,8 +519,8 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
               </DetailPanel>
             )}
 
-            <details className="rounded-[24px] border border-slate-200 bg-white/70 p-4">
-              <summary className="cursor-pointer text-xs font-medium tracking-[0.12em] text-slate-500 uppercase">
+            <details className="rounded-[24px] border border-slate-200 bg-white/70 p-4 dark:border-white/8 dark:bg-white/[0.035]">
+              <summary className="cursor-pointer text-xs font-medium tracking-[0.12em] text-slate-500 uppercase dark:text-foreground/48">
                 查看原始结构化结果
               </summary>
               <pre className="mt-3 max-h-[22rem] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs leading-6 text-slate-100">
@@ -548,18 +548,18 @@ function SnippetPanel({
   clampClass: string
 }) {
   const toneClass = tone === 'primary'
-    ? 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.95),rgba(255,255,255,0.92))]'
-    : 'border-slate-200/70 bg-[linear-gradient(160deg,rgba(248,250,252,0.95),rgba(255,255,255,0.92))]'
+    ? 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.95),rgba(255,255,255,0.92))] dark:border-primary/16 dark:bg-[linear-gradient(160deg,rgba(16,24,36,0.94),rgba(10,15,22,0.96))]'
+    : 'border-slate-200/70 bg-[linear-gradient(160deg,rgba(248,250,252,0.95),rgba(255,255,255,0.92))] dark:border-white/8 dark:bg-[linear-gradient(160deg,rgba(15,21,32,0.94),rgba(10,15,22,0.96))]'
 
   return (
     <div className={cn('relative overflow-hidden rounded-[24px] border p-4 shadow-[0_20px_40px_-40px_rgba(15,23,42,0.55)]', toneClass)}>
-      <div className="flex items-center gap-2 text-xs font-medium tracking-[0.14em] text-gray-500 uppercase">
+      <div className="flex items-center gap-2 text-xs font-medium tracking-[0.14em] text-gray-500 uppercase dark:text-foreground/48">
         {icon}
         {label}
       </div>
-      <p className={cn('mt-3 text-[15px] leading-7 text-gray-700', clampClass)}>{content}</p>
+      <p className={cn('mt-3 text-[15px] leading-7 text-gray-700 dark:text-foreground/76', clampClass)}>{content}</p>
       {clampClass && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/88 via-white/55 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/88 via-white/55 to-transparent dark:from-[rgba(10,15,22,0.98)] dark:via-[rgba(10,15,22,0.75)] dark:to-transparent" />
       )}
     </div>
   )
@@ -577,16 +577,16 @@ function DetailPanel({
   children: ReactNode
 }) {
   const toneClass = {
-    emerald: 'border-emerald-200/70 bg-[linear-gradient(160deg,rgba(236,253,245,0.88),rgba(255,255,255,0.95))]',
-    amber: 'border-amber-200/70 bg-[linear-gradient(160deg,rgba(255,247,237,0.88),rgba(255,255,255,0.95))]',
-    primary: 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.9),rgba(255,255,255,0.96))]',
-    slate: 'border-slate-200/80 bg-[linear-gradient(160deg,rgba(248,250,252,0.9),rgba(255,255,255,0.98))]',
-    red: 'border-red-200/80 bg-[linear-gradient(160deg,rgba(254,242,242,0.9),rgba(255,255,255,0.98))]',
+    emerald: 'border-emerald-200/70 bg-[linear-gradient(160deg,rgba(236,253,245,0.88),rgba(255,255,255,0.95))] dark:border-emerald-300/12 dark:bg-[linear-gradient(160deg,rgba(11,30,26,0.94),rgba(9,13,21,0.96))]',
+    amber: 'border-amber-200/70 bg-[linear-gradient(160deg,rgba(255,247,237,0.88),rgba(255,255,255,0.95))] dark:border-amber-300/12 dark:bg-[linear-gradient(160deg,rgba(35,25,14,0.94),rgba(9,13,21,0.96))]',
+    primary: 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.9),rgba(255,255,255,0.96))] dark:border-primary/16 dark:bg-[linear-gradient(160deg,rgba(14,24,38,0.94),rgba(9,13,21,0.96))]',
+    slate: 'border-slate-200/80 bg-[linear-gradient(160deg,rgba(248,250,252,0.9),rgba(255,255,255,0.98))] dark:border-white/8 dark:bg-[linear-gradient(160deg,rgba(15,21,32,0.94),rgba(9,13,21,0.96))]',
+    red: 'border-red-200/80 bg-[linear-gradient(160deg,rgba(254,242,242,0.9),rgba(255,255,255,0.98))] dark:border-red-300/12 dark:bg-[linear-gradient(160deg,rgba(42,18,20,0.94),rgba(9,13,21,0.96))]',
   }[tone]
 
   return (
     <section className={cn('rounded-[24px] border p-4 shadow-[0_18px_40px_-42px_rgba(15,23,42,0.45)]', toneClass)}>
-      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-foreground">
         {icon}
         {title}
       </div>
@@ -605,8 +605,8 @@ function InsightRow({
   tone: 'emerald' | 'amber'
 }) {
   const toneClass = tone === 'emerald'
-    ? 'border-emerald-200/70 bg-white/85 text-emerald-900'
-    : 'border-orange-200/70 bg-white/85 text-orange-900'
+    ? 'border-emerald-200/70 bg-white/85 text-emerald-900 dark:border-emerald-300/12 dark:bg-white/[0.05] dark:text-emerald-100'
+    : 'border-orange-200/70 bg-white/85 text-orange-900 dark:border-orange-300/12 dark:bg-white/[0.05] dark:text-orange-100'
 
   return (
     <div className={cn('rounded-2xl border px-4 py-3', toneClass)}>
@@ -624,10 +624,10 @@ function CountChip({
   label: string
 }) {
   const toneClass = {
-    emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    amber: 'border-amber-200 bg-amber-50 text-amber-700',
-    primary: 'border-primary/12 bg-primary/8 text-primary',
-    slate: 'border-slate-200 bg-slate-50 text-slate-600',
+    emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-300/12 dark:bg-emerald-400/[0.08] dark:text-emerald-100',
+    amber: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-300/12 dark:bg-amber-400/[0.08] dark:text-amber-100',
+    primary: 'border-primary/12 bg-primary/8 text-primary dark:border-primary/16 dark:bg-primary/12 dark:text-primary',
+    slate: 'border-slate-200 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/68',
   }[tone]
 
   return (
@@ -649,16 +649,16 @@ function SummaryCard({
   tone: 'emerald' | 'amber' | 'primary'
 }) {
   const toneClass = {
-    emerald: 'border-emerald-200/70 bg-white/80',
-    amber: 'border-amber-200/70 bg-white/80',
-    primary: 'border-primary/12 bg-white/84',
+    emerald: 'border-emerald-200/70 bg-white/80 dark:border-emerald-300/12 dark:bg-white/[0.05]',
+    amber: 'border-amber-200/70 bg-white/80 dark:border-amber-300/12 dark:bg-white/[0.05]',
+    primary: 'border-primary/12 bg-white/84 dark:border-primary/16 dark:bg-white/[0.05]',
   }[tone]
 
   return (
     <div className={cn('rounded-[22px] border p-4 shadow-[0_12px_30px_-30px_rgba(15,23,42,0.4)]', toneClass)}>
-      <p className="text-xs tracking-[0.12em] text-gray-500 uppercase">{title}</p>
-      <p className="mt-3 text-3xl font-semibold text-gray-900">{value}</p>
-      <p className="mt-2 text-xs leading-5 text-gray-500">{description}</p>
+      <p className="text-xs tracking-[0.12em] text-gray-500 uppercase dark:text-foreground/48">{title}</p>
+      <p className="mt-3 text-3xl font-semibold text-gray-900 dark:text-foreground">{value}</p>
+      <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-foreground/56">{description}</p>
     </div>
   )
 }

@@ -21,22 +21,22 @@ interface FollowupTabProps {
 }
 
 const statusColor: Record<string, string> = {
-  pending: 'bg-gray-100 text-gray-500',
-  reviewing: 'bg-blue-100 text-blue-600',
-  contacted_male: 'bg-cyan-100 text-cyan-600',
-  contacted_female: 'bg-pink-100 text-pink-600',
-  both_agreed: 'bg-purple-100 text-purple-600',
-  meeting_scheduled: 'bg-orange-100 text-orange-600',
-  met: 'bg-yellow-100 text-yellow-600',
-  succeeded: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-600',
-  dismissed: 'bg-gray-100 text-gray-400',
+  pending: 'bg-gray-100 text-gray-500 dark:bg-white/[0.05] dark:text-foreground/58',
+  reviewing: 'bg-blue-100 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-100',
+  contacted_male: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-100',
+  contacted_female: 'bg-pink-100 text-pink-600 dark:bg-pink-400/[0.12] dark:text-pink-100',
+  both_agreed: 'bg-purple-100 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-100',
+  meeting_scheduled: 'bg-orange-100 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-100',
+  met: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-400/[0.12] dark:text-yellow-100',
+  succeeded: 'bg-green-100 text-green-700 dark:bg-emerald-400/[0.12] dark:text-emerald-100',
+  failed: 'bg-red-100 text-red-600 dark:bg-red-400/[0.12] dark:text-red-100',
+  dismissed: 'bg-gray-100 text-gray-400 dark:bg-white/[0.05] dark:text-foreground/42',
 }
 
 const priorityTone: Record<string, string> = {
-  high: 'border-red-200 bg-red-50 text-red-700',
-  medium: 'border-amber-200 bg-amber-50 text-amber-700',
-  low: 'border-slate-200 bg-slate-50 text-slate-700',
+  high: 'border-red-200 bg-red-50 text-red-700 dark:border-red-300/12 dark:bg-red-400/[0.08] dark:text-red-100',
+  medium: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-300/12 dark:bg-amber-400/[0.08] dark:text-amber-100',
+  low: 'border-slate-200 bg-slate-50 text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-foreground/72',
 }
 
 const taskTypeLabel: Record<string, string> = {
@@ -175,17 +175,17 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border bg-white p-5">
+      <section className="rounded-[28px] border border-border/80 bg-white/84 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <h3 className="font-semibold text-gray-900">待补问任务</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-foreground">待补问任务</h3>
           <Badge variant="outline" className="ml-auto">
             {openTasks.length} 项未完成
           </Badge>
         </div>
 
         {!openTasks.length ? (
-          <p className="text-sm text-gray-400">当前没有待补问任务，AI 已经把需要继续确认的事项清空了。</p>
+          <p className="text-sm text-gray-400 dark:text-foreground/48">当前没有待补问任务，AI 已经把需要继续确认的事项清空了。</p>
         ) : (
           <div className="space-y-3">
             {openTasks.map((task) => {
@@ -193,31 +193,31 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
               const displayQuestions = buildDisplayFollowupQuestions(displayFieldKeys, task.questions)
 
               return (
-                <div key={task.id} className="rounded-xl border border-amber-100 bg-amber-50 p-4">
+                <div key={task.id} className="rounded-[24px] border border-amber-100 bg-amber-50 p-4 dark:border-amber-300/12 dark:bg-amber-400/[0.06]">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className={priorityTone[task.priority]}>
                     {task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
                   </Badge>
-                  <Badge variant="outline" className="bg-white">
+                  <Badge variant="outline" className="bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/78">
                     {taskTypeLabel[task.taskType] ?? task.taskType}
                   </Badge>
                   {task.taskIds.length > 1 ? (
-                    <Badge variant="outline" className="bg-white text-muted-foreground">
+                    <Badge variant="outline" className="bg-white text-muted-foreground dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/56">
                       已合并 {task.taskIds.length} 条相近补问
                     </Badge>
                   ) : null}
                   {task.matchIds.length > 1 ? (
-                    <Badge variant="outline" className="bg-white text-muted-foreground">
+                    <Badge variant="outline" className="bg-white text-muted-foreground dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/56">
                       涉及 {task.matchIds.length} 个候选
                     </Badge>
                   ) : null}
-                  <span className="text-xs text-gray-400 ml-auto">
+                  <span className="text-xs text-gray-400 ml-auto dark:text-foreground/46">
                     更新于 {format(new Date(task.updatedAt), 'MM月dd日 HH:mm', { locale: zhCN })}
                   </span>
                 </div>
 
                 {!!task.rationaleList.length && (
-                  <p className="mt-3 text-sm text-gray-700">
+                  <p className="mt-3 text-sm text-gray-700 dark:text-foreground/76">
                     {task.rationaleList.length > 1
                       ? 'AI 已将相近补问合并，下面这些问题可以在下一轮沟通里一次性确认。'
                       : task.rationaleList[0]}
@@ -227,7 +227,7 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                 {!!displayFieldKeys.length && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {displayFieldKeys.map((fieldKey) => (
-                      <Badge key={fieldKey} variant="outline" className="bg-white text-gray-600">
+                      <Badge key={fieldKey} variant="outline" className="bg-white text-gray-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/68">
                         {getFieldDisplayLabel(fieldKey)}
                       </Badge>
                     ))}
@@ -237,7 +237,7 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                 {!!displayQuestions.length && (
                   <div className="mt-3 space-y-2">
                     {displayQuestions.map((question) => (
-                      <div key={question} className="rounded-lg bg-white/90 p-3 text-sm text-gray-700">
+                      <div key={question} className="rounded-lg bg-white/90 p-3 text-sm text-gray-700 dark:bg-white/[0.06] dark:text-foreground/76">
                         {question}
                       </div>
                     ))}
@@ -265,7 +265,7 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-gray-500"
+                    className="text-gray-500 dark:text-foreground/58 dark:hover:bg-white/[0.04] dark:hover:text-foreground"
                     disabled={updatingTaskId === task.id}
                     onClick={() => updateTaskStatus(task.taskIds, 'dismissed')}
                   >
@@ -281,20 +281,20 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
       </section>
 
       {!!closedTasks.length && (
-        <section className="rounded-2xl border bg-white p-5">
+        <section className="rounded-[28px] border border-border/80 bg-white/84 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
           <div className="flex items-center gap-2 mb-4">
             <ClipboardList className="w-4 h-4 text-slate-500" />
-            <h3 className="font-semibold text-gray-900">最近已处理任务</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-foreground">最近已处理任务</h3>
           </div>
           <div className="space-y-2">
             {closedTasks.slice(0, 5).map((task) => (
-              <div key={task.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
+              <div key={task.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700 dark:border-white/8 dark:bg-white/[0.04] dark:text-foreground/74">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{taskTypeLabel[task.task_type] ?? task.task_type}</p>
-                    <p className="text-xs text-slate-500 mt-1">{humanizeAIText(task.rationale || '已由红娘完成处理')}</p>
+                    <p className="text-xs text-slate-500 mt-1 dark:text-foreground/50">{humanizeAIText(task.rationale || '已由红娘完成处理')}</p>
                   </div>
-                  <Badge variant="outline" className="bg-white">
+                  <Badge variant="outline" className="bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/68">
                     {task.status === 'done' ? '已完成' : '已忽略'}
                   </Badge>
                 </div>
@@ -304,34 +304,34 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
         </section>
       )}
 
-      <section className="rounded-2xl border bg-white p-5">
+      <section className="rounded-[28px] border border-border/80 bg-white/84 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
         <div className="flex items-center gap-2 mb-4">
           <Clock3 className="w-4 h-4 text-rose-500" />
-          <h3 className="font-semibold text-gray-900">匹配跟进时间线</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-foreground">匹配跟进时间线</h3>
         </div>
 
         {!timelineMatches.length ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-gray-400 dark:text-foreground/48">
             <p className="font-medium">暂无匹配跟进记录</p>
           </div>
         ) : (
-          <div className="relative ml-3 border-l border-rose-100 pl-6 space-y-5">
+          <div className="relative ml-3 border-l border-rose-100 pl-6 space-y-5 dark:border-rose-300/12">
             {timelineMatches.map((match) => (
               <div key={match.id} className="relative">
-                <div className="absolute -left-[31px] top-5 w-3 h-3 rounded-full bg-rose-400 border-4 border-white" />
+                <div className="absolute -left-[31px] top-5 w-3 h-3 rounded-full bg-rose-400 border-4 border-white dark:border-[color:var(--background)]" />
                 <Link href={`/matchmaker/matches/${match.id}`}>
-                  <div className="rounded-xl border p-4 hover:shadow-sm transition-shadow">
+                  <div className="rounded-xl border p-4 hover:shadow-sm transition-shadow dark:border-white/8 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-sm">
                         <span className="font-medium">{match.male_profile.name}</span>
-                        <ArrowRight className="w-3 h-3 text-gray-400" />
+                        <ArrowRight className="w-3 h-3 text-gray-400 dark:text-foreground/42" />
                         <span className="font-medium">{match.female_profile.name}</span>
                       </div>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColor[match.status]}`}>
                         {MATCH_STATUS_LABELS[match.status]}
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 dark:text-foreground/46">
                       <span>匹配分：{Math.round(match.match_score)}</span>
                       {match.meeting_time && (
                         <span>约谈：{format(new Date(match.meeting_time), 'MM月dd日 HH:mm', { locale: zhCN })}</span>
