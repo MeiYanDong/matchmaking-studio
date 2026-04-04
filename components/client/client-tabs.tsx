@@ -21,14 +21,14 @@ export function ClientTabs({ profile, intention, traitProfile, conversations, ma
 
   return (
     <Tabs defaultValue="info" className="w-full">
-      <TabsList className="mb-6 grid w-full grid-cols-2 rounded-[24px] lg:grid-cols-4">
+      <TabsList className="mb-6 grid w-full grid-cols-2 rounded-[24px] dark:border-white/8 dark:bg-white/[0.03] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] lg:grid-cols-4">
         <TabsTrigger value="info" className="rounded-[18px]">
           基本信息
         </TabsTrigger>
         <TabsTrigger value="matches" className="rounded-[18px]">
           匹配推荐
           {pendingMatchCount > 0 && (
-            <span className="ml-1.5 min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-xs text-white">
+            <span className="ml-1.5 min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-xs text-white dark:bg-primary dark:text-primary-foreground">
               {pendingMatchCount}
             </span>
           )}
@@ -39,7 +39,7 @@ export function ClientTabs({ profile, intention, traitProfile, conversations, ma
         <TabsTrigger value="followup" className="rounded-[18px]">
           跟进记录
           {openTaskCount > 0 && (
-            <span className="ml-1.5 min-w-5 rounded-full bg-primary/85 px-1.5 py-0.5 text-xs text-white">
+            <span className="ml-1.5 min-w-5 rounded-full bg-primary/85 px-1.5 py-0.5 text-xs text-white dark:bg-primary dark:text-primary-foreground">
               {openTaskCount}
             </span>
           )}

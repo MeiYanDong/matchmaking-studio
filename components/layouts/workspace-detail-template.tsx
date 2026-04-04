@@ -23,7 +23,10 @@ export function WorkspaceDetailTemplate({
 }: WorkspaceDetailTemplateProps) {
   return (
     <div className={cn("space-y-6", className)}>
-      <Link href={backHref} className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
+      <Link
+        href={backHref}
+        className="inline-flex items-center gap-1 rounded-full border border-transparent px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border/70 hover:bg-[color:var(--surface-soft)] hover:text-foreground dark:hover:border-white/8 dark:hover:bg-white/[0.04]"
+      >
         <ChevronLeft className="h-4 w-4" />
         {backLabel}
       </Link>

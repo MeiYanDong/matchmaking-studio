@@ -207,15 +207,15 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border p-5">
+      <div className="rounded-[28px] border border-border/80 bg-white/84 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">基础信息</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-foreground">基础信息</h3>
           {editingProfile ? (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditingProfile(false)} disabled={saving}>
                 <X className="w-4 h-4 mr-1" />取消
               </Button>
-              <Button size="sm" onClick={saveProfile} disabled={saving} className="bg-rose-500 hover:bg-rose-600">
+              <Button size="sm" onClick={saveProfile} disabled={saving} className="bg-primary hover:bg-[color:var(--primary-strong)]">
                 <Save className="w-4 h-4 mr-1" />{saving ? '保存中...' : '保存'}
               </Button>
             </div>
@@ -386,15 +386,15 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
         )}
       </div>
 
-      <div className="bg-white rounded-xl border p-5">
+      <div className="rounded-[28px] border border-border/80 bg-white/84 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">意图与偏好</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-foreground">意图与偏好</h3>
           {editingIntent ? (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditingIntent(false)} disabled={saving}>
                 <X className="w-4 h-4 mr-1" />取消
               </Button>
-              <Button size="sm" onClick={saveIntent} disabled={saving} className="bg-rose-500 hover:bg-rose-600">
+              <Button size="sm" onClick={saveIntent} disabled={saving} className="bg-primary hover:bg-[color:var(--primary-strong)]">
                 <Save className="w-4 h-4 mr-1" />{saving ? '保存中...' : '保存'}
               </Button>
             </div>
@@ -427,7 +427,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             </div>
             <div className="col-span-2">
               <div className="space-y-1">
-                <Label className="text-sm text-gray-600">可接受学历</Label>
+                <Label className="text-sm text-gray-600 dark:text-foreground/62">可接受学历</Label>
                 <EducationChipSelect
                   value={intentForm.preferred_education}
                   onChange={(value) => setIntentForm((p) => ({ ...p, preferred_education: value }))}
@@ -483,17 +483,17 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
               <FieldTextarea label="隐性意图（AI/红娘判断）" value={intentForm.implicit_intent_notes} onChange={v => setIntentForm((p) => ({ ...p, implicit_intent_notes: v }))} rows={2} />
             </div>
             <div className="col-span-2 space-y-1">
-              <Label className="text-sm text-gray-600">偏好重要性</Label>
+              <Label className="text-sm text-gray-600 dark:text-foreground/62">偏好重要性</Label>
               <PreferenceImportanceEditor
                 value={intentForm.preference_importance}
                 onChange={(value) => setIntentForm((p) => ({ ...p, preference_importance: value }))}
               />
             </div>
             {profile.gender === 'male' && (
-              <div className="col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+              <div className="col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4 dark:border-amber-300/12 dark:bg-amber-400/[0.06]">
                 <div className="mb-3">
-                  <p className="text-sm font-medium text-amber-900">特殊模式（V1 后置）</p>
-                  <p className="mt-1 text-xs leading-5 text-amber-700">
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">特殊模式（V1 后置）</p>
+                  <p className="mt-1 text-xs leading-5 text-amber-700 dark:text-amber-100/72">
                     仅在男方明确表达特殊关系模式时才填写。该字段不作为 V1 常规信息补全主视图的默认项。
                   </p>
                 </div>
@@ -567,16 +567,16 @@ function InfoField({ label, value }: { label: string; value?: string | null }) {
   if (!value) {
     return (
       <div>
-        <dt className="text-gray-400 text-xs">{label}</dt>
-        <dd className="text-gray-300 text-sm">未填写</dd>
+        <dt className="text-gray-400 text-xs dark:text-foreground/44">{label}</dt>
+        <dd className="text-gray-300 text-sm dark:text-foreground/38">未填写</dd>
       </div>
     )
   }
 
   return (
     <div>
-      <dt className="text-gray-400 text-xs">{label}</dt>
-      <dd className="text-gray-800 text-sm font-medium">{value}</dd>
+      <dt className="text-gray-400 text-xs dark:text-foreground/44">{label}</dt>
+      <dd className="text-gray-800 text-sm font-medium dark:text-foreground/84">{value}</dd>
     </div>
   )
 }
@@ -596,7 +596,7 @@ function FieldInput({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-sm text-gray-600">{label}</Label>
+      <Label className="text-sm text-gray-600 dark:text-foreground/62">{label}</Label>
       <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   )
@@ -617,7 +617,7 @@ function FieldTextarea({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-sm text-gray-600">{label}</Label>
+      <Label className="text-sm text-gray-600 dark:text-foreground/62">{label}</Label>
       <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} placeholder={placeholder} />
     </div>
   )
@@ -640,7 +640,7 @@ function SelectField({
 }) {
   return (
     <div className={`space-y-1 ${className ?? ''}`}>
-      <Label className="text-sm text-gray-600">{label}</Label>
+      <Label className="text-sm text-gray-600 dark:text-foreground/62">{label}</Label>
       <Select value={value} onValueChange={(nextValue) => onChange(nextValue ?? '')}>
         <SelectTrigger>
           <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
@@ -671,19 +671,19 @@ function InfoTags({
   if (!items?.length) return null
 
   const toneClass = {
-    rose: 'bg-rose-50 text-rose-700 border-rose-100',
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    blue: 'bg-blue-50 text-blue-700 border-blue-100',
-    amber: 'bg-amber-50 text-amber-700 border-amber-100',
-    red: 'bg-red-50 text-red-700 border-red-100',
-    slate: 'bg-slate-50 text-slate-700 border-slate-100',
-    orange: 'bg-orange-50 text-orange-700 border-orange-100',
-    gray: 'bg-gray-50 text-gray-700 border-gray-100',
+    rose: 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-400/[0.08] dark:text-rose-100 dark:border-rose-300/12',
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-400/[0.08] dark:text-emerald-100 dark:border-emerald-300/12',
+    blue: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-400/[0.08] dark:text-blue-100 dark:border-blue-300/12',
+    amber: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-400/[0.08] dark:text-amber-100 dark:border-amber-300/12',
+    red: 'bg-red-50 text-red-700 border-red-100 dark:bg-red-400/[0.08] dark:text-red-100 dark:border-red-300/12',
+    slate: 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-white/[0.045] dark:text-foreground/80 dark:border-white/10',
+    orange: 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-400/[0.08] dark:text-orange-100 dark:border-orange-300/12',
+    gray: 'bg-gray-50 text-gray-700 border-gray-100 dark:bg-white/[0.045] dark:text-foreground/78 dark:border-white/10',
   }[tone]
 
   return (
     <div>
-      <dt className="text-gray-400 text-xs mb-1">{label}</dt>
+      <dt className="text-gray-400 text-xs mb-1 dark:text-foreground/44">{label}</dt>
       <dd className="flex flex-wrap gap-1.5">
         {items.map((item) => (
           <span key={item} className={`rounded-full border px-2.5 py-1 text-xs ${toneClass}`}>
@@ -709,19 +709,19 @@ function InfoPanel({
   if (!value) return null
 
   const toneClass = {
-    gray: 'bg-gray-50 text-gray-700',
-    amber: 'bg-amber-50 text-amber-800',
-    orange: 'bg-orange-50 text-orange-800',
-    green: 'bg-emerald-50 text-emerald-800',
-    purple: 'bg-purple-50 text-purple-700',
-    blue: 'bg-blue-50 text-blue-700',
-    yellow: 'bg-yellow-50 text-yellow-800',
-    slate: 'bg-slate-50 text-slate-700',
+    gray: 'bg-gray-50 text-gray-700 dark:bg-white/[0.045] dark:text-foreground/78',
+    amber: 'bg-amber-50 text-amber-800 dark:bg-amber-400/[0.08] dark:text-amber-100',
+    orange: 'bg-orange-50 text-orange-800 dark:bg-orange-400/[0.08] dark:text-orange-100',
+    green: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-400/[0.08] dark:text-emerald-100',
+    purple: 'bg-purple-50 text-purple-700 dark:bg-purple-400/[0.08] dark:text-purple-100',
+    blue: 'bg-blue-50 text-blue-700 dark:bg-blue-400/[0.08] dark:text-blue-100',
+    yellow: 'bg-yellow-50 text-yellow-800 dark:bg-yellow-400/[0.08] dark:text-yellow-100',
+    slate: 'bg-slate-50 text-slate-700 dark:bg-white/[0.045] dark:text-foreground/78',
   }[tone]
 
   return (
     <div>
-      <dt className="text-gray-400 text-xs mb-1">{label}</dt>
+      <dt className="text-gray-400 text-xs mb-1 dark:text-foreground/44">{label}</dt>
       <dd className={`rounded p-2 whitespace-pre-wrap ${toneClass} ${small ? 'text-xs' : 'text-sm'}`}>{value}</dd>
     </div>
   )

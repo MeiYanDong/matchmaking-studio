@@ -75,7 +75,7 @@ export function ProfilePhotoManager({
   }
 
   return (
-    <section className="rounded-[28px] border border-border/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,249,253,0.94))] p-4 shadow-[0_22px_48px_-40px_rgba(15,23,42,0.14)] md:p-5">
+    <section className="rounded-[28px] border border-border/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,249,253,0.94))] p-4 shadow-[0_22px_48px_-40px_rgba(15,23,42,0.14)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(15,21,32,0.94),rgba(10,15,22,0.96))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.64)] md:p-5">
       <div className="grid gap-5 lg:grid-cols-[240px_minmax(0,1fr)]">
         <div className="space-y-3">
           <div className="space-y-1">
@@ -89,7 +89,7 @@ export function ProfilePhotoManager({
             <ProfileAvatar
               name={name}
               avatarUrl={currentAvatarUrl}
-              className="h-24 w-24 overflow-hidden rounded-[24px] border border-border/80 bg-white shadow-[0_16px_34px_-22px_rgba(15,23,42,0.18)]"
+              className="h-24 w-24 overflow-hidden rounded-[24px] border border-border/80 bg-white shadow-[0_16px_34px_-22px_rgba(15,23,42,0.18)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(17,24,37,0.98),rgba(10,15,22,0.98))] dark:shadow-[0_24px_48px_-24px_rgba(0,0,0,0.62)]"
               imageClassName="h-full w-full object-cover"
               iconClassName="h-8 w-8 text-primary/70"
               fallbackLabel="未上传头像"
@@ -99,7 +99,7 @@ export function ProfilePhotoManager({
               <Button
                 type="button"
                 variant="outline"
-                className="bg-white/85"
+                className="bg-white/85 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground dark:hover:bg-white/[0.08]"
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={uploadingKind !== null}
               >
@@ -129,7 +129,7 @@ export function ProfilePhotoManager({
             <Button
               type="button"
               variant="outline"
-              className="bg-white/85"
+              className="bg-white/85 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground dark:hover:bg-white/[0.08]"
               onClick={() => lifestyleInputRef.current?.click()}
               disabled={uploadingKind !== null}
             >
@@ -150,14 +150,14 @@ export function ProfilePhotoManager({
           {currentLifestylePhotoUrls.length ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {currentLifestylePhotoUrls.map((url) => (
-                <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-2xl border border-border/80 bg-white shadow-[0_14px_28px_-22px_rgba(15,23,42,0.12)]">
+                <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-2xl border border-border/80 bg-white shadow-[0_14px_28px_-22px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[0_20px_42px_-28px_rgba(0,0,0,0.58)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`${name} 生活照`} className="h-28 w-full object-cover" />
                 </a>
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/[0.03] dark:text-foreground/58">
               还没有上传生活照。后续可以补充气质照、旅行照或日常生活照。
             </div>
           )}

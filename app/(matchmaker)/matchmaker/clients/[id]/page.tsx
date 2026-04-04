@@ -11,6 +11,7 @@ import { withSupabaseRetry } from '@/lib/supabase/retry'
 import { GENDER_LABELS, STATUS_LABELS } from '@/types/app'
 import { DeleteClientButton } from '@/components/client/delete-client-button'
 import { ProfileAvatar } from '@/components/client/profile-avatar'
+import { cn } from '@/lib/utils'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -68,13 +69,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       backHref="/matchmaker/clients"
       backLabel="返回客户列表"
       hero={
-        <section className="overflow-hidden rounded-[34px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(247,250,255,0.96)_48%,rgba(244,247,252,0.94))] shadow-[0_30px_70px_-50px_rgba(15,23,42,0.18)]">
+        <section className="overflow-hidden rounded-[34px] border border-border/80 bg-[radial-gradient(circle_at_top_left,rgba(11,99,246,0.08),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.98),rgba(247,250,255,0.96)_48%,rgba(244,247,252,0.94))] shadow-[0_30px_70px_-50px_rgba(15,23,42,0.18)] dark:border-white/8 dark:bg-[radial-gradient(circle_at_top_left,rgba(82,145,243,0.18),transparent_34%),linear-gradient(145deg,rgba(16,24,36,0.98),rgba(10,15,23,0.98)_54%,rgba(9,13,21,0.96))] dark:shadow-[0_38px_90px_-52px_rgba(0,0,0,0.72)]">
           <div className="flex flex-wrap items-start justify-between gap-5 px-6 pb-6 pt-7 lg:px-8">
             <div className="flex max-w-3xl items-start gap-4">
               <ProfileAvatar
                 name={profile.name}
                 avatarUrl={profile.avatar_url}
-                className="h-24 w-24 shrink-0 overflow-hidden rounded-[30px] border border-white/90 bg-white shadow-[0_20px_40px_-28px_rgba(15,23,42,0.2)]"
+                className="h-24 w-24 shrink-0 overflow-hidden rounded-[30px] border border-white/90 bg-white shadow-[0_20px_40px_-28px_rgba(15,23,42,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(17,24,37,0.98),rgba(10,15,22,0.98))] dark:shadow-[0_24px_54px_-30px_rgba(0,0,0,0.62)]"
                 imageClassName="h-full w-full object-cover"
                 iconClassName="h-8 w-8 text-primary/70"
                 fallbackLabel="未上传头像"
@@ -82,27 +83,27 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
               <div>
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <Badge className="border border-border/80 bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  <Badge className="border border-border/80 bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/58">
                     {GENDER_LABELS[profile.gender]}
                   </Badge>
-                  <Badge className="border border-border/80 bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  <Badge className="border border-border/80 bg-white/80 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/58">
                     {STATUS_LABELS[profile.status]}
                   </Badge>
                   {intention?.relationship_mode && (
-                    <Badge className="border border-primary/10 bg-primary/8 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-primary">
+                    <Badge className="border border-primary/10 bg-primary/8 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-primary dark:border-primary/18 dark:bg-primary/14 dark:text-primary">
                       {intention.relationship_mode === 'marriage_standard' ? '标准婚恋' : intention.relationship_mode === 'compensated_dating' ? '恋爱' : '生育资产型'}
                     </Badge>
                   )}
                 </div>
                 <h2 className="font-heading text-4xl leading-tight text-foreground">{profile.name}</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground dark:text-foreground/64">
                   {profile.ai_summary || '当前客户已进入 AI-first 工作流，可通过最新录音、待确认字段和下一轮补问持续推进。'}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-foreground/80">
-                  {profile.age ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5">{profile.age} 岁</span> : null}
-                  {profile.city ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5">{profile.city}</span> : null}
-                  {profile.occupation ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5">{profile.occupation}</span> : null}
-                  {profile.annual_income ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5">约 {profile.annual_income} 万 / 年</span> : null}
+                  {profile.age ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.age} 岁</span> : null}
+                  {profile.city ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.city}</span> : null}
+                  {profile.occupation ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.occupation}</span> : null}
+                  {profile.annual_income ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">约 {profile.annual_income} 万 / 年</span> : null}
                 </div>
               </div>
             </div>
@@ -133,7 +134,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </section>
       }
       main={
-        <div className="min-w-0 rounded-[30px] border border-border/80 bg-white/78 p-5 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.18)] md:p-6">
+        <div className="min-w-0 rounded-[30px] border border-border/80 bg-white/78 p-5 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.18)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(13,18,27,0.92),rgba(10,14,21,0.94))] dark:shadow-[0_32px_80px_-48px_rgba(0,0,0,0.68)] md:p-6">
           <ClientTabs
             profile={profile}
             intention={intention}
@@ -173,10 +174,10 @@ function HeroMetric({
   helper: string
 }) {
   return (
-    <div className="bg-white/82 px-5 py-5">
-      <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
-      <div className="mt-2 font-heading text-3xl text-foreground">{value}</div>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">{helper}</p>
+    <div className="bg-white/82 px-5 py-5 dark:bg-[linear-gradient(180deg,rgba(16,23,35,0.94),rgba(10,15,23,0.96))]">
+      <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:text-foreground/50">{label}</div>
+      <div className="mt-2 font-heading text-3xl text-foreground dark:text-foreground">{value}</div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground dark:text-foreground/62">{helper}</p>
     </div>
   )
 }
@@ -191,8 +192,8 @@ function SignalPanel({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-[28px] border border-border/80 bg-white/80 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+    <section className="rounded-[28px] border border-border/80 bg-white/80 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_68px_-42px_rgba(0,0,0,0.64)]">
+      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground dark:text-foreground">
         {icon}
         <span>{title}</span>
       </div>
@@ -209,9 +210,9 @@ function SignalRow({
   value: string
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-border/80 py-3 text-sm last:border-b-0 last:pb-0 first:pt-0">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="text-right font-medium text-foreground">{value}</span>
+    <div className="flex items-start justify-between gap-4 border-b border-border/80 py-3 text-sm last:border-b-0 last:pb-0 first:pt-0 dark:border-white/8">
+      <span className="text-muted-foreground dark:text-foreground/58">{label}</span>
+      <span className="text-right font-medium text-foreground dark:text-foreground">{value}</span>
     </div>
   )
 }

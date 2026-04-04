@@ -117,10 +117,10 @@ export function TopContextBar({
   const reminderHref = role === 'admin' ? '/admin/dashboard' : '/matchmaker/reminders'
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/74 supports-backdrop-filter:backdrop-blur-2xl">
+    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/74 supports-backdrop-filter:backdrop-blur-2xl dark:bg-[linear-gradient(180deg,rgba(8,12,20,0.84),rgba(8,12,20,0.78))] dark:border-white/6">
       <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-5 px-4 py-4 xl:px-8">
         <div className="min-w-0">
-          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground dark:text-foreground/50">
             <Compass className="h-3.5 w-3.5 text-primary/80" />
             <span>{meta.eyebrow}</span>
             <ChevronRight className="h-3.5 w-3.5 opacity-40" />
@@ -128,22 +128,22 @@ export function TopContextBar({
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-heading text-2xl leading-tight text-foreground">{meta.title}</h1>
-            <Badge className="border border-border/80 bg-background/90 px-2.5 py-1 text-[11px] font-medium tracking-[0.12em] text-muted-foreground">
+            <Badge className="border border-border/80 bg-background/90 px-2.5 py-1 text-[11px] font-medium tracking-[0.12em] text-muted-foreground dark:border-white/10 dark:bg-white/[0.045] dark:text-foreground/56">
               {displayName}
             </Badge>
           </div>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{meta.description}</p>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground dark:text-foreground/62">{meta.description}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-right shadow-[var(--shadow-soft)] lg:block">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Today</div>
+          <div className="hidden rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-right shadow-[var(--shadow-soft)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(16,24,36,0.94),rgba(11,16,25,0.92))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)] lg:block">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:text-foreground/50">Today</div>
             <div className="mt-1 text-sm font-medium text-foreground">{formatToday()}</div>
           </div>
 
           <Link
             href={reminderHref}
-            className="group flex items-center gap-3 rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-sm text-foreground shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[0_24px_50px_-36px_rgba(11,99,246,0.2)]"
+            className="group flex items-center gap-3 rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-sm text-foreground shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[0_24px_50px_-36px_rgba(11,99,246,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(16,24,36,0.94),rgba(11,16,25,0.92))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)] dark:hover:border-primary/26 dark:hover:shadow-[0_30px_70px_-42px_rgba(35,96,202,0.42)]"
           >
             {role === 'admin' ? (
               <ShieldCheck className="h-4 w-4 text-primary" />
@@ -151,7 +151,7 @@ export function TopContextBar({
               <Bell className="h-4 w-4 text-primary" />
             )}
             <div className="text-left">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:text-foreground/50">
                 {role === 'admin' ? 'Admin View' : 'Unread'}
               </div>
               <div className="mt-0.5 flex items-center gap-2 font-medium text-foreground">
