@@ -201,6 +201,12 @@ test('parseExtractionContract 兼容第三方模型的近似字段名', () => {
         confidence: 'high',
         source: '我是男生,35岁',
       },
+      {
+        label: '身高',
+        new_value: 164,
+        confidence: 'high',
+        source: '我身高164。',
+      },
     ],
     review_required: [
       {
@@ -222,6 +228,9 @@ test('parseExtractionContract 兼容第三方模型的近似字段名', () => {
   assert.equal(parsed.field_updates[0]?.field_key, 'age')
   assert.equal(parsed.field_updates[0]?.action, 'set')
   assert.equal(parsed.field_updates[0]?.evidence_excerpt, '我是男生,35岁')
+  assert.equal(parsed.field_updates[1]?.field_key, 'height')
+  assert.equal(parsed.field_updates[1]?.field_label, '身高')
+  assert.equal(parsed.field_updates[1]?.new_value, 164)
   assert.equal(parsed.review_required[0]?.field_key, 'profile_gender')
   assert.equal(parsed.review_required[0]?.issue_type, 'identity_conflict')
 })

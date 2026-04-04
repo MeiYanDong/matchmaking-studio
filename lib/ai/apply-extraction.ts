@@ -286,6 +286,7 @@ function valuesEqual(a: unknown, b: unknown) {
 
 const MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS = new Set<V1FieldKey>([
   'age',
+  'height',
   'city',
   'current_base_cities',
   'education',

@@ -29,6 +29,7 @@ export function buildCurrentProfileSnapshot({
   snapshot.nationality = profile.nationality
   snapshot.languages = profile.languages
   snapshot.age = profile.age
+  snapshot.height = profile.height
   snapshot.city = profile.city
   snapshot.current_base_cities = profile.current_base_cities
   snapshot.residency_status = profile.residency_status

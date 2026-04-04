@@ -400,7 +400,7 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
   const mock = createMockSupabase()
   const result = await applyExtractionContractToProfile({
     supabase: mock.client as never,
-    profile: createProfile({ city: null, age: null, current_base_cities: null }),
+    profile: createProfile({ city: null, age: null, height: null, current_base_cities: null }),
     intention: createIntention(),
     traitProfile: createTraitProfile(),
     conversation: createConversation(),
@@ -413,6 +413,15 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
           new_value: 28,
           confidence: 'medium',
           evidence_excerpt: '我今年 28 岁。',
+          auto_apply: true,
+        },
+        {
+          field_key: 'height',
+          field_label: '身高',
+          action: 'set',
+          new_value: 164,
+          confidence: 'medium',
+          evidence_excerpt: '我身高 164。',
           auto_apply: true,
         },
         {
@@ -440,9 +449,10 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
   const profileUpdate = mock.operations.find((item) => item.table === 'profiles')
   assert.ok(profileUpdate)
   assert.equal((profileUpdate?.payload as { age?: number }).age, 28)
+  assert.equal((profileUpdate?.payload as { height?: number }).height, 164)
   assert.equal((profileUpdate?.payload as { city?: string }).city, '杭州')
   assert.deepEqual((profileUpdate?.payload as { current_base_cities?: string[] }).current_base_cities, ['杭州'])
-  assert.equal(result.appliedFieldUpdates.length, 3)
+  assert.equal(result.appliedFieldUpdates.length, 4)
   assert.equal(result.reviewRequired.length, 0)
 })
 
