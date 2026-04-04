@@ -419,7 +419,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
               onChange={(value) => setIntentForm((p) => ({ ...p, relationship_mode: value as RelationshipMode }))}
               options={[
                 { value: 'marriage_standard', label: '奔着结婚去的标准婚恋' },
-                { value: 'compensated_dating', label: '恋爱且带经济安排' },
+                { value: 'compensated_dating', label: '恋爱' },
                 { value: 'fertility_asset_arrangement', label: '生育资产安排型' },
               ]}
               placeholder="选择关系模式"
@@ -501,7 +501,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
                 label="男方关系模式"
                 value={intention?.relationship_mode ? ({
                   marriage_standard: '奔着结婚去的标准婚恋',
-                  compensated_dating: '恋爱且带经济安排',
+                  compensated_dating: '恋爱',
                   fertility_asset_arrangement: '生育资产安排型',
                 }[intention.relationship_mode]) : ''}
               />

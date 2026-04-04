@@ -55,26 +55,20 @@ function importanceIsHard(level: string) {
   return level === 'hard'
 }
 
-function resolveModeAcceptance(female: ProfileWithIntention, male: ProfileWithIntention): {
+function resolveSpecialModeAcceptance(female: ProfileWithIntention, male: ProfileWithIntention): {
   state: TriState
   fieldKey: string | null
   fieldLabel: string | null
+  modeLabel: string | null
 } {
   const mode = male.intention?.relationship_mode
 
-  if (!mode) {
+  if (!mode || mode === 'marriage_standard') {
     return {
       state: 'unknown',
-      fieldKey: 'relationship_mode',
-      fieldLabel: '男方关系模式',
-    }
-  }
-
-  if (mode === 'marriage_standard') {
-    return {
-      state: female.intention?.accepts_mode_marriage_standard ?? 'unknown',
-      fieldKey: 'accepts_mode_marriage_standard',
-      fieldLabel: '女方是否接受标准婚恋',
+      fieldKey: null,
+      fieldLabel: null,
+      modeLabel: null,
     }
   }
 
@@ -83,6 +77,7 @@ function resolveModeAcceptance(female: ProfileWithIntention, male: ProfileWithIn
       state: female.intention?.accepts_mode_compensated_dating ?? 'unknown',
       fieldKey: 'accepts_mode_compensated_dating',
       fieldLabel: '女方是否接受恋爱且带经济安排',
+      modeLabel: '恋爱',
     }
   }
 
@@ -90,6 +85,7 @@ function resolveModeAcceptance(female: ProfileWithIntention, male: ProfileWithIn
     state: female.intention?.accepts_mode_fertility_asset_arrangement ?? 'unknown',
     fieldKey: 'accepts_mode_fertility_asset_arrangement',
     fieldLabel: '女方是否接受生育资产安排型',
+    modeLabel: '生育资产安排型',
   }
 }
 
@@ -330,7 +326,7 @@ export function calculateMatchScore(male: ProfileWithIntention, female: ProfileW
   const relationshipStyle = scoreRelationshipStyle(male, female, pendingFields)
   directionalNotes.push(...relationshipStyle.notes)
 
-  const modeAcceptance = resolveModeAcceptance(female, male)
+  const modeAcceptance = resolveSpecialModeAcceptance(female, male)
   const pendingReasons: string[] = []
   const requiredFollowupFields: string[] = []
   const suggestedFollowupQuestions: string[] = []
@@ -338,21 +334,12 @@ export function calculateMatchScore(male: ProfileWithIntention, female: ProfileW
   let recommendationType: MatchEvaluation['recommendationType'] = 'confirmed'
   let sensitiveModeScore = 10
 
-  if (modeAcceptance.state === 'no') {
+  if (modeAcceptance.fieldKey && modeAcceptance.state === 'no') {
     recommendationType = 'rejected'
     hardConflicts.push(modeAcceptance.fieldLabel ?? '敏感模式明确不接受')
     sensitiveModeScore = 0
-  } else if (modeAcceptance.state === 'unknown') {
-    recommendationType = 'pending_confirmation'
-    sensitiveModeScore = 5
-    if (modeAcceptance.fieldKey) {
-      requiredFollowupFields.push(modeAcceptance.fieldKey)
-    }
-    if (modeAcceptance.fieldLabel) {
-      pendingFields.push(modeAcceptance.fieldLabel)
-      pendingReasons.push(`${modeAcceptance.fieldLabel} 尚未确认`)
-      suggestedFollowupQuestions.push(buildFollowupQuestion(modeAcceptance.fieldKey))
-    }
+  } else if (modeAcceptance.fieldKey && modeAcceptance.state === 'unknown') {
+    directionalNotes.push(`男方存在${modeAcceptance.modeLabel ?? '特殊'}诉求，女方态度暂未知；进入下一轮前由红娘线下单独确认`)
   }
 
   const rawTotal =
@@ -399,9 +386,9 @@ export function calculateMatchScore(male: ProfileWithIntention, female: ProfileW
 function buildFollowupQuestion(fieldKey: string | null) {
   switch (fieldKey) {
     case 'relationship_mode':
-      return '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？'
+      return '你现在更明确是奔着结婚，还是恋爱，还是生育资产安排这类模式？'
     case 'accepts_mode_compensated_dating':
-      return '如果对方是带明确经济支持安排的恋爱关系，你能接受吗？'
+      return '如果对方明确提出恋爱里带经济安排，你能接受吗？'
     case 'accepts_mode_fertility_asset_arrangement':
       return '如果对方是以生育和资产安排为核心的关系模式，你会考虑吗？'
     case 'accepts_mode_marriage_standard':

@@ -47,17 +47,32 @@ function createMockSupabase(existingRows: Array<Record<string, unknown>> = []) {
           return createSelectBuilder(table, operations, existingRows)
         },
         update(payload: unknown) {
-          return {
+          const filters: Record<string, unknown> = {}
+          const builder = {
+            in(column: string, value: unknown) {
+              filters[column] = value
+              return builder
+            },
             eq(column: string, value: unknown) {
+              filters[column] = value
+              return builder
+            },
+            is(column: string, value: unknown) {
+              filters[column] = value
+              return builder
+            },
+            then(resolve: (value: { data: null; error: null }) => unknown) {
               operations.push({
                 table,
                 action: 'update',
                 payload,
-                filters: { [column]: value },
+                filters: { ...filters },
               })
-              return Promise.resolve({ data: null, error: null })
+              return Promise.resolve({ data: null, error: null }).then(resolve)
             },
           }
+
+          return builder
         },
         insert(payload: unknown) {
           operations.push({ table, action: 'insert', payload })
@@ -112,7 +127,7 @@ test('缺失字段会生成补问任务', async () => {
   assert.equal((insertOperation?.payload as { priority: string }).priority, 'high')
 })
 
-test('同一客户下完全相同的补问不会因不同匹配重复插入', async () => {
+test('同一客户下特殊模式补问不会再自动入库', async () => {
   const mock = createMockSupabase([
     {
       id: 'task-existing',
@@ -135,7 +150,7 @@ test('同一客户下完全相同的补问不会因不同匹配重复插入', as
     taskType: 'relationship_followup',
   })
 
-  assert.equal(taskId, 'task-existing')
+  assert.equal(taskId, undefined)
 
   const insertOperation = mock.operations.find(
     (operation) => operation.table === 'followup_tasks' && operation.action === 'insert'
@@ -146,11 +161,7 @@ test('同一客户下完全相同的补问不会因不同匹配重复插入', as
     (operation) => operation.table === 'followup_tasks' && operation.action === 'update'
   )
   assert.ok(updateOperation)
-  assert.deepEqual((updateOperation?.payload as { field_keys: string[] }).field_keys, ['relationship_mode'])
-  assert.deepEqual(
-    (updateOperation?.payload as { question_list: string[] }).question_list,
-    ['你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？']
-  )
+  assert.deepEqual((updateOperation?.filters as Record<string, unknown>).profile_id, 'profile-1')
 })
 
 test('同一字段的近义补问会在入库前折叠为标准问法', async () => {
@@ -201,4 +212,27 @@ test('同一字段的近义补问会在入库前折叠为标准问法', async ()
       '你自己未来有没有想生孩子的打算？',
     ]
   )
+})
+
+test('V1 默认后置的特殊模式字段不会自动生成补问任务', async () => {
+  const mock = createMockSupabase()
+
+  const taskId = await syncFollowupTask({
+    supabase: mock.client as never,
+    matchmakerId: 'mm-1',
+    profileId: 'profile-1',
+    fieldKeys: ['relationship_mode', 'accepts_mode_compensated_dating'],
+    questions: [
+      '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
+      '如果对方是恋爱关系里带明确经济安排，你能接受吗？',
+    ],
+    rationale: '少数特殊模式改为线下单独确认',
+  })
+
+  assert.equal(taskId, undefined)
+
+  const insertOperation = mock.operations.find(
+    (operation) => operation.table === 'followup_tasks' && operation.action === 'insert'
+  )
+  assert.equal(insertOperation, undefined)
 })

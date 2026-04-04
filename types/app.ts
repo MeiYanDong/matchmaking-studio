@@ -89,7 +89,7 @@ export const INTENT_LABELS: Record<PrimaryIntent, string> = {
 
 export const RELATIONSHIP_MODE_LABELS: Record<RelationshipMode, string> = {
   marriage_standard: '奔着结婚去的标准婚恋',
-  compensated_dating: '恋爱且带经济安排',
+  compensated_dating: '恋爱',
   fertility_asset_arrangement: '生育资产安排型',
 }
 

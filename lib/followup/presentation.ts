@@ -1,5 +1,11 @@
 import { getFieldDisplayLabel } from '@/lib/ai/field-presentation'
 
+export const MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS = new Set([
+  'relationship_mode',
+  'accepts_mode_compensated_dating',
+  'accepts_mode_fertility_asset_arrangement',
+])
+
 const CANONICAL_QUESTION_BY_FIELD_KEY: Record<string, string> = {
   relationship_mode: '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
   marital_history: '你之前有过婚史吗，还是一直未婚？',
@@ -70,6 +76,10 @@ function normalizeQuestionFingerprint(question: string) {
 
 function matchFieldKeyByQuestion(question: string) {
   return FIELD_QUESTION_PATTERNS.find(({ patterns }) => patterns.some((pattern) => pattern.test(question)))?.fieldKey ?? null
+}
+
+export function classifyFollowupQuestion(question: string) {
+  return matchFieldKeyByQuestion(question)
 }
 
 export function dedupeFieldKeysByDisplay(fieldKeys: string[]) {

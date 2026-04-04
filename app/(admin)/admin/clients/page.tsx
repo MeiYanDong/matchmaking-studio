@@ -178,7 +178,7 @@ export default async function AdminClientsPage({
         <select name="relationshipMode" defaultValue={relationshipMode ?? ''} className="h-10 rounded-md border border-input bg-transparent px-3 text-sm">
           <option value="">敏感关系模式</option>
           <option value="marriage_standard">标准婚恋</option>
-          <option value="compensated_dating">恋爱且带经济安排</option>
+          <option value="compensated_dating">恋爱</option>
           <option value="fertility_asset_arrangement">生育资产安排型</option>
         </select>
         <select name="extraction" defaultValue={params.extraction ?? ''} className="h-10 rounded-md border border-input bg-transparent px-3 text-sm">
@@ -243,7 +243,7 @@ export default async function AdminClientsPage({
                         {intention.relationship_mode === 'marriage_standard'
                           ? '标准婚恋'
                           : intention.relationship_mode === 'compensated_dating'
-                          ? '经济安排型'
+                          ? '恋爱'
                           : '生育资产型'}
                       </div>
                     ) : null}

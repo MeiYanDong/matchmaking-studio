@@ -6,7 +6,11 @@ import {
   V1_SUMMARY_FIELD_KEYS,
   type V1FieldKey,
 } from '@/lib/ai/field-spec'
-import { buildDisplayFollowupQuestions } from '@/lib/followup/presentation'
+import {
+  buildDisplayFollowupQuestions,
+  classifyFollowupQuestion,
+  MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS,
+} from '@/lib/followup/presentation'
 
 export type ExtractionConfidence = 'high' | 'medium' | 'low'
 export type ExtractionAction = 'set' | 'append_unique' | 'replace' | 'no_change' | 'review'
@@ -372,8 +376,32 @@ export function parseExtractionContract(raw: unknown): ExtractionContract {
   }
 
   const normalizedMissingCriticalFields = Array.from(
-    new Set(parsed.missing_critical_fields.filter((fieldKey): fieldKey is V1FieldKey => isFieldKey(fieldKey)))
+    new Set(
+      parsed.missing_critical_fields
+        .filter((fieldKey): fieldKey is V1FieldKey => isFieldKey(fieldKey))
+        .filter((fieldKey) => !MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS.has(fieldKey))
+    )
   )
+
+  const deferredMissingFields = Array.from(
+    new Set(
+      parsed.missing_critical_fields
+        .filter((fieldKey): fieldKey is V1FieldKey => isFieldKey(fieldKey))
+        .filter((fieldKey) => MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS.has(fieldKey))
+    )
+  )
+
+  if (deferredMissingFields.length > 0) {
+    processingNotes.push(`V1 默认不追问的特殊模式字段已后置: ${deferredMissingFields.join('、')}`)
+  }
+
+  const normalizedSuggestedQuestions = parsed.suggested_followup_questions
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((question) => {
+      const matchedFieldKey = classifyFollowupQuestion(question)
+      return !matchedFieldKey || !MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS.has(matchedFieldKey)
+    })
 
   return {
     field_updates: parsed.field_updates
@@ -385,7 +413,7 @@ export function parseExtractionContract(raw: unknown): ExtractionContract {
     missing_critical_fields: normalizedMissingCriticalFields,
     suggested_followup_questions: buildDisplayFollowupQuestions(
       normalizedMissingCriticalFields,
-      parsed.suggested_followup_questions.map((item) => item.trim()).filter(Boolean)
+      normalizedSuggestedQuestions
     ),
     summary_updates: normalizedSummaryUpdates,
     processing_notes: Array.from(new Set(processingNotes.map((item) => item.trim()).filter(Boolean))),

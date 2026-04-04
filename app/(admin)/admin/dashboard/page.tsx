@@ -466,7 +466,7 @@ export default async function AdminDashboard() {
           <div className="space-y-3">
             {[
               ['标准婚恋', relationshipModeCounts['marriage_standard'] ?? 0],
-              ['恋爱且带经济安排', relationshipModeCounts['compensated_dating'] ?? 0],
+              ['恋爱', relationshipModeCounts['compensated_dating'] ?? 0],
               ['生育资产安排型', relationshipModeCounts['fertility_asset_arrangement'] ?? 0],
             ].map(([label, count]) => (
               <div key={label} className="flex items-center justify-between rounded-xl border border-gray-100 px-3 py-2 text-sm">

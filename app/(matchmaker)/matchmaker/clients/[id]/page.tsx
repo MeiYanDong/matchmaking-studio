@@ -80,7 +80,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               </Badge>
               {intention?.relationship_mode && (
                 <Badge className="border border-[#ead8c7] bg-[#fff6ee] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[#8f3c32]">
-                  {intention.relationship_mode === 'marriage_standard' ? '标准婚恋' : intention.relationship_mode === 'compensated_dating' ? '经济安排型' : '生育资产型'}
+                  {intention.relationship_mode === 'marriage_standard' ? '标准婚恋' : intention.relationship_mode === 'compensated_dating' ? '恋爱' : '生育资产型'}
                 </Badge>
               )}
             </div>

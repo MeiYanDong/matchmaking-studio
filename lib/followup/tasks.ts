@@ -1,11 +1,13 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database, FollowupTaskType, TaskPriority } from '@/types/database'
-import { buildDisplayFollowupQuestions } from '@/lib/followup/presentation'
+import {
+  buildDisplayFollowupQuestions,
+  classifyFollowupQuestion,
+  MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS,
+} from '@/lib/followup/presentation'
 
 const HIGH_PRIORITY_FIELD_KEYS = new Set([
-  'relationship_mode',
-  'accepts_mode_compensated_dating',
-  'accepts_mode_fertility_asset_arrangement',
+  'accepts_partner_marital_history',
   'accepts_partner_children',
   'marital_history',
   'has_children',
@@ -82,9 +84,13 @@ export async function syncFollowupTask({
   taskType,
 }: SyncTaskInput) {
   const dedupedFieldKeys = normalizeStringList(fieldKeys)
+    .filter((fieldKey) => !MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS.has(fieldKey))
   const dedupedQuestions = buildDisplayFollowupQuestions(
     dedupedFieldKeys,
-    normalizeStringList(questions)
+    normalizeStringList(questions).filter((question) => {
+      const matchedFieldKey = classifyFollowupQuestion(question)
+      return !matchedFieldKey || !MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS.has(matchedFieldKey)
+    })
   )
 
   if (!dedupedFieldKeys.length && !dedupedQuestions.length) {

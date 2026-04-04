@@ -293,15 +293,34 @@ test('parseExtractionContract 兼容对象形式的缺失字段与补问', () =>
   })
 
   assert.deepEqual(parsed.missing_critical_fields, [
-    'relationship_mode',
     'fertility_preference',
     'accepts_partner_children',
   ])
   assert.deepEqual(parsed.suggested_followup_questions, [
-    '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
     '你自己未来有没有想生孩子的打算？',
     '对方如果有孩子，你这边能接受吗？',
   ])
+})
+
+test('parseExtractionContract 会过滤 V1 默认后置的特殊模式缺口与补问', () => {
+  const parsed = parseExtractionContract({
+    missing_critical_fields: [
+      'relationship_mode',
+      'accepts_mode_compensated_dating',
+      'accepts_mode_fertility_asset_arrangement',
+      'fertility_preference',
+    ],
+    suggested_followup_questions: [
+      '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
+      '如果对方是恋爱关系里带明确经济安排，你能接受吗？',
+      '如果对方是以生育和资产安排为核心的关系模式，你会考虑吗？',
+      '你自己未来有没有想生孩子的打算？',
+    ],
+  })
+
+  assert.deepEqual(parsed.missing_critical_fields, ['fertility_preference'])
+  assert.deepEqual(parsed.suggested_followup_questions, ['你自己未来有没有想生孩子的打算？'])
+  assert.match(parsed.processing_notes.join('\n'), /V1 默认不追问的特殊模式字段已后置/)
 })
 
 test('parseExtractionContract 会过滤非法异常字段和非白名单总结字段', () => {
@@ -376,7 +395,7 @@ test('parseExtractionContract 兼容中文字段名和近似中文别名', () =>
   ])
 })
 
-test('敏感关系模式未知时会进入 pending_confirmation 并生成补问', () => {
+test('特殊关系模式未知时不再默认进入 pending_confirmation', () => {
   const male = createPerson(
     { id: 'male-1', gender: 'male', name: '男方', city: '上海', annual_income: 500 },
     { profile_id: 'male-1', relationship_mode: 'compensated_dating', primary_intent: 'dating' }
@@ -393,7 +412,28 @@ test('敏感关系模式未知时会进入 pending_confirmation 并生成补问'
 
   const result = calculateMatchScore(male, female)
 
-  assert.equal(result.recommendationType, 'pending_confirmation')
-  assert.ok(result.pendingFields.includes('女方是否接受恋爱且带经济安排'))
-  assert.ok(result.suggestedFollowupQuestions.some((question) => question.includes('经济支持安排')))
+  assert.equal(result.recommendationType, 'confirmed')
+  assert.equal(result.pendingFields.includes('女方是否接受恋爱且带经济安排'), false)
+  assert.equal(result.suggestedFollowupQuestions.length, 0)
+  assert.ok(result.breakdown.directional_notes.some((note) => note.includes('女方态度暂未知')))
+})
+
+test('特殊关系模式明确不接受时仍会被排除', () => {
+  const male = createPerson(
+    { id: 'male-1', gender: 'male', name: '男方', city: '上海', annual_income: 500 },
+    { profile_id: 'male-1', relationship_mode: 'compensated_dating', primary_intent: 'dating' }
+  )
+  const female = createPerson(
+    { id: 'female-1', gender: 'female', name: '女方', city: '上海', annual_income: 200 },
+    {
+      profile_id: 'female-1',
+      primary_intent: 'dating',
+      accepts_mode_compensated_dating: 'no',
+    }
+  )
+
+  const result = calculateMatchScore(male, female)
+
+  assert.equal(result.recommendationType, 'rejected')
+  assert.ok(result.hardConflicts.includes('女方是否接受恋爱且带经济安排'))
 })
