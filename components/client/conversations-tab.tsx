@@ -114,7 +114,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
     <div className="space-y-5">
       <div className="flex justify-end">
         <Link href={`/matchmaker/clients/${profileId}/upload`}>
-          <Button className="bg-rose-500 hover:bg-rose-600 gap-2 shadow-sm">
+          <Button className="gap-2 shadow-sm">
             <Plus className="w-4 h-4" />
             上传录音
           </Button>
@@ -130,11 +130,11 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
       ) : (
         <div className="space-y-4">
           {latestConversation && (
-            <div className="overflow-hidden rounded-[30px] border border-emerald-100 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.98)_52%,rgba(255,247,237,0.96))]">
+          <div className="overflow-hidden rounded-[30px] border border-border/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_52%,rgba(247,250,255,0.94))] shadow-[0_24px_56px_-42px_rgba(15,23,42,0.16)]">
               <div className="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <Sparkles className="w-4 h-4 text-primary" />
                     <h3 className="font-semibold text-gray-900">最近一次 AI 更新</h3>
                   </div>
                   <p className="text-sm text-gray-600">
@@ -164,7 +164,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
                   title="待补问建议"
                   value={String(latestSuggestedQuestions.length)}
                   description="下一轮线下可直接复述的问题数"
-                  tone="rose"
+                  tone="primary"
                 />
               </div>
 
@@ -198,7 +198,7 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
       )}
 
       <Dialog open={!!selectedConversation} onOpenChange={(open) => !open && setSelectedConversation(null)}>
-        <DialogContent className="max-w-[calc(100vw-1rem)] gap-0 overflow-hidden rounded-[30px] border-0 bg-[#fbf7f1] p-0 shadow-[0_32px_120px_-48px_rgba(15,23,42,0.65)] sm:max-w-[min(1180px,calc(100vw-2.5rem))]">
+        <DialogContent className="max-w-[calc(100vw-1rem)] gap-0 overflow-hidden rounded-[30px] border-0 bg-[linear-gradient(180deg,rgba(252,253,255,0.98),rgba(245,248,252,0.97))] p-0 shadow-[0_32px_120px_-48px_rgba(15,23,42,0.5)] sm:max-w-[min(1180px,calc(100vw-2.5rem))]">
           {selectedConversation && <ConversationDetail conversation={selectedConversation} />}
         </DialogContent>
       </Dialog>
@@ -245,7 +245,7 @@ function ConversationCard({
     <div
       className={cn(
         'overflow-hidden rounded-[28px] border bg-[linear-gradient(140deg,rgba(255,255,255,0.98),rgba(249,250,251,0.96)_46%,rgba(255,247,237,0.92))] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_42px_-28px_rgba(15,23,42,0.4)]',
-        isLatest ? 'border-rose-200/80' : 'border-gray-200/90'
+        isLatest ? 'border-primary/12' : 'border-gray-200/90'
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3 px-5 pb-3 pt-5">
@@ -286,7 +286,7 @@ function ConversationCard({
           icon={<Sparkles className="w-4 h-4" />}
           label="AI 摘要"
           content={insightPreview}
-          tone="amber"
+          tone="primary"
           clampClass="line-clamp-5"
         />
       </div>
@@ -301,7 +301,7 @@ function ConversationCard({
         <div className="flex flex-wrap gap-2">
           {autoAppliedCount > 0 && <CountChip tone="emerald" label={`自动写入 ${autoAppliedCount}`} />}
           {reviewRequiredCount > 0 && <CountChip tone="amber" label={`异常 ${reviewRequiredCount}`} />}
-          {missingFieldCount > 0 && <CountChip tone="rose" label={`缺口 ${missingFieldCount}`} />}
+          {missingFieldCount > 0 && <CountChip tone="primary" label={`缺口 ${missingFieldCount}`} />}
           {!autoAppliedCount && !reviewRequiredCount && !missingFieldCount && conversation.status === 'done' && (
             <CountChip tone="slate" label="本次无新增异常" />
           )}
@@ -314,7 +314,7 @@ function ConversationCard({
           </Button>
           {shouldReview && (
             <Link href={`/matchmaker/clients/${profileId}/conversations/${conversation.id}/review`}>
-              <Button size="sm" variant="outline" className="border-rose-200 bg-white text-rose-600 hover:bg-rose-50">
+              <Button size="sm" variant="outline" className="border-primary/15 bg-white text-primary hover:bg-primary/8">
                 处理异常
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -357,7 +357,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
 
   return (
     <div className="flex h-[min(86vh,920px)] min-h-[70vh] flex-col">
-      <DialogHeader className="border-b border-black/5 bg-[linear-gradient(135deg,rgba(255,251,245,0.98),rgba(255,255,255,0.96)_40%,rgba(236,253,245,0.88))] px-6 py-5">
+      <DialogHeader className="border-b border-black/5 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96)_44%,rgba(247,250,255,0.94))] px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <DialogTitle className="text-xl text-slate-900">录音处理详情</DialogTitle>
@@ -380,7 +380,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
             </Badge>
             <CountChip tone="emerald" label={`自动写入 ${appliedUpdates.length}`} />
             <CountChip tone="amber" label={`异常 ${reviewRequired.length}`} />
-            <CountChip tone="rose" label={`缺口 ${missingCriticalFields.length}`} />
+            <CountChip tone="primary" label={`缺口 ${missingCriticalFields.length}`} />
           </div>
         </div>
       </DialogHeader>
@@ -390,7 +390,7 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
           <div className="grid gap-3 border-b border-black/5 px-6 py-5 sm:grid-cols-3">
             <SummaryCard title="自动写入字段" value={String(appliedUpdates.length)} description="AI 已同步更新" tone="emerald" />
             <SummaryCard title="待确认异常" value={String(reviewRequired.length)} description="需要人工复核" tone="amber" />
-            <SummaryCard title="待补问建议" value={String(suggestedQuestions.length)} description="下一轮可直接追问" tone="rose" />
+            <SummaryCard title="待补问建议" value={String(suggestedQuestions.length)} description="下一轮可直接追问" tone="primary" />
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
@@ -411,15 +411,15 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
           </div>
         </div>
 
-        <div className="min-h-0 overflow-y-auto bg-[linear-gradient(180deg,rgba(251,247,241,0.92),rgba(255,255,255,0.98))] px-5 py-5">
+        <div className="min-h-0 overflow-y-auto bg-[linear-gradient(180deg,rgba(248,250,253,0.94),rgba(255,255,255,0.98))] px-5 py-5">
           <div className="space-y-4">
             <DetailPanel
               title="AI 处理摘要"
-              icon={<Sparkles className="w-4 h-4 text-amber-500" />}
-              tone="amber"
+              icon={<Sparkles className="w-4 h-4 text-primary" />}
+              tone="primary"
             >
               {conversation.extraction_notes ? (
-                <p className="text-sm leading-7 text-amber-900">{humanizeAIText(conversation.extraction_notes)}</p>
+                <p className="text-sm leading-7 text-slate-700">{humanizeAIText(conversation.extraction_notes)}</p>
               ) : (
                 <p className="text-sm text-gray-400">当前没有额外摘要。</p>
               )}
@@ -428,12 +428,12 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
             {!!suggestedQuestions.length && (
               <DetailPanel
                 title="下一步补问"
-                icon={<Wand2 className="w-4 h-4 text-rose-500" />}
-                tone="rose"
+                icon={<Wand2 className="w-4 h-4 text-primary" />}
+                tone="primary"
               >
                 <div className="space-y-2">
                   {suggestedQuestions.map((question) => (
-                    <div key={question} className="rounded-2xl border border-rose-200/70 bg-white/90 px-4 py-3 text-sm leading-6 text-rose-800">
+                    <div key={question} className="rounded-2xl border border-primary/12 bg-white/92 px-4 py-3 text-sm leading-6 text-slate-700">
                       {question}
                     </div>
                   ))}
@@ -544,11 +544,11 @@ function SnippetPanel({
   icon: ReactNode
   label: string
   content: string
-  tone: 'slate' | 'amber'
+  tone: 'slate' | 'primary'
   clampClass: string
 }) {
-  const toneClass = tone === 'amber'
-    ? 'border-amber-200/70 bg-[linear-gradient(160deg,rgba(255,247,237,0.95),rgba(255,255,255,0.92))]'
+  const toneClass = tone === 'primary'
+    ? 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.95),rgba(255,255,255,0.92))]'
     : 'border-slate-200/70 bg-[linear-gradient(160deg,rgba(248,250,252,0.95),rgba(255,255,255,0.92))]'
 
   return (
@@ -573,13 +573,13 @@ function DetailPanel({
 }: {
   title: string
   icon: ReactNode
-  tone: 'emerald' | 'amber' | 'rose' | 'slate' | 'red'
+  tone: 'emerald' | 'amber' | 'primary' | 'slate' | 'red'
   children: ReactNode
 }) {
   const toneClass = {
     emerald: 'border-emerald-200/70 bg-[linear-gradient(160deg,rgba(236,253,245,0.88),rgba(255,255,255,0.95))]',
     amber: 'border-amber-200/70 bg-[linear-gradient(160deg,rgba(255,247,237,0.88),rgba(255,255,255,0.95))]',
-    rose: 'border-rose-200/70 bg-[linear-gradient(160deg,rgba(255,241,242,0.88),rgba(255,255,255,0.95))]',
+    primary: 'border-primary/12 bg-[linear-gradient(160deg,rgba(241,246,255,0.9),rgba(255,255,255,0.96))]',
     slate: 'border-slate-200/80 bg-[linear-gradient(160deg,rgba(248,250,252,0.9),rgba(255,255,255,0.98))]',
     red: 'border-red-200/80 bg-[linear-gradient(160deg,rgba(254,242,242,0.9),rgba(255,255,255,0.98))]',
   }[tone]
@@ -620,13 +620,13 @@ function CountChip({
   tone,
   label,
 }: {
-  tone: 'emerald' | 'amber' | 'rose' | 'slate'
+  tone: 'emerald' | 'amber' | 'primary' | 'slate'
   label: string
 }) {
   const toneClass = {
     emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-200 bg-amber-50 text-amber-700',
-    rose: 'border-rose-200 bg-rose-50 text-rose-700',
+    primary: 'border-primary/12 bg-primary/8 text-primary',
     slate: 'border-slate-200 bg-slate-50 text-slate-600',
   }[tone]
 
@@ -646,12 +646,12 @@ function SummaryCard({
   title: string
   value: string
   description: string
-  tone: 'emerald' | 'amber' | 'rose'
+  tone: 'emerald' | 'amber' | 'primary'
 }) {
   const toneClass = {
     emerald: 'border-emerald-200/70 bg-white/80',
     amber: 'border-amber-200/70 bg-white/80',
-    rose: 'border-rose-200/70 bg-white/80',
+    primary: 'border-primary/12 bg-white/84',
   }[tone]
 
   return (

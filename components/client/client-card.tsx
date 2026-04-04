@@ -22,47 +22,52 @@ interface ClientCardProps {
 
 export function ClientCard({ profile }: ClientCardProps) {
   const intention = profile.intentions?.[0]
-  const genderColor = profile.gender === 'male' ? 'border-t-blue-400' : 'border-t-pink-400'
+  const genderTone =
+    profile.gender === 'male'
+      ? 'bg-[linear-gradient(180deg,rgba(239,246,255,0.92),rgba(255,255,255,0.98))]'
+      : 'bg-[linear-gradient(180deg,rgba(253,242,248,0.9),rgba(255,255,255,0.98))]'
 
   return (
     <Link href={`/matchmaker/clients/${profile.id}`}>
-      <div className={`bg-white rounded-xl border-t-4 ${genderColor} border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer`}>
+      <div
+        className={`cursor-pointer rounded-[28px] border border-border/80 ${genderTone} p-5 shadow-[0_24px_56px_-42px_rgba(15,23,42,0.18)] transition-all hover:-translate-y-0.5 hover:border-primary/15 hover:shadow-[0_28px_60px_-40px_rgba(15,23,42,0.22)]`}
+      >
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <ProfileAvatar
               name={profile.name}
               avatarUrl={profile.avatar_url}
-              className={`h-10 w-10 rounded-full overflow-hidden border ${profile.gender === 'male' ? 'bg-blue-100' : 'bg-pink-100'} border-white/60 shadow-sm`}
+              className={`h-11 w-11 overflow-hidden rounded-full border border-white/80 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.28)] ${profile.gender === 'male' ? 'bg-blue-50' : 'bg-rose-50'}`}
               imageClassName="h-full w-full object-cover"
               iconClassName={`h-5 w-5 ${profile.gender === 'male' ? 'text-blue-600' : 'text-pink-600'}`}
             />
             <div>
-              <p className="font-semibold text-gray-900">{profile.name}</p>
-              <p className="text-xs text-gray-400">{GENDER_LABELS[profile.gender as GenderType]}</p>
+              <p className="font-semibold text-foreground">{profile.name}</p>
+              <p className="text-xs text-muted-foreground">{GENDER_LABELS[profile.gender as GenderType]}</p>
             </div>
           </div>
-          <Badge variant={profile.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+          <Badge variant={profile.status === 'active' ? 'secondary' : 'outline'} className="text-xs">
             {STATUS_LABELS[profile.status as keyof typeof STATUS_LABELS]}
           </Badge>
         </div>
 
-        <div className="space-y-1.5 text-sm text-gray-600">
+        <div className="space-y-1.5 text-sm text-muted-foreground">
           {(profile.age || profile.city) && (
             <div className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-gray-400" />
+              <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
               {[profile.age && `${profile.age}岁`, profile.city].filter(Boolean).join(' · ')}
             </div>
           )}
           {profile.occupation && (
             <div className="flex items-center gap-1.5">
-              <Briefcase className="w-3.5 h-3.5 text-gray-400" />
+              <Briefcase className="h-3.5 w-3.5 text-muted-foreground/70" />
               {profile.job_title || profile.occupation}
             </div>
           )}
           {intention?.primary_intent && (
             <div className="flex items-center gap-1.5">
-              <Heart className="w-3.5 h-3.5 text-rose-400" />
-              <span className="text-rose-600">{INTENT_LABELS[intention.primary_intent as PrimaryIntent]}</span>
+              <Heart className="h-3.5 w-3.5 text-primary/70" />
+              <span className="text-foreground/80">{INTENT_LABELS[intention.primary_intent as PrimaryIntent]}</span>
             </div>
           )}
         </div>

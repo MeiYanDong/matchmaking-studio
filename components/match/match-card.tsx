@@ -11,16 +11,16 @@ import {
 import { humanizeAIText } from '@/lib/ai/field-presentation'
 
 const statusColor: Record<string, string> = {
-  pending: 'bg-gray-100 text-gray-600',
-  reviewing: 'bg-blue-100 text-blue-700',
-  contacted_male: 'bg-cyan-100 text-cyan-700',
-  contacted_female: 'bg-pink-100 text-pink-700',
-  both_agreed: 'bg-purple-100 text-purple-700',
-  meeting_scheduled: 'bg-orange-100 text-orange-700',
-  met: 'bg-yellow-100 text-yellow-700',
-  succeeded: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-600',
-  dismissed: 'bg-gray-100 text-gray-400',
+  pending: 'border-border bg-secondary text-foreground/70',
+  reviewing: 'border-primary/10 bg-primary/8 text-primary',
+  contacted_male: 'border-sky-200 bg-sky-50 text-sky-700',
+  contacted_female: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+  both_agreed: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  meeting_scheduled: 'border-amber-200 bg-amber-50 text-amber-700',
+  met: 'border-lime-200 bg-lime-50 text-lime-700',
+  succeeded: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  failed: 'border-red-200 bg-red-50 text-red-600',
+  dismissed: 'border-border bg-muted text-muted-foreground',
 }
 
 interface MatchCardProps {
@@ -44,16 +44,16 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
 
   return (
     <Link href={`${hrefPrefix}/${match.id}`}>
-      <div className={`bg-white rounded-xl border p-5 hover:shadow-md transition-shadow cursor-pointer ${isPending ? 'border-rose-200' : ''}`}>
+      <div className={`cursor-pointer rounded-[28px] border bg-white/95 p-5 shadow-[0_24px_54px_-42px_rgba(15,23,42,0.16)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-40px_rgba(15,23,42,0.2)] ${isPending ? 'border-primary/15' : 'border-border/80'}`}>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50">
                 <User className="w-4 h-4 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">{match.male_profile.name}</p>
-                <p className="text-xs text-gray-400">
+                <p className="font-medium text-sm text-foreground">{match.male_profile.name}</p>
+                <p className="text-xs text-muted-foreground">
                   {[match.male_profile.age && `${match.male_profile.age}岁`, match.male_profile.city].filter(Boolean).join(' · ')}
                 </p>
               </div>
@@ -61,15 +61,15 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
           </div>
 
           <div className="text-center px-4">
-            <div className="text-2xl font-bold text-rose-500">{Math.round(match.match_score)}</div>
-            <div className="text-xs text-gray-400">匹配分</div>
+            <div className="text-2xl font-bold text-primary">{Math.round(match.match_score)}</div>
+            <div className="text-xs text-muted-foreground">匹配分</div>
             {breakdown && (
               <div className="flex gap-0.5 mt-1">
                 {SCORE_DIMENSION_META.map(({ key, max }) => {
                   const score = breakdown[key as ScoreDimensionKey] ?? 0
                   return (
-                    <div key={key} className="w-4 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-rose-400 rounded-full" style={{ width: `${(score / max) * 100}%` }} />
+                    <div key={key} className="h-1.5 w-4 overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full rounded-full bg-primary/85" style={{ width: `${(score / max) * 100}%` }} />
                     </div>
                   )
                 })}
@@ -80,19 +80,19 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1 justify-end">
               <div className="text-right">
-                <p className="font-medium text-sm">{match.female_profile.name}</p>
-                <p className="text-xs text-gray-400">
+                <p className="font-medium text-sm text-foreground">{match.female_profile.name}</p>
+                <p className="text-xs text-muted-foreground">
                   {[match.female_profile.age && `${match.female_profile.age}岁`, match.female_profile.city].filter(Boolean).join(' · ')}
                 </p>
               </div>
-              <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-50">
                 <User className="w-4 h-4 text-pink-600" />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-1">
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${statusColor[match.status]}`}>
+            <span className={`rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${statusColor[match.status]}`}>
               {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
             </span>
             <Badge
@@ -100,7 +100,7 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
               className={
                 match.recommendation_type === 'confirmed'
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                  : 'border-amber-200 bg-amber-50 text-amber-700'
+                  : 'border-primary/10 bg-primary/8 text-primary'
               }
             >
               {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
@@ -109,10 +109,10 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
         </div>
 
         {match.match_reason && (
-          <p className="text-xs text-gray-500 mt-3 pl-10 line-clamp-1">{humanizeAIText(match.match_reason)}</p>
+          <p className="mt-3 line-clamp-1 pl-10 text-xs text-muted-foreground">{humanizeAIText(match.match_reason)}</p>
         )}
         {match.recommendation_type === 'pending_confirmation' && match.pending_reasons?.length ? (
-          <p className="text-xs text-amber-700 mt-2 pl-10 line-clamp-1">
+          <p className="mt-2 line-clamp-1 pl-10 text-xs text-primary">
             待确认：{match.pending_reasons.map((reason) => humanizeAIText(reason)).join('、')}
           </p>
         ) : null}

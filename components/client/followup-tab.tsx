@@ -202,12 +202,12 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                     {taskTypeLabel[task.taskType] ?? task.taskType}
                   </Badge>
                   {task.taskIds.length > 1 ? (
-                    <Badge variant="outline" className="bg-white text-[#8b6d58]">
+                    <Badge variant="outline" className="bg-white text-muted-foreground">
                       已合并 {task.taskIds.length} 条相近补问
                     </Badge>
                   ) : null}
                   {task.matchIds.length > 1 ? (
-                    <Badge variant="outline" className="bg-white text-[#8b6d58]">
+                    <Badge variant="outline" className="bg-white text-muted-foreground">
                       涉及 {task.matchIds.length} 个候选
                     </Badge>
                   ) : null}

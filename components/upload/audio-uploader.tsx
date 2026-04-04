@@ -469,10 +469,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button
-            className="bg-rose-500 hover:bg-rose-600"
-            onClick={() => router.push(successRedirectPath || `/matchmaker/clients/${profileId}`)}
-          >
+          <Button onClick={() => router.push(successRedirectPath || `/matchmaker/clients/${profileId}`)}>
             <CheckCircle className="w-4 h-4 mr-2" />
             {successRedirectLabel}
           </Button>
@@ -497,7 +494,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     const headlineIcon =
       step === 'uploaded' || step === 'transcribed'
         ? <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-        : <Loader className="w-12 h-12 text-rose-400 mx-auto mb-3 animate-spin" />
+        : <Loader className="w-12 h-12 text-primary mx-auto mb-3 animate-spin" />
 
     return (
       <div className="py-8 space-y-6">
@@ -506,13 +503,13 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
           <h3 className="text-lg font-semibold text-gray-900">{STEP_LABELS[step]}</h3>
           <p className="text-gray-500 text-sm mt-1">{STEP_DESCRIPTIONS[step]}</p>
           {step === 'uploading' && (
-            <p className="mt-2 text-sm font-medium text-rose-600">资料库上传进度 {uploadProgress}%</p>
+            <p className="mt-2 text-sm font-medium text-primary">资料库上传进度 {uploadProgress}%</p>
           )}
         </div>
         <Progress value={workflowProgress} className="h-2" />
         <div className="flex justify-center gap-8 text-sm">
           {stageOrder.map((s, index) => (
-            <div key={s} className={`flex items-center gap-1.5 ${step === s ? 'text-rose-600 font-medium' : index < currentStageIndex ? 'text-green-600' : 'text-gray-400'}`}>
+            <div key={s} className={`flex items-center gap-1.5 ${step === s ? 'text-primary font-medium' : index < currentStageIndex ? 'text-emerald-600' : 'text-gray-400'}`}>
               {index < currentStageIndex ? (
                 <CheckCircle className="w-4 h-4" />
               ) : step === s ? (
@@ -534,7 +531,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     <div className="space-y-6">
       {/* Drop zone */}
       <div
-        className={`border-2 border-dashed rounded-xl p-10 text-center transition-colors cursor-pointer ${dragging ? 'border-rose-400 bg-rose-50' : file ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-rose-300 hover:bg-gray-50'}`}
+        className={`cursor-pointer rounded-[28px] border-2 border-dashed p-10 text-center transition-colors ${dragging ? 'border-primary/50 bg-primary/8' : file ? 'border-emerald-400 bg-emerald-50/70' : 'border-border bg-white/78 hover:border-primary/30 hover:bg-white'}`}
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
@@ -602,9 +599,9 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
           <Button variant="outline" onClick={() => { setFile(null); setDuration(null); setError(''); setConversationId(''); setPendingObjectKey(''); setUploadProgress(0) }} className="flex-1">
             <X className="w-4 h-4 mr-2" />重新选择
           </Button>
-          <Button onClick={handleUpload} className="flex-1 bg-rose-500 hover:bg-rose-600">
-            <Upload className="w-4 h-4 mr-2" />开始上传
-          </Button>
+            <Button onClick={handleUpload} className="flex-1">
+              <Upload className="w-4 h-4 mr-2" />开始上传
+            </Button>
         </div>
       )}
     </div>

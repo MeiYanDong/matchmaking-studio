@@ -1,0 +1,16 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="28" y1="24" x2="132" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9FBFF"/>
+      <stop offset="1" stop-color="#E8EEF9"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="80" y1="46" x2="80" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B63F6"/>
+      <stop offset="1" stop-color="#78A8FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="14" width="132" height="132" rx="42" fill="url(#bg)"/>
+  <rect x="14.5" y="14.5" width="131" height="131" rx="41.5" stroke="#D9DEE8"/>
+  <path d="M79.9996 113.036C79.9996 113.036 46.5 92.6592 46.5 64.7092C46.5 52.5397 56.3382 42.7015 68.5077 42.7015C73.897 42.7015 79.0679 44.7126 82.9996 48.3632C86.9313 44.7126 92.1022 42.7015 97.4915 42.7015C109.661 42.7015 119.499 52.5397 119.499 64.7092C119.499 92.6592 85.9996 113.036 79.9996 113.036Z" fill="url(#heart)"/>
+  <path d="M82.9996 48.3632C86.9313 44.7126 92.1022 42.7015 97.4915 42.7015C109.661 42.7015 119.499 52.5397 119.499 64.7092C119.499 92.6592 85.9996 113.036 79.9996 113.036" stroke="white" stroke-opacity="0.38" stroke-width="4" stroke-linecap="round"/>
+</svg>

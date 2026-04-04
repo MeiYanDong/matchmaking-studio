@@ -142,7 +142,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div className="space-y-4">
-        <div className="rounded-2xl border bg-white p-5">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
           <div className="flex items-center gap-2 mb-3">
             <FileText className="w-4 h-4 text-gray-500" />
             <h3 className="font-semibold text-gray-900">转录全文</h3>
@@ -153,12 +153,12 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
         </div>
 
         {(processingNotes.length > 0 || conversation.extraction_notes) && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <div className="rounded-[28px] border border-primary/12 bg-[linear-gradient(145deg,rgba(241,246,255,0.95),rgba(255,255,255,0.98))] p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.12)]">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
-              <h3 className="font-semibold text-amber-900">AI 处理备注</h3>
+              <AlertCircle className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-slate-900">AI 处理备注</h3>
             </div>
-            <div className="space-y-2 text-sm text-amber-800">
+            <div className="space-y-2 text-sm text-slate-700">
               {processingNotes.map((note) => (
                 <p key={note}>• {humanizeAIText(note)}</p>
               ))}
@@ -171,7 +171,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
       </div>
 
       <div className="space-y-4">
-        <div className="rounded-2xl border bg-white p-5">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-emerald-600" />
             <h3 className="font-semibold text-gray-900">AI 已自动同步</h3>
@@ -203,9 +203,9 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
           )}
         </div>
 
-        <div className="rounded-2xl border bg-white p-5">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
           <div className="flex items-center gap-2 mb-3">
-            <Wand2 className="w-4 h-4 text-rose-500" />
+            <Wand2 className="w-4 h-4 text-primary" />
             <h3 className="font-semibold text-gray-900">待补问与下一步建议</h3>
           </div>
 
@@ -217,7 +217,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {missingFields.map((field) => (
-                    <Badge key={field} variant="outline" className="text-amber-700 border-amber-200 bg-amber-50">
+                    <Badge key={field} variant="outline" className="border-primary/12 bg-primary/8 text-primary">
                       {getFieldDisplayLabel(field)}
                     </Badge>
                   ))}
@@ -231,7 +231,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
               ) : (
                 <div className="space-y-2">
                   {suggestedQuestions.map((question) => (
-                    <div key={question} className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm text-rose-800">
+                    <div key={question} className="rounded-[20px] border border-primary/12 bg-primary/8 p-3 text-sm text-slate-700">
                       {question}
                     </div>
                   ))}
@@ -241,7 +241,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-white p-5">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-4 h-4 text-orange-500" />
             <h3 className="font-semibold text-gray-900">需要你确认的异常</h3>
@@ -336,7 +336,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
                 </div>
               )}
 
-              <Button onClick={handleConfirm} disabled={saving || pendingReviewItems.length === 0} className="w-full bg-rose-500 hover:bg-rose-600">
+              <Button onClick={handleConfirm} disabled={saving || pendingReviewItems.length === 0} className="w-full">
                 {saving ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
                 {saving ? '处理中...' : `确认异常字段并同步（剩余 ${pendingReviewItems.length} 项）`}
               </Button>
@@ -528,7 +528,7 @@ function ValuePreview({
 }) {
   const lines = formatFieldValueLines(fieldKey, value)
   const className = tone === 'amber'
-    ? 'border-amber-200 bg-white/80'
+    ? 'border-primary/12 bg-white/82'
     : 'border-gray-200 bg-white/80'
 
   return (
