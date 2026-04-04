@@ -62,16 +62,22 @@ export function MetricCard({
         ? "theme-status-warning"
         : tone === "danger"
           ? "theme-status-danger"
-          : "bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(242,245,251,0.9))] text-foreground"
+          : "bg-[radial-gradient(circle_at_top_left,rgba(11,99,246,0.08),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(242,245,251,0.9))] text-foreground dark:bg-[radial-gradient(circle_at_top_left,rgba(114,168,255,0.18),transparent_40%),linear-gradient(180deg,rgba(18,25,35,0.96),rgba(11,16,23,0.96))] dark:text-foreground"
 
   return (
-    <Card className={cn("overflow-hidden border-transparent", tone === "default" && "border-border/80")}>
+    <Card
+      className={cn(
+        "overflow-hidden border-transparent",
+        tone === "default" &&
+          "border-border/80 shadow-[0_22px_48px_-36px_rgba(15,23,42,0.24)] dark:border-border/70 dark:shadow-[0_28px_68px_-42px_rgba(0,0,0,0.58)]"
+      )}
+    >
       <CardContent className={cn("rounded-[inherit] px-5 py-5", toneClass)}>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground dark:text-foreground/56">
           {label}
         </div>
-        <div className="mt-3 text-3xl font-semibold tracking-[-0.05em]">{value}</div>
-        <div className="mt-2 text-sm leading-6 text-muted-foreground">{hint}</div>
+        <div className="mt-3 text-3xl font-semibold tracking-[-0.05em] dark:text-foreground">{value}</div>
+        <div className="mt-2 text-sm leading-6 text-muted-foreground dark:text-foreground/66">{hint}</div>
       </CardContent>
     </Card>
   )

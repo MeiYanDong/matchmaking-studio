@@ -125,7 +125,7 @@ function FilterLink({ href, label, active }: { href: string; label: string; acti
     <Link href={href}>
       <Badge
         variant={active ? 'secondary' : 'outline'}
-        className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${active ? 'border-primary/10 bg-primary text-white hover:bg-primary/92' : 'border-border/80 bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground'}`}
+        className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${active ? 'border-primary/12 bg-primary text-primary-foreground shadow-[0_14px_26px_-18px_rgba(11,99,246,0.52)] hover:bg-[color:var(--primary-strong)] dark:border-primary/14 dark:shadow-[0_16px_34px_-22px_rgba(82,145,243,0.56)]' : 'border-border/80 bg-[color:var(--surface-soft)] text-foreground/68 hover:bg-[color:var(--surface-soft-strong)] hover:text-foreground dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/62 dark:hover:bg-[color:var(--surface-contrast)] dark:hover:text-foreground'}`}
       >
         {label}
       </Badge>
