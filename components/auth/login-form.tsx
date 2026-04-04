@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -17,6 +16,8 @@ import { AudioLines, DatabaseZap, HeartHandshake, LoaderCircle, ShieldCheck } fr
 interface LoginFormProps {
   title?: string
   description?: string
+  initialEmail?: string
+  initialPassword?: string
 }
 
 const loginSchema = z.object({
@@ -27,15 +28,16 @@ const loginSchema = z.object({
 export function LoginForm({
   title = 'Matchmaking Studio',
   description = '请登录您的账号',
+  initialEmail = '',
+  initialPassword = '',
 }: LoginFormProps) {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: initialEmail,
+      password: initialPassword,
     },
   })
 
@@ -52,21 +54,31 @@ export function LoginForm({
         throw new Error('登录失败，请稍后重试')
       }
 
+      // Ensure the browser client finishes resolving the authenticated user
+      // before we leave the page and let the server read auth cookies.
+      const { error: userError } = await supabase.auth.getUser()
+
+      if (userError) {
+        throw userError
+      }
+
       const { data: roleData } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', data.user.id)
         .maybeSingle()
 
-      if (roleData?.role === 'admin') {
-        router.push('/admin/dashboard')
-      } else if (roleData?.role === 'matchmaker') {
-        router.push('/matchmaker/clients')
-      } else {
-        router.push('/user/me')
-      }
+      const destination =
+        roleData?.role === 'admin'
+          ? '/admin/dashboard'
+          : roleData?.role === 'matchmaker'
+            ? '/matchmaker/clients'
+            : '/user/me'
 
-      router.refresh()
+      window.location.assign(destination)
+
+      return
+
     } catch (err) {
       toast.error('登录失败：' + (err as Error).message)
     } finally {

@@ -5,16 +5,16 @@ import { createClient } from '@/lib/supabase/server'
 export async function getSessionUser(): Promise<User | null> {
   const supabase = await createClient()
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getUser()
 
   if (error) {
-    console.error('[auth] failed to read session from cookies:', error)
+    console.error('[auth] failed to resolve verified user from Supabase:', error)
     return null
   }
 
-  return session?.user ?? null
+  return user ?? null
 }
 
 export async function requireSessionUser(): Promise<User> {
