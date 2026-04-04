@@ -12,7 +12,7 @@ import { humanizeAIText } from '@/lib/ai/field-presentation'
 
 const statusColor: Record<string, string> = {
   pending: 'border-border/80 bg-secondary text-foreground/70 dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/72',
-  reviewing: 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary-foreground',
+  reviewing: 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary',
   contacted_male: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200',
   contacted_female: 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-200',
   both_agreed: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200',
@@ -61,15 +61,15 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
           </div>
 
           <div className="text-center px-4">
-            <div className="text-2xl font-bold text-primary dark:text-primary-foreground">{Math.round(match.match_score)}</div>
-            <div className="text-xs text-muted-foreground dark:text-foreground/58">匹配分</div>
+            <div className="text-2xl font-bold text-primary dark:text-foreground">{Math.round(match.match_score)}</div>
+            <div className="text-xs text-muted-foreground dark:text-foreground/66">匹配分</div>
             {breakdown && (
               <div className="flex gap-0.5 mt-1">
                 {SCORE_DIMENSION_META.map(({ key, max }) => {
                   const score = breakdown[key as ScoreDimensionKey] ?? 0
                   return (
                     <div key={key} className="h-1.5 w-4 overflow-hidden rounded-full bg-secondary dark:bg-white/[0.08]">
-                      <div className="h-full rounded-full bg-primary/85 dark:bg-primary-foreground/90" style={{ width: `${(score / max) * 100}%` }} />
+                      <div className="h-full rounded-full bg-primary/85 dark:bg-primary" style={{ width: `${(score / max) * 100}%` }} />
                     </div>
                   )
                 })}
@@ -100,7 +100,7 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
               className={
                 match.recommendation_type === 'confirmed'
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200'
-                  : 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary-foreground'
+                  : 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary'
               }
             >
               {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
@@ -112,7 +112,7 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
           <p className="mt-3 line-clamp-1 pl-10 text-xs text-muted-foreground dark:text-foreground/60">{humanizeAIText(match.match_reason)}</p>
         )}
         {match.recommendation_type === 'pending_confirmation' && match.pending_reasons?.length ? (
-          <p className="mt-2 line-clamp-1 pl-10 text-xs text-primary dark:text-primary-foreground">
+          <p className="mt-2 line-clamp-1 pl-10 text-xs text-primary dark:text-primary">
             待确认：{match.pending_reasons.map((reason) => humanizeAIText(reason)).join('、')}
           </p>
         ) : null}

@@ -101,7 +101,7 @@ export default async function MatchesPage({
             >
               <Badge
                 variant={params.status === tab.value || (!params.status && !tab.value) ? 'secondary' : 'outline'}
-                className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${params.status === tab.value || (!params.status && !tab.value) ? 'border-primary/10 bg-primary text-white hover:bg-primary/92 dark:border-primary/20 dark:bg-primary-foreground dark:text-primary dark:hover:bg-primary-foreground/92' : 'border-border/80 bg-[color:var(--surface-soft-strong)] text-foreground/70 hover:bg-[color:var(--surface-contrast)] hover:text-foreground dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/66 dark:hover:bg-white/[0.1] dark:hover:text-foreground'}`}
+                className={`cursor-pointer rounded-full px-3 py-1.5 text-sm ${params.status === tab.value || (!params.status && !tab.value) ? 'border-primary/10 bg-primary text-white hover:bg-primary/92 dark:border-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/92' : 'border-border/80 bg-[color:var(--surface-soft-strong)] text-foreground/70 hover:bg-[color:var(--surface-contrast)] hover:text-foreground dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/66 dark:hover:bg-white/[0.1] dark:hover:text-foreground'}`}
               >
                 {tab.label}
               </Badge>
@@ -188,7 +188,7 @@ export default async function MatchesPage({
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground dark:text-foreground/45">Top 1 Pending</p>
                         <h3 className="mt-2 font-heading text-2xl text-foreground dark:text-foreground">最值得优先补问的候选</h3>
                       </div>
-                      <Badge className="border border-primary/10 bg-white/90 px-3 py-1 text-xs tracking-[0.12em] text-primary dark:border-primary/20 dark:bg-white/[0.08] dark:text-primary-foreground">
+                      <Badge className="border border-primary/10 bg-white/90 px-3 py-1 text-xs tracking-[0.12em] text-primary dark:border-primary/20 dark:bg-white/[0.08] dark:text-primary">
                         {RECOMMENDATION_TYPE_LABELS.pending_confirmation}
                       </Badge>
                     </div>

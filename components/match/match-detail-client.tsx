@@ -57,7 +57,7 @@ const STATUS_FLOW: Record<MatchStatus, { next: MatchStatus; label: string; color
 
 const statusBg: Record<string, string> = {
   pending: 'border border-border/80 bg-secondary text-foreground/72 dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/72',
-  reviewing: 'border border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary-foreground',
+  reviewing: 'border border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary',
   contacted_male: 'border border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-200',
   contacted_female: 'border border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-500/25 dark:bg-pink-500/10 dark:text-pink-200',
   both_agreed: 'border border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/25 dark:bg-purple-500/10 dark:text-purple-200',
@@ -158,9 +158,9 @@ export function MatchDetailClient({ match, maleProfile, femaleProfile, maleInten
                 <div key={key} className="text-center">
                   <div className="mb-1 text-xs text-muted-foreground dark:text-foreground/54">{label}</div>
                   <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-white/[0.08]">
-                    <div className="h-full rounded-full bg-rose-400 transition-all dark:bg-primary-foreground/90" style={{ width: `${pct}%` }} />
+                    <div className="h-full rounded-full bg-rose-400 transition-all dark:bg-primary" style={{ width: `${pct}%` }} />
                   </div>
-                  <div className="mt-1 text-sm font-bold text-foreground dark:text-foreground">{Math.round(score)}<span className="text-xs text-gray-400 dark:text-foreground/42">/{max}</span></div>
+                  <div className="mt-1 text-sm font-bold text-foreground dark:text-foreground">{Math.round(score)}<span className="text-xs text-gray-400 dark:text-foreground/56">/{max}</span></div>
                 </div>
               )
             })}
