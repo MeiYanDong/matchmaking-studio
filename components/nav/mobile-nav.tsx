@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { getNavItems, type AppRole } from '@/components/nav/nav-config'
+import { BookOpenText } from 'lucide-react'
 
 type MobileNavProps = {
   role: AppRole
@@ -14,6 +15,8 @@ type MobileNavProps = {
 export function MobileNav({ role, unreadCount = 0 }: MobileNavProps) {
   const pathname = usePathname()
   const navItems = getNavItems(role)
+  const guideHref = role === 'admin' ? '/admin/guide' : '/matchmaker/guide'
+  const guideActive = pathname.startsWith(guideHref)
 
   return (
     <div className="border-b border-black/5 bg-[linear-gradient(180deg,rgba(252,248,241,0.98),rgba(250,244,236,0.94))] px-4 pb-4 lg:hidden">
@@ -49,6 +52,18 @@ export function MobileNav({ role, unreadCount = 0 }: MobileNavProps) {
             </Link>
           )
         })}
+        <Link
+          href={guideHref}
+          className={cn(
+            'flex min-w-max items-center gap-2 rounded-full border px-3 py-2 text-sm transition-all',
+            guideActive
+              ? 'border-[#8f3c32] bg-[#8f3c32] text-white shadow-[0_18px_40px_-26px_rgba(143,60,50,0.7)]'
+              : 'border-[#ddcbbb] bg-white/85 text-[#5d493d]'
+          )}
+        >
+          <BookOpenText className="h-4 w-4" />
+          <span>产品说明</span>
+        </Link>
       </div>
     </div>
   )

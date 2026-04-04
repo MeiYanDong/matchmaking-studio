@@ -18,6 +18,14 @@ type RouteMeta = {
 }
 
 function resolveRouteMeta(pathname: string): RouteMeta {
+  if (pathname.startsWith('/matchmaker/guide') || pathname.startsWith('/admin/guide')) {
+    return {
+      eyebrow: 'Product Guide',
+      title: '产品说明',
+      description: '用非技术语言解释系统在解决什么问题、核心工作流是什么，以及当前版本重点放在哪里。',
+    }
+  }
+
   if (pathname.startsWith('/matchmaker/clients/') && pathname.includes('/conversations/')) {
     return {
       eyebrow: 'Conversation Review',

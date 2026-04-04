@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { logout } from '@/actions/auth'
 import {
+  BookOpenText,
   LogOut,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,8 @@ interface SidebarProps {
 export function Sidebar({ role, displayName, unreadCount = 0 }: SidebarProps) {
   const pathname = usePathname()
   const navItems = getNavItems(role)
+  const guideHref = role === 'admin' ? '/admin/guide' : '/matchmaker/guide'
+  const guideActive = pathname.startsWith(guideHref)
 
   return (
     <aside className="hidden min-h-screen w-[292px] shrink-0 flex-col border-r border-white/8 bg-[linear-gradient(180deg,#221815,#2c1c17_46%,#1d1512)] text-[#f5ece3] shadow-[0_32px_80px_-48px_rgba(15,23,42,0.8)] lg:flex">
@@ -84,6 +87,31 @@ export function Sidebar({ role, displayName, unreadCount = 0 }: SidebarProps) {
       </nav>
 
       <div className="border-t border-white/8 px-4 py-4">
+        <Link
+          href={guideHref}
+          className={cn(
+            'group mb-3 flex items-start gap-3 rounded-[20px] border px-4 py-3 transition-all',
+            guideActive
+              ? 'border-white/12 bg-white/10 text-[#fff4ea] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_16px_40px_-26px_rgba(0,0,0,0.6)]'
+              : 'border-white/8 bg-white/6 text-[#ddccbf] hover:border-white/12 hover:bg-white/8 hover:text-[#fff4ea]'
+          )}
+        >
+          <span className={cn(
+            'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition-colors',
+            guideActive
+              ? 'border-white/10 bg-white/10'
+              : 'border-white/6 bg-black/10 group-hover:border-white/10 group-hover:bg-white/5'
+          )}>
+            <BookOpenText className="h-4 w-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium">产品说明</span>
+            <span className="mt-1 block text-xs leading-5 text-[#bfa38f]">
+              用非技术语言解释系统在做什么、为什么这样设计，以及当前版本重点是什么。
+            </span>
+          </span>
+        </Link>
+
         <form action={logout}>
           <Button
             type="submit"
