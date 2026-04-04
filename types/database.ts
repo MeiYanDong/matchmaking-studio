@@ -15,7 +15,15 @@ export type RelationshipMode =
   | 'compensated_dating'
   | 'fertility_asset_arrangement'
 export type TriState = 'yes' | 'no' | 'unknown'
-export type ConversationStatus = 'pending' | 'transcribing' | 'extracting' | 'done' | 'failed'
+export type ConversationStatus =
+  | 'pending'
+  | 'uploaded'
+  | 'transcribing'
+  | 'transcribed'
+  | 'extracting'
+  | 'done'
+  | 'failed'
+export type ConversationFailedStage = 'upload' | 'transcribe' | 'extract'
 export type MatchStatus =
   | 'pending'
   | 'reviewing'
@@ -509,6 +517,7 @@ export interface Database {
           audio_url: string | null
           audio_duration: number | null
           status: ConversationStatus
+          failed_stage: ConversationFailedStage | null
           error_message: string | null
           transcript: string | null
           transcript_verbose_json: Json | null
@@ -528,6 +537,7 @@ export interface Database {
           audio_url?: string | null
           audio_duration?: number | null
           status?: ConversationStatus
+          failed_stage?: ConversationFailedStage | null
           error_message?: string | null
           transcript?: string | null
           transcript_verbose_json?: Json | null
@@ -547,6 +557,7 @@ export interface Database {
           audio_url?: string | null
           audio_duration?: number | null
           status?: ConversationStatus
+          failed_stage?: ConversationFailedStage | null
           error_message?: string | null
           transcript?: string | null
           transcript_verbose_json?: Json | null

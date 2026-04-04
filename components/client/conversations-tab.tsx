@@ -57,7 +57,9 @@ type ExtractedData = {
 
 const statusIcon = {
   pending: <Clock className="w-4 h-4 text-gray-400" />,
+  uploaded: <CheckCircle className="w-4 h-4 text-amber-500" />,
   transcribing: <Loader className="w-4 h-4 text-blue-400 animate-spin" />,
+  transcribed: <FileText className="w-4 h-4 text-indigo-500" />,
   extracting: <Loader className="w-4 h-4 text-purple-400 animate-spin" />,
   done: <CheckCircle className="w-4 h-4 text-emerald-500" />,
   failed: <AlertCircle className="w-4 h-4 text-red-400" />,
@@ -65,7 +67,9 @@ const statusIcon = {
 
 const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   pending: 'secondary',
+  uploaded: 'outline',
   transcribing: 'secondary',
+  transcribed: 'outline',
   extracting: 'secondary',
   done: 'default',
   failed: 'destructive',
@@ -86,11 +90,10 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
   async function handleRetry(conversation: Conversation) {
     setRetryingId(conversation.id)
     try {
-      const endpoint = conversation.transcript ? '/api/extract' : '/api/transcribe'
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/process-conversation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId: conversation.id }),
+        body: JSON.stringify({ conversationId: conversation.id, allowRecovery: true }),
       })
 
       if (!res.ok) {
@@ -223,6 +226,10 @@ function ConversationCard({
   const reviewRequiredCount = extracted?.review_required?.length ?? 0
   const missingFieldCount = extracted?.missing_critical_fields?.length ?? 0
   const shouldReview = conversation.status === 'done' && reviewRequiredCount > 0 && !conversation.reviewed_at
+  const canContinueWorkflow =
+    conversation.status === 'uploaded'
+    || conversation.status === 'transcribed'
+    || conversation.status === 'failed'
   const transcriptPreview = conversation.transcript?.trim() || '当前还没有转录文本。'
   const insightPreview = humanizeAIText(
     conversation.extraction_notes
@@ -313,7 +320,7 @@ function ConversationCard({
               </Button>
             </Link>
           )}
-          {conversation.status === 'failed' && (
+          {canContinueWorkflow && (
             <Button
               size="sm"
               variant="outline"
@@ -322,7 +329,13 @@ function ConversationCard({
               disabled={retrying}
             >
               <RefreshCw className={cn('w-4 h-4 mr-1.5', retrying && 'animate-spin')} />
-              {retrying ? '重试中...' : '重试处理'}
+              {retrying
+                ? '处理中...'
+                : conversation.status === 'uploaded'
+                  ? '开始转录'
+                  : conversation.status === 'transcribed'
+                    ? '继续提取'
+                    : '重试处理'}
             </Button>
           )}
         </div>

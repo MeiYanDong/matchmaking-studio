@@ -170,7 +170,14 @@
 - [x] 将转录主链路改为：`Storage signed URL -> Groq`
 - [x] 服务端生成短时效签名 URL，而不是默认下载整段文件后再转传
 - [x] Groq 转录失败时，自动切换到云雾 Whisper 兜底
-- [ ] 上传阶段与转录阶段在状态机与接口实现上彻底解耦
+- [x] 上传阶段与转录阶段在状态机与接口实现上彻底解耦
+- [x] 为 `conversations.status` 增加并落地中间状态：`uploaded`、`transcribed`
+- [x] 为失败会话增加 `failed_stage` 语义，明确区分 `upload / transcribe / extract`
+- [x] 让“上传录音音频到对象存储”在实现上只负责把会话推进到 `uploaded`
+- [x] 让 `/api/transcribe` 只负责把 `uploaded -> transcribed`，不再顺手推进提取
+- [x] 让 `/api/extract` 只接受 `transcribed` 会话，并独立完成 `transcribed -> done`
+- [ ] 将前端上传页从“驱动整条处理链”改为“展示状态 + 提供分阶段重试入口”
+- [ ] 将重试动作拆为：重新上传音频 / 重试转录 / 重试提取
 - [x] 前端步骤文案明确区分“上传到资料库中”与“发送到转录服务中”
 - [x] 确保同一段已入库音频重试转录时无需重新上传
 - [x] 为 URL 转录补齐真实联通回归验证

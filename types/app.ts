@@ -126,8 +126,10 @@ export const RECOMMENDATION_TYPE_LABELS: Record<RecommendationType, string> = {
 }
 
 export const CONVERSATION_STATUS_LABELS: Record<ConversationStatus, string> = {
-  pending: '待处理',
+  pending: '待初始化',
+  uploaded: '已上传',
   transcribing: '转录中',
+  transcribed: '已转录',
   extracting: '提取中',
   done: '已完成',
   failed: '失败',

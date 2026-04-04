@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
   try {
     const payload = await request.json()
     conversationId = payload.conversationId
+    const allowRecovery = Boolean(payload.allowRecovery)
     if (!conversationId) {
       return NextResponse.json({ error: 'conversationId is required' }, { status: 400 })
     }
@@ -132,6 +133,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '对话记录不存在' }, { status: 404 })
     }
 
+    const transcript = conversation.transcript?.trim() ?? ''
+    const transcriptReady = Boolean(transcript)
+
     if (conversation.status === 'done' && conversation.extracted_fields) {
       return NextResponse.json({
         success: true,
@@ -141,18 +145,34 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (!conversation.transcript?.trim()) {
+    if (!transcriptReady) {
       await supabase
         .from('conversations')
-        .update({ status: 'failed', error_message: '转录文本为空' })
+        .update({ status: 'failed', failed_stage: 'extract', error_message: '转录文本为空' })
         .eq('id', targetConversationId)
 
       return NextResponse.json({ error: '转录文本为空' }, { status: 400 })
     }
 
+    const canRecoverExtract =
+      allowRecovery
+      && (
+        conversation.status === 'extracting'
+        || (conversation.status === 'failed' && conversation.failed_stage === 'extract')
+      )
+
+    if (
+      conversation.status !== 'transcribed'
+      && conversation.status !== 'done'
+      && !canRecoverExtract
+      && !(conversation.status === 'extracting' && allowRecovery)
+    ) {
+      return NextResponse.json({ error: '当前录音还未进入可提取状态' }, { status: 409 })
+    }
+
     await supabase
       .from('conversations')
-      .update({ status: 'extracting', error_message: null })
+      .update({ status: 'extracting', failed_stage: null, error_message: null })
       .eq('id', targetConversationId)
 
     const [
@@ -179,7 +199,7 @@ export async function POST(request: NextRequest) {
     })
 
     const prompt = buildExtractPrompt({
-      transcript: conversation.transcript,
+      transcript,
       transcriptVerboseJson: conversation.transcript_verbose_json,
       currentSnapshot,
       systemContext: {
@@ -247,6 +267,7 @@ export async function POST(request: NextRequest) {
       .from('conversations')
       .update({
         status: 'done',
+        failed_stage: null,
         error_message: null,
       })
       .eq('id', targetConversationId)
@@ -268,6 +289,7 @@ export async function POST(request: NextRequest) {
         .from('conversations')
         .update({
           status: 'failed',
+          failed_stage: 'extract',
           error_message: errorMessage,
         })
         .eq('id', conversationId)

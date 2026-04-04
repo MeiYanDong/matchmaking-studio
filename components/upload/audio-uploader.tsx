@@ -7,6 +7,10 @@ import { buildAudioStorageObjectKey } from '@/lib/storage/object-key'
 import {
   uploadAudioToStorageWithFallback,
 } from '@/lib/storage/resumable-upload'
+import {
+  ConversationFailedStage,
+  getConversationProcessingStage,
+} from '@/lib/conversations/processing'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
@@ -16,44 +20,79 @@ interface AudioUploaderProps {
   profileId: string
 }
 
-type UploadStep = 'idle' | 'uploading' | 'transcribing' | 'extracting' | 'done' | 'error'
-
-const MAX_STATUS_POLLS = 30
+type UploadWorkflowStep =
+  | 'idle'
+  | 'uploading'
+  | 'uploaded'
+  | 'transcribing'
+  | 'transcribed'
+  | 'extracting'
+  | 'done'
+  | 'error'
+const MAX_STATUS_POLLS = 32
 const POLL_INTERVAL_MS = 3000
 const EXTRACT_RECOVERY_POLL_THRESHOLD = 2
+const TRANSCRIBED_RECOVERY_POLL_THRESHOLD = 1
 const TRANSCRIBE_RECOVERY_POLL_THRESHOLD = 8
+const UPLOADED_RECOVERY_POLL_THRESHOLD = 1
 const PROCESSING_ENDPOINT_RESPONSE_GRACE_MS = 4000
 
-const STEP_LABELS: Record<UploadStep, string> = {
+const STEP_LABELS: Record<UploadWorkflowStep, string> = {
   idle: '选择文件',
   uploading: '上传到资料库中...',
+  uploaded: '音频已上传',
   transcribing: '发送到转录服务中...',
+  transcribed: '已转成文字稿',
   extracting: 'AI 提取信息中...',
   done: '处理完成',
   error: '处理失败',
 }
 
-const STEP_DESCRIPTIONS: Record<UploadStep, string> = {
+const STEP_DESCRIPTIONS: Record<UploadWorkflowStep, string> = {
   idle: '选择一段录音，系统会自动完成转录与提取。',
   uploading: '先把原始音频上传到资料库，这一步还没有开始转文字。',
+  uploaded: '音频已经安全入库，系统正在准备转录。',
   transcribing: '资料库里的音频正在发送到转录服务并识别为文字。',
+  transcribed: '文字稿已生成，系统正在准备提取结构化字段。',
   extracting: '转录完成后，AI 正在抽取字段并写入数据库。',
   done: '录音已经完成转文字、AI 提取并写入数据库。',
   error: '当前这次处理失败了，可以直接重试当前处理。',
 }
 
-const STEP_PROGRESS: Record<UploadStep, number> = {
+const STEP_PROGRESS: Record<UploadWorkflowStep, number> = {
   idle: 0,
   uploading: 25,
+  uploaded: 35,
   transcribing: 50,
+  transcribed: 65,
   extracting: 75,
   done: 100,
   error: 0,
 }
 
+function getStepFromConversationStatus(status: string | null | undefined): UploadWorkflowStep {
+  switch (status) {
+    case 'pending':
+    case 'uploaded':
+      return 'uploaded'
+    case 'transcribing':
+      return 'transcribing'
+    case 'transcribed':
+      return 'transcribed'
+    case 'extracting':
+      return 'extracting'
+    case 'done':
+      return 'done'
+    case 'failed':
+      return 'error'
+    default:
+      return 'error'
+  }
+}
+
 export function AudioUploader({ profileId }: AudioUploaderProps) {
   const router = useRouter()
-  const [step, setStep] = useState<UploadStep>('idle')
+  const [step, setStep] = useState<UploadWorkflowStep>('idle')
   const [file, setFile] = useState<File | null>(null)
   const [duration, setDuration] = useState<number | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -69,16 +108,12 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
   const MAX_SIZE = 100 * 1024 * 1024 // 100MB
 
   async function callProcessingEndpoint(
-    endpoint: '/api/transcribe' | '/api/extract',
     targetConversationId: string,
     options?: {
       allowRecovery?: boolean
     }
   ) {
-    const nextStep = endpoint === '/api/transcribe' ? 'transcribing' : 'extracting'
-    setStep(nextStep)
-
-    const response = await fetch(endpoint, {
+    const response = await fetch('/api/process-conversation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -89,22 +124,22 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
 
     const payload = await response.json().catch(() => null)
     if (!response.ok) {
-      throw new Error(
-        payload?.error || (endpoint === '/api/transcribe' ? '转录失败' : 'AI 提取失败')
-      )
+      throw new Error(payload?.error || '处理失败')
     }
 
     return payload
   }
 
   async function startProcessingEndpoint(
-    endpoint: '/api/transcribe' | '/api/extract',
     targetConversationId: string,
     options?: {
       allowRecovery?: boolean
+      fallbackStep: UploadWorkflowStep
     }
   ) {
-    const requestPromise = callProcessingEndpoint(endpoint, targetConversationId, options)
+    setStep(options?.fallbackStep ?? 'transcribing')
+
+    const requestPromise = callProcessingEndpoint(targetConversationId, options)
       .then((payload) => ({ kind: 'payload' as const, payload }))
       .catch((error: Error) => ({ kind: 'error' as const, error }))
 
@@ -126,7 +161,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     return {
       success: true,
       accepted: true,
-      status: endpoint === '/api/transcribe' ? 'transcribing' : 'extracting',
+      status: options?.fallbackStep === 'extracting' ? 'extracting' : 'transcribing',
     }
   }
 
@@ -139,7 +174,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     const supabase = createClient()
     const { data: conversation, error: conversationError } = await supabase
       .from('conversations')
-      .select('transcript')
+      .select('status, failed_stage')
       .eq('id', targetConversationId)
       .single()
 
@@ -147,15 +182,33 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       throw new Error('读取处理状态失败: ' + conversationError.message)
     }
 
-    const endpoint = conversation?.transcript ? '/api/extract' : '/api/transcribe'
-    const payload = await startProcessingEndpoint(endpoint, targetConversationId, options)
+    const nextStage = getConversationProcessingStage({
+      status: conversation.status,
+      failedStage: (conversation.failed_stage as ConversationFailedStage | null | undefined) ?? null,
+      allowRecovery: options?.allowRecovery,
+    })
+
+    if (!nextStage) {
+      const normalizedStep = getStepFromConversationStatus(conversation.status)
+      setStep(normalizedStep)
+      return {
+        success: true,
+        accepted: false,
+        status: conversation.status,
+      }
+    }
+
+    const payload = await startProcessingEndpoint(targetConversationId, {
+      ...options,
+      fallbackStep: nextStage === 'extract' ? 'extracting' : 'transcribing',
+    })
 
     if (payload?.status === 'done') {
       setStep('done')
       return payload
     }
 
-    setStep(payload?.status === 'transcribing' ? 'transcribing' : 'extracting')
+    setStep(getStepFromConversationStatus(payload?.status))
     return payload
   }
 
@@ -163,14 +216,13 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     const supabase = createClient()
     let done = false
     let retries = 0
-    let extractRecoveryTriggered = false
 
     while (!done && retries < MAX_STATUS_POLLS) {
       await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
 
       const { data: updated, error: pollError } = await supabase
         .from('conversations')
-        .select('status, error_message, transcript, extracted_fields')
+        .select('status, failed_stage, error_message, transcript, extracted_fields')
         .eq('id', targetConversationId)
         .single()
 
@@ -188,6 +240,22 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
         throw new Error(updated.error_message || 'AI 提取失败')
       }
 
+      if (updated?.status === 'pending' || updated?.status === 'uploaded') {
+        setStep('uploaded')
+
+        if (retries >= UPLOADED_RECOVERY_POLL_THRESHOLD && retries % 3 === 0) {
+          try {
+            void callProcessingEndpoint(targetConversationId, {
+              allowRecovery: true,
+            }).catch((recoveryError) => {
+              console.error('Recover workflow request failed:', recoveryError)
+            })
+          } catch (recoveryError) {
+            console.error('Recover workflow request failed:', recoveryError)
+          }
+        }
+      }
+
       if (updated?.status === 'transcribing') {
         setStep('transcribing')
 
@@ -200,13 +268,29 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
           && retries % 4 === 0
         ) {
           try {
-            void callProcessingEndpoint('/api/transcribe', targetConversationId, {
+            void callProcessingEndpoint(targetConversationId, {
               allowRecovery: true,
             }).catch((recoveryError) => {
-              console.error('Recover transcribe request failed:', recoveryError)
+              console.error('Recover workflow request failed:', recoveryError)
             })
           } catch (recoveryError) {
-            console.error('Recover transcribe request failed:', recoveryError)
+            console.error('Recover workflow request failed:', recoveryError)
+          }
+        }
+      }
+
+      if (updated?.status === 'transcribed') {
+        setStep('transcribed')
+
+        if (retries >= TRANSCRIBED_RECOVERY_POLL_THRESHOLD && retries % 2 === 0) {
+          try {
+            void callProcessingEndpoint(targetConversationId, {
+              allowRecovery: true,
+            }).catch((recoveryError) => {
+              console.error('Recover workflow request failed:', recoveryError)
+            })
+          } catch (recoveryError) {
+            console.error('Recover workflow request failed:', recoveryError)
           }
         }
       }
@@ -214,24 +298,17 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       if (updated?.status === 'extracting') {
         setStep('extracting')
 
-        const transcriptReady =
-          typeof updated.transcript === 'string' && updated.transcript.trim().length > 0
         const extractedReady = Boolean(updated.extracted_fields)
 
-        if (
-          transcriptReady
-          && !extractedReady
-          && !extractRecoveryTriggered
-          && retries >= EXTRACT_RECOVERY_POLL_THRESHOLD
-        ) {
-          extractRecoveryTriggered = true
-
+        if (!extractedReady && retries >= EXTRACT_RECOVERY_POLL_THRESHOLD && retries % 4 === 0) {
           try {
-            void callProcessingEndpoint('/api/extract', targetConversationId).catch((recoveryError) => {
-              console.error('Recover extract request failed:', recoveryError)
+            void callProcessingEndpoint(targetConversationId, {
+              allowRecovery: true,
+            }).catch((recoveryError) => {
+              console.error('Recover workflow request failed:', recoveryError)
             })
           } catch (recoveryError) {
-            console.error('Recover extract request failed:', recoveryError)
+            console.error('Recover workflow request failed:', recoveryError)
           }
         }
       }
@@ -343,13 +420,15 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
           matchmaker_id: user.id,
           audio_url: fileName,
           audio_duration: duration,
-          status: 'pending',
+          status: 'uploaded',
+          failed_stage: null,
         })
         .select()
         .single()
 
       if (convError || !conv) throw new Error('创建记录失败')
       setConversationId(conv.id)
+      setStep('uploaded')
 
       // 3. 触发处理，并等待提取完成
       await requestProcessing(conv.id)
@@ -413,13 +492,17 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       step === 'uploading'
         ? Math.max(4, Math.round(uploadProgress * 0.4))
         : STEP_PROGRESS[step]
-    const stageOrder: UploadStep[] = ['uploading', 'transcribing', 'extracting']
+    const stageOrder: UploadWorkflowStep[] = ['uploading', 'uploaded', 'transcribing', 'transcribed', 'extracting']
     const currentStageIndex = stageOrder.indexOf(step)
+    const headlineIcon =
+      step === 'uploaded' || step === 'transcribed'
+        ? <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+        : <Loader className="w-12 h-12 text-rose-400 mx-auto mb-3 animate-spin" />
 
     return (
       <div className="py-8 space-y-6">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-rose-400 mx-auto mb-3 animate-spin" />
+          {headlineIcon}
           <h3 className="text-lg font-semibold text-gray-900">{STEP_LABELS[step]}</h3>
           <p className="text-gray-500 text-sm mt-1">{STEP_DESCRIPTIONS[step]}</p>
           {step === 'uploading' && (
@@ -430,7 +513,15 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
         <div className="flex justify-center gap-8 text-sm">
           {stageOrder.map((s, index) => (
             <div key={s} className={`flex items-center gap-1.5 ${step === s ? 'text-rose-600 font-medium' : index < currentStageIndex ? 'text-green-600' : 'text-gray-400'}`}>
-              {index < currentStageIndex ? <CheckCircle className="w-4 h-4" /> : step === s ? <Loader className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 rounded-full border border-current" />}
+              {index < currentStageIndex ? (
+                <CheckCircle className="w-4 h-4" />
+              ) : step === s ? (
+                s === 'uploaded' || s === 'transcribed'
+                  ? <CheckCircle className="w-4 h-4" />
+                  : <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                <div className="w-4 h-4 rounded-full border border-current" />
+              )}
               {STEP_LABELS[s]}
             </div>
           ))}

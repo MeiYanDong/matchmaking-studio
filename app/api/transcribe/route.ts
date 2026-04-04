@@ -8,6 +8,7 @@ import { toUserFacingAIErrorMessage } from '@/lib/ai/provider-errors'
 import { Json } from '@/types/database'
 import { getSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
+import { normalizeConversationStatus } from '@/lib/conversations/processing'
 
 const STORAGE_DOWNLOAD_ATTEMPTS = 3
 const SIGNED_AUDIO_URL_EXPIRES_IN = 60 * 60
@@ -135,21 +136,6 @@ async function createSignedAudioUrlWithRetry(
   throw new Error(buildStorageDownloadErrorMessage(lastErrorMessage))
 }
 
-function triggerExtract(request: NextRequest, conversationId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? request.nextUrl.origin
-    : 'http://localhost:3000'
-
-  return fetch(`${baseUrl}/api/extract`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Cookie: request.headers.get('cookie') || '',
-    },
-    body: JSON.stringify({ conversationId }),
-  }).catch(console.error)
-}
-
 export async function POST(request: NextRequest) {
   let conversationId: string | undefined
 
@@ -180,48 +166,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '对话记录不存在' }, { status: 404 })
     }
 
+    const normalizedStatus = normalizeConversationStatus(conv.status)
+    const transcriptReady = typeof conv.transcript === 'string' && conv.transcript.trim().length > 0
+    const allowTranscribeRecovery =
+      allowRecovery
+      && (
+        (normalizedStatus === 'transcribing' && !transcriptReady && isStaleTranscribing(conv.created_at, conv.audio_duration))
+        || (normalizedStatus === 'failed' && conv.failed_stage === 'transcribe')
+      )
+
     if (
-      conv.status === 'transcribing'
-      && !(allowRecovery && !conv.transcript && isStaleTranscribing(conv.created_at, conv.audio_duration))
+      normalizedStatus === 'transcribing'
+      && !allowTranscribeRecovery
     ) {
       return NextResponse.json({ error: '录音正在转录中，请勿重复提交' }, { status: 409 })
     }
 
-    if (typeof conv.transcript === 'string' && conv.transcript.trim()) {
-      if (conv.status !== 'done' && conv.status !== 'extracting') {
-        await supabase
-          .from('conversations')
-          .update({ status: 'extracting', error_message: null })
-          .eq('id', targetConversationId)
-
-        triggerExtract(request, targetConversationId)
-
-        return NextResponse.json({
-          success: true,
-          transcript: conv.transcript,
-          reused: true,
-          status: 'extracting',
-        })
-      }
-
+    if (transcriptReady) {
       return NextResponse.json({
         success: true,
         transcript: conv.transcript,
         reused: true,
-        status: conv.status,
+        status:
+          normalizedStatus === 'done'
+            ? 'done'
+            : normalizedStatus === 'extracting'
+              ? 'extracting'
+              : 'transcribed',
       })
+    }
+
+    if (
+      normalizedStatus !== 'uploaded'
+      && normalizedStatus !== 'transcribing'
+      && !allowTranscribeRecovery
+    ) {
+      return NextResponse.json({ error: '当前录音不处于可转录状态' }, { status: 409 })
     }
 
     // 更新状态为转录中
     await supabase
       .from('conversations')
-      .update({ status: 'transcribing', error_message: null })
+      .update({ status: 'transcribing', failed_stage: null, error_message: null })
       .eq('id', targetConversationId)
 
     // 先生成签名 URL，优先让 Groq 直接拉取 Storage 中的原始音频
     const audioPath = conv.audio_url
     if (!audioPath) {
-      await supabase.from('conversations').update({ status: 'failed', error_message: '音频文件路径为空' }).eq('id', targetConversationId)
+      await supabase
+        .from('conversations')
+        .update({
+          status: 'failed',
+          failed_stage: 'transcribe',
+          error_message: '音频文件路径为空',
+        })
+        .eq('id', targetConversationId)
       return NextResponse.json({ error: '音频文件路径为空' }, { status: 400 })
     }
 
@@ -247,21 +246,23 @@ export async function POST(request: NextRequest) {
       throw new Error('Whisper 返回空文本，请重试或更换更清晰、更短的音频。')
     }
 
-    // 更新转录结果，并触发提取
+    // 更新转录结果，仅推进到“已转录”
     await supabase
       .from('conversations')
       .update({
         transcript: transcription.text,
         transcript_verbose_json: transcription.verboseJson as Json | null,
-        status: 'extracting',
+        status: 'transcribed',
+        failed_stage: null,
         error_message: null,
       })
       .eq('id', targetConversationId)
 
-    // 触发 Claude 提取（异步）
-    triggerExtract(request, targetConversationId)
-
-    return NextResponse.json({ success: true, transcript: transcription.text })
+    return NextResponse.json({
+      success: true,
+      transcript: transcription.text,
+      status: 'transcribed',
+    })
   } catch (error) {
     console.error('Transcribe error:', error)
     const errorMessage = getErrorMessage(error, '转录失败')
@@ -271,6 +272,7 @@ export async function POST(request: NextRequest) {
         .from('conversations')
         .update({
           status: 'failed',
+          failed_stage: 'transcribe',
           error_message: errorMessage,
         })
         .eq('id', conversationId)
