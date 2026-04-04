@@ -50,7 +50,7 @@ export default async function RemindersPage({
       className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
         active
           ? 'border-primary/10 bg-primary text-white dark:border-primary/20 dark:bg-primary-foreground dark:text-primary'
-          : 'border-border/80 bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/68 dark:hover:bg-white/[0.1] dark:hover:text-foreground'
+          : 'border-border/80 bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/68 dark:hover:bg-[color:var(--surface-soft-strong)] dark:hover:text-foreground'
       }`}
     >
       {label}

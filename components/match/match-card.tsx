@@ -11,16 +11,16 @@ import {
 import { humanizeAIText } from '@/lib/ai/field-presentation'
 
 const statusColor: Record<string, string> = {
-  pending: 'border-border/80 bg-secondary text-foreground/70 dark:border-border/70 dark:bg-white/[0.06] dark:text-foreground/72',
+  pending: 'border-border/80 bg-secondary text-foreground/70 dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/72',
   reviewing: 'border-primary/10 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/12 dark:text-primary',
-  contacted_male: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200',
-  contacted_female: 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-200',
-  both_agreed: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200',
-  meeting_scheduled: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200',
-  met: 'border-lime-200 bg-lime-50 text-lime-700 dark:border-lime-500/25 dark:bg-lime-500/10 dark:text-lime-200',
-  succeeded: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200',
-  failed: 'border-red-200 bg-red-50 text-red-600 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-200',
-  dismissed: 'border-border bg-muted text-muted-foreground dark:border-border/70 dark:bg-white/[0.04] dark:text-foreground/50',
+  contacted_male: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/25 dark:bg-[linear-gradient(145deg,rgba(20,47,66,0.4),rgba(12,20,29,0.72))] dark:text-sky-200',
+  contacted_female: 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-500/25 dark:bg-[linear-gradient(145deg,rgba(33,33,71,0.4),rgba(15,16,31,0.72))] dark:text-indigo-200',
+  both_agreed: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-[linear-gradient(145deg,rgba(22,63,47,0.42),rgba(13,22,18,0.74))] dark:text-emerald-200',
+  meeting_scheduled: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-[linear-gradient(145deg,rgba(78,54,20,0.42),rgba(25,20,14,0.74))] dark:text-amber-200',
+  met: 'border-lime-200 bg-lime-50 text-lime-700 dark:border-lime-500/25 dark:bg-[linear-gradient(145deg,rgba(60,72,22,0.42),rgba(21,24,14,0.74))] dark:text-lime-200',
+  succeeded: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-[linear-gradient(145deg,rgba(22,63,47,0.42),rgba(13,22,18,0.74))] dark:text-emerald-200',
+  failed: 'border-red-200 bg-red-50 text-red-600 dark:border-red-500/25 dark:bg-[linear-gradient(145deg,rgba(80,31,33,0.42),rgba(26,16,18,0.74))] dark:text-red-200',
+  dismissed: 'border-border bg-muted text-muted-foreground dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/50',
 }
 
 interface MatchCardProps {
@@ -68,7 +68,7 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
                 {SCORE_DIMENSION_META.map(({ key, max }) => {
                   const score = breakdown[key as ScoreDimensionKey] ?? 0
                   return (
-                    <div key={key} className="h-1.5 w-4 overflow-hidden rounded-full bg-secondary dark:bg-white/[0.08]">
+                    <div key={key} className="h-1.5 w-4 overflow-hidden rounded-full bg-secondary dark:bg-[color:var(--surface-soft)]">
                       <div className="h-full rounded-full bg-primary/85 dark:bg-primary" style={{ width: `${(score / max) * 100}%` }} />
                     </div>
                   )
@@ -85,7 +85,7 @@ export function MatchCard({ match, hrefPrefix = '/matchmaker/matches' }: MatchCa
                   {[match.female_profile.age && `${match.female_profile.age}岁`, match.female_profile.city].filter(Boolean).join(' · ')}
                 </p>
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 dark:bg-pink-500/12">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 dark:bg-[linear-gradient(145deg,rgba(64,31,47,0.44),rgba(26,21,34,0.72))]">
                 <User className="w-4 h-4 text-pink-600 dark:text-pink-200" />
               </div>
             </div>

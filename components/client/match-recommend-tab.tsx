@@ -68,7 +68,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
 
   if (!activeMatches.length) {
     return (
-      <div className="rounded-[28px] border border-dashed border-border bg-white/72 py-16 text-center text-muted-foreground dark:border-white/10 dark:bg-white/[0.035] dark:text-foreground/56">
+      <div className="rounded-[28px] border border-dashed border-border bg-white/72 py-16 text-center text-muted-foreground dark:border-white/10 dark:bg-[color:var(--surface-soft)] dark:text-foreground/56">
         <Heart className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p className="font-medium">暂无匹配推荐</p>
         <p className="text-sm mt-1">完善客户信息后，AI 将自动生成匹配推荐</p>
@@ -125,7 +125,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                   return (
                     <div key={key} className="text-center">
                       <div className="text-xs text-gray-500 mb-1 dark:text-foreground/50">{label}</div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden dark:bg-white/[0.08]">
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden dark:bg-[color:var(--surface-soft)]">
                         <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                       <div className="text-xs font-medium mt-1 dark:text-foreground/84">{Math.round(score)}</div>
@@ -197,7 +197,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                       return (
                         <div key={key} className="text-center">
                           <div className="text-xs text-gray-500 mb-1 dark:text-foreground/50">{label}</div>
-                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden dark:bg-white/[0.08]">
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden dark:bg-[color:var(--surface-soft)]">
                             <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                           </div>
                           <div className="text-xs font-medium mt-1 dark:text-foreground/84">{Math.round(score)}</div>
@@ -247,7 +247,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                   <div className="text-2xl font-bold text-primary">{Math.round(match.match_score)}</div>
                   <div className="text-xs text-gray-400 dark:text-foreground/46">匹配分</div>
                 </div>
-                <Badge variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-white/[0.06] dark:text-primary">
+                <Badge variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-[color:var(--surface-soft-strong)] dark:text-primary">
                   {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
                 </Badge>
               </div>
@@ -256,7 +256,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
             {breakdown && breakdown.pending_fields.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-2">
                 {breakdown.pending_fields.map((field) => (
-                  <Badge key={field} variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-white/[0.06] dark:text-primary">
+                  <Badge key={field} variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-[color:var(--surface-soft-strong)] dark:text-primary">
                     待确认：{getFieldDisplayLabel(field)}
                   </Badge>
                 ))}
@@ -264,7 +264,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
             )}
 
             {match.pending_reasons?.length ? (
-              <div className="mb-3 rounded-[20px] border border-primary/10 bg-white/78 p-3 dark:border-primary/16 dark:bg-white/[0.05]">
+              <div className="mb-3 rounded-[20px] border border-primary/10 bg-white/78 p-3 dark:border-primary/16 dark:bg-[color:var(--surface-soft)]">
                 <p className="mb-2 text-xs font-medium text-primary">待确认原因</p>
                 <div className="space-y-1">
                   {match.pending_reasons.map((reason) => (
@@ -275,7 +275,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
             ) : null}
 
             {match.suggested_followup_questions?.length ? (
-              <div className="mb-3 rounded-[20px] border border-primary/10 bg-white p-3 dark:border-primary/16 dark:bg-white/[0.05]">
+              <div className="mb-3 rounded-[20px] border border-primary/10 bg-white p-3 dark:border-primary/16 dark:bg-[color:var(--surface-soft)]">
                 <p className="mb-2 text-xs font-medium text-primary">AI 推荐补问</p>
                 <div className="space-y-2">
                   {match.suggested_followup_questions.map((question) => (
@@ -293,7 +293,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                   return (
                     <div key={key} className="text-center">
                       <div className="text-[11px] text-gray-500 mb-1 dark:text-foreground/50">{label}</div>
-                      <div className="h-1.5 bg-white rounded-full overflow-hidden dark:bg-white/[0.08]">
+                      <div className="h-1.5 bg-white rounded-full overflow-hidden dark:bg-[color:var(--surface-soft)]">
                         <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                       <div className="text-xs font-medium mt-1 dark:text-foreground/84">{Math.round(score)}</div>
@@ -332,7 +332,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                       <div className="text-2xl font-bold text-primary">{Math.round(match.match_score)}</div>
                       <div className="text-xs text-gray-400 dark:text-foreground/46">匹配分</div>
                     </div>
-                    <Badge variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-white/[0.06] dark:text-primary">
+                    <Badge variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-[color:var(--surface-soft-strong)] dark:text-primary">
                       {RECOMMENDATION_TYPE_LABELS[match.recommendation_type]}
                     </Badge>
                   </div>
@@ -341,7 +341,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                 {breakdown && breakdown.pending_fields.length > 0 && (
                   <div className="mb-3 flex flex-wrap gap-2">
                     {breakdown.pending_fields.map((field) => (
-                      <Badge key={field} variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-white/[0.06] dark:text-primary">
+                      <Badge key={field} variant="outline" className="border-primary/15 bg-white text-primary dark:border-primary/16 dark:bg-[color:var(--surface-soft-strong)] dark:text-primary">
                         待确认：{getFieldDisplayLabel(field)}
                       </Badge>
                     ))}
@@ -349,7 +349,7 @@ export function MatchRecommendTab({ matches, profile }: MatchRecommendTabProps) 
                 )}
 
                 {match.pending_reasons?.length ? (
-                  <div className="mb-3 rounded-[20px] border border-primary/10 bg-white/78 p-3 dark:border-primary/16 dark:bg-white/[0.05]">
+                  <div className="mb-3 rounded-[20px] border border-primary/10 bg-white/78 p-3 dark:border-primary/16 dark:bg-[color:var(--surface-soft)]">
                     <p className="mb-2 text-xs font-medium text-primary">待确认原因</p>
                     <div className="space-y-1">
                       {match.pending_reasons.map((reason) => (
