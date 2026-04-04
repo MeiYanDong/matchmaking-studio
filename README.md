@@ -1,93 +1,385 @@
 # Matchmaking Studio
 
-AI-first private matchmaking workspace for matchmakers and admins.
+面向红娘与婚恋服务机构的 AI 客户工作台。
 
-## Overview
+它不是一个传统意义上的表格型 CRM，也不是一个只会聊天的 AI 机器人。  
+它的核心目标很明确：
 
-Matchmaking Studio is a Next.js 16 + Supabase application built around one core workflow:
+**把红娘最耗时、最容易遗漏、最依赖人工整理的客户录音建档流程，变成一条稳定、可追踪、可持续更新的工作流。**
 
-1. Upload a conversation recording
-2. Transcribe audio into text
-3. Extract structured profile fields with AI
-4. Incrementally update the customer profile
-5. Re-run matching and generate follow-up suggestions
+---
 
-The product is designed for matchmakers, not end users. The system defaults to AI auto-writeback, while matchmakers mainly handle conflicts, sensitive confirmations, and low-confidence exceptions.
+## 一句话介绍
 
-## Stack
+Matchmaking Studio 帮助红娘把客户沟通录音自动转成文字稿，再把文字稿转成结构化客户信息，持续更新客户档案、匹配进度和后续补问。
 
-- Next.js 16 (App Router)
+对于红娘来说，它不是替代判断，而是减少重复整理资料的时间，让人把精力放回到判断、沟通和推进关系上。
+
+---
+
+## 这个产品为什么存在
+
+婚恋服务的核心，不只是“有多少客户”，而是：
+
+- 红娘是否真正理解客户
+- 客户信息是否完整、持续更新
+- 匹配判断是否建立在最新信息上
+- 后续跟进是否有节奏、有依据
+
+现实里，很多机构的工作方式仍然非常原始：
+
+- 客户信息散落在微信、语音、通话记录和人脑里
+- 红娘需要边听边记，或者事后整理
+- 同一个客户聊了很多次，信息不断变化，却很难同步到统一档案
+- 录音明明有价值，但最后只留下一句模糊印象
+- 重要字段漏问、重复问、或者问得不礼貌
+- 匹配推进依赖经验，但缺少一套真正持续更新的底层系统
+
+最终的结果就是：
+
+- 红娘很累
+- 客户信息不完整
+- 后续推进不连续
+- 匹配质量容易受信息遗漏影响
+- 一个机构越忙，越难维持服务质量
+
+---
+
+## 当前行业里的核心痛点
+
+### 1. 客户资料不是一次性填写完成的
+
+婚恋客户的信息，不像普通表单那样可以一次填完。  
+很多关键信息，是在多次沟通、反复确认中逐渐补全的。
+
+比如：
+
+- 婚史
+- 是否有孩子
+- 生育意愿
+- 是否接受异地
+- 可接受的城市和年龄范围
+- 真正看重的性格特质
+- 明说和没明说的顾虑
+
+这些内容如果没有持续更新机制，档案很快就会过时。
+
+### 2. 红娘最宝贵的时间，被消耗在重复整理资料上
+
+很多时候红娘真正花时间的，不是“匹配”，而是：
+
+- 回听录音
+- 从录音里找字段
+- 补写客户资料
+- 核对旧信息有没有变化
+- 记住哪些还没问
+- 记住哪些问过但还没确认
+
+这部分工作重要，但并不应该长期依赖人工重复完成。
+
+### 3. 录音价值很高，但传统系统接不住
+
+录音里往往包含最真实、最自然的信息：
+
+- 客户自己怎么描述自己
+- 客户真正介意什么
+- 对方要什么、不要什么
+- 说话方式、节奏、情绪稳定性
+- 对长期关系的真实预期
+
+问题是，大多数系统无法把录音变成真正可用的结构化档案。
+
+### 4. 系统容易变成“数据录入器”，而不是“工作台”
+
+如果系统只是让红娘手动填很多字段，它就只是一个更漂亮的表格。  
+真正有价值的系统，应该能够围绕红娘真实工作流工作：
+
+- 客户来了
+- 有一段录音
+- 先转文字
+- 再提取信息
+- 再更新档案
+- 再告诉红娘还有什么没确认
+
+---
+
+## 我们的解决方案是什么
+
+Matchmaking Studio 的设计出发点是：
+
+**录音优先建档，AI 自动入库，红娘只处理真正需要人判断的部分。**
+
+它不是让红娘“多做一步”，而是让系统先做基础整理工作。
+
+当前产品的核心工作流是：
+
+1. 红娘上传一段与客户的沟通录音
+2. 系统将录音转录成文字稿
+3. 系统从文字稿中提取结构化字段
+4. 系统将结果写入客户档案
+5. 系统标记仍未确认的关键缺口
+6. 红娘继续推进，而不是从零重新整理资料
+
+这意味着，系统真正承担的是：
+
+- 帮红娘“记住”客户
+- 帮红娘“整理”客户
+- 帮红娘“更新”客户
+
+而不是替红娘做最终判断。
+
+---
+
+## 核心工作流
+
+### 第一阶段：上传客户录音
+
+红娘在客户详情页上传一段音频。  
+这段音频不是孤立文件，而是挂在某个客户名下的会话记录。
+
+这一步解决的是：
+
+- 录音归属谁
+- 录音是否安全入库
+- 录音能否进入后续处理链
+
+### 第二阶段：录音转文字
+
+系统把音频转成文字稿。  
+这样红娘不需要反复回听音频，就能快速查看完整内容。
+
+这一步解决的是：
+
+- 语音内容难复用
+- 录音内容难检索
+- 后续无法做结构化处理
+
+### 第三阶段：文字稿转结构化信息
+
+系统从文字稿里提取客户信息，例如：
+
+- 年龄
+- 城市
+- 学历
+- 职业
+- 收入
+- 婚恋目标
+- 接受边界
+- 沟通风格
+- 生活节奏
+- 顾虑与隐性期待
+
+这些信息会被持续写回客户档案，而不是停留在一段自由文本里。
+
+### 第四阶段：更新客户档案
+
+系统把本次录音提取出的结果，增量更新到客户资料中。  
+不是每次重建一份新档案，而是在已有资料上继续变完整、变准确。
+
+### 第五阶段：标记缺口与下一步动作
+
+如果有仍未确认的关键字段，系统会形成补问方向。  
+这样红娘下一次沟通时，更容易有节奏地补全客户信息，而不是重复问、乱问、或者漏问。
+
+---
+
+## 这套方案解决了什么问题
+
+### 1. 让客户档案持续更新，而不是一次性表单
+
+这是婚恋场景最重要的能力之一。  
+客户信息不是“填完就不变”的，而是随着沟通不断更新。
+
+### 2. 让录音真正成为可用资产
+
+录音不再只是一个附件，而是能够驱动：
+
+- 文字稿
+- 结构化字段
+- 客户画像
+- 补问方向
+
+### 3. 让红娘把时间花在更值钱的地方
+
+红娘不该长期把大量时间花在：
+
+- 重复整理资料
+- 回听录音
+- 手工更新字段
+
+而应该把精力放在：
+
+- 理解客户
+- 筛人
+- 判断关系可推进性
+- 促进真实沟通
+
+### 4. 让系统具备“连续服务能力”
+
+不是一次录入一次结束，而是每次有新录音，客户档案都能继续更新。  
+这才更接近真实婚恋服务的工作方式。
+
+---
+
+## 对机构而言，成果是什么
+
+如果这条主工作流足够稳定，机构能得到的结果是：
+
+### 更高的建档效率
+
+一段录音不再需要完全依赖人工整理成档案。
+
+### 更完整的信息沉淀
+
+客户不是只留下模糊印象，而是形成结构化、可持续追踪的资料。
+
+### 更少的信息遗漏
+
+系统可以提示哪些关键字段还没确认，而不是只靠红娘自己记忆。
+
+### 更连续的服务体验
+
+客户每一次新沟通，都能推动档案向前，而不是每次都像重新开始。
+
+### 更容易放大服务能力
+
+当客户数量变多时，系统能够承接一部分重复整理工作，机构的服务质量不至于因为规模扩大而明显下滑。
+
+---
+
+## 对红娘而言，成果是什么
+
+从红娘视角看，这个产品最直接的价值不是“AI 很强”，而是：
+
+- 不再反复整理同样的信息
+- 不再靠脑子记所有客户
+- 更容易看懂客户当前状态
+- 更容易知道下一轮该问什么
+- 更容易在多个客户之间切换而不丢上下文
+
+换句话说，它更像一个：
+
+**懂婚恋工作流的 AI 工作台**
+
+而不是一个普通后台。
+
+---
+
+## 当前产品边界
+
+Matchmaking Studio 当前优先解决的是主工作流：
+
+**上传录音 -> 转录 -> 结构化提取 -> 写数据库**
+
+这条链路是当前最高优先级。  
+因此当前版本的重点不是：
+
+- 炫技式 AI 对话
+- 复杂营销页面
+- 大量视觉包装
+- 次级管理筛选能力
+
+而是先把最核心的客户建档主链路做稳。
+
+这也是产品当前最重要的判断标准：
+
+**只要这条主链路不稳定，其他功能再多，产品也不算真正成立。**
+
+---
+
+## 适合谁使用
+
+这套产品适合：
+
+- 高质量婚恋服务机构
+- 有红娘团队协作的婚配业务
+- 强依赖客户沟通录音和后续推进的服务流程
+- 重视客户资料沉淀、匹配推进和长期跟进的团队
+
+它不适合：
+
+- 纯公开交友平台
+- 完全依赖用户自助注册和自助浏览的场景
+- 不需要红娘介入的轻关系产品
+
+---
+
+## 当前产品形态
+
+从定位上说，Matchmaking Studio 更接近：
+
+- 婚配机构 CRM + AI 助理
+- 红娘工作台
+- 录音驱动的客户建档系统
+- 私域婚恋服务操作系统
+
+---
+
+## 为什么 README 要先写清楚
+
+这个项目的复杂度，不在于“页面数量”，而在于：
+
+- 它到底解决什么问题
+- 哪条工作流是核心
+- 哪些功能当前是优先级最高
+- 哪些边界是刻意不做的
+
+如果这些不先写清楚：
+
+- 外部新协作者很难理解产品重点
+- 新 Agent 容易把注意力放错地方
+- 代码会越做越像功能拼盘
+
+所以 README 不只是项目入口，也是一份：
+
+**产品定位说明书 + 协作对齐文档**
+
+---
+
+## 当前推荐的对外表达
+
+### 一句话版本
+
+Matchmaking Studio 是一套面向婚恋服务机构的 AI 客户工作台，帮助红娘把客户录音自动转成文字稿和结构化档案，持续推进客户建档、匹配和跟进。
+
+### 稍长版本
+
+Matchmaking Studio 服务于红娘团队和婚恋服务机构。它围绕“客户录音优先建档”的真实工作流设计，帮助机构把录音、文字稿、结构化客户资料和后续跟进整合进同一套系统。红娘不再需要反复整理资料，而可以把更多精力放在理解客户、判断关系和推进服务上。
+
+---
+
+## 技术附录（给开发者）
+
+当前项目主要技术栈：
+
+- Next.js 16
 - Tailwind CSS 4
 - shadcn/ui
 - Supabase Auth / Postgres / Storage
-- Yunwu-compatible AI gateway for transcription and structured extraction
+- AI 转录与结构化提取链路
 
-## Local Development
-
-Install dependencies:
+本地开发：
 
 ```bash
 npm install
-```
-
-Start the dev server:
-
-```bash
 npm run dev
 ```
 
-Build for production:
+构建：
 
 ```bash
 npm run build
 ```
 
-Run the production server locally:
-
-```bash
-npm run start
-```
-
-Run tests:
+测试：
 
 ```bash
 npm test
 ```
 
-Seed local demo data:
+更多实现细节见：
 
-```bash
-npm run seed:local-demo
-```
-
-## Environment
-
-Use standard `.env` / `.env.local` files.
-
-Key groups used by the app:
-
-- Supabase project URL and keys
-- Yunwu Whisper gateway key
-- Yunwu Claude gateway key
-
-See deployment and integration details in:
-
-- [docs/deployment.md](/Users/myandong/Projects/marry2/docs/deployment.md)
 - [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md)
 - [docs/todo.md](/Users/myandong/Projects/marry2/docs/todo.md)
-
-## Product Docs
-
-- Detailed product and technical plan: [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md)
-- Executable implementation checklist: [docs/todo.md](/Users/myandong/Projects/marry2/docs/todo.md)
-- API integration notes: [docs/API](/Users/myandong/Projects/marry2/docs/API)
-
-## Current Direction
-
-The current product direction is:
-
-- AI-first structured intake
-- high-signal field system
-- sensitive tri-state handling (`yes / no / unknown`)
-- `confirmed / pending_confirmation / rejected` match recommendation flow
-- private, advisor-style UI for high-quality matchmaking operations
+- [docs/roadmap.md](/Users/myandong/Projects/marry2/docs/roadmap.md)
+- [docs/deployment.md](/Users/myandong/Projects/marry2/docs/deployment.md)
