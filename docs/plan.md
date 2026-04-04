@@ -3207,6 +3207,478 @@ UI / 布局重构验收至少满足：
 4. V1 先把整段 URL 转录跑稳，不以自动分段为前提
 5. 若后续确实出现大文件和长音频瓶颈，再进入 V1.5 的分段架构
 
+### 15.3 UI 设计系统迁移专项方案（参考 `virtuals-whale-radar`）
+
+> 说明：  
+> 本节不是“继续微调当前界面”，而是定义一轮新的 UI 架构迁移。  
+> 本轮迁移的目标，是将当前项目的界面层从“局部调色 + 手工拼页面”升级为“设计系统驱动的工作台界面”，并参考 `https://github.com/MeiYanDong/virtuals-whale-radar` 中 `frontend/admin` 的 UI 基础设施。  
+> **本轮只迁 UI 设计系统，不迁业务逻辑。**
+> **当前执行范围进一步收窄为：只完成红娘端工作台。管理端、用户端和移动端统一后置到 roadmap，不再作为当前分支的执行目标。**
+
+#### 15.3.1 为什么需要这轮迁移
+
+当前项目虽然已经做过一轮“放弃暖金深棕、转向更轻工作台”的调整，但从结果来看仍存在结构性问题：
+
+1. **配色仍不够统一**
+   - 登录页仍停留在 `rose / amber` 的临时审美
+   - 壳层、内容区、状态色和表单控件之间缺少统一的 token 驱动关系
+   - 页面整体不够“年轻、顺滑、干净”，仍带有补丁式改造痕迹
+
+2. **登录页游离于系统之外**
+   - 当前登录页更像一个单独的居中卡片 demo
+   - 没有与工作台使用相同的 surface、panel、边框、阴影、排版与材质语义
+   - 导致用户第一眼进入产品时，就先看到最不统一、最不成熟的一页
+
+3. **全局壳层仍然偏页面拼装式**
+   - 当前 `sidebar / top bar / assist rail / main worksurface` 已做过轻量调整，但还没有真正形成“设计系统级的 Visual Shell”
+   - 页面之间仍缺乏统一的 header、section、empty state、metric、quick action 组织方式
+
+4. **页面模板复用不足**
+   - 当前很多页面仍是“每页各写一套壳层”
+   - 相同的页面结构（列表页、详情页、工作台页、审核页）尚未抽象为稳定模板
+   - 这会导致后续视觉调整需要逐页回修，成本高、风险大
+
+因此，本轮不是再“修一个登录页”或者“再换一套颜色”，而是要把 UI 层整体升级成：
+
+- token 驱动
+- theme 驱动
+- shell 驱动
+- primitives 驱动
+- props 驱动页面模板
+
+#### 15.3.2 参考来源与可迁移范围
+
+本轮迁移明确参考以下路径：
+
+- `virtuals-whale-radar/frontend/admin/src/design-system`
+- `virtuals-whale-radar/frontend/admin/src/styles/globals.css`
+- `virtuals-whale-radar/frontend/admin/src/components/app-primitives.tsx`
+- `virtuals-whale-radar/frontend/admin/src/components/ui`
+- `virtuals-whale-radar/frontend/admin/public/brand`
+
+这些参考代码的价值在于：
+
+1. 已经形成一套完整的 UI 分层结构
+2. 已经把 theme、surface、shell、primitives、layouts 拆开
+3. 已经具备 light / dark 切换基础设施
+4. 页面模板天然支持 props 驱动
+
+但迁移必须严格遵守以下边界。
+
+#### 15.3.3 本轮“明确迁移”的内容
+
+本轮允许迁移或参考实现的内容包括：
+
+1. **主题 token 体系**
+   - 背景色
+   - surface 分层
+   - 边框色
+   - ring
+   - 阴影
+   - radius
+   - chart / status semantic colors
+   - 登录页和工作台专用材质 token
+
+2. **深浅色机制**
+   - `data-theme` 驱动方式
+   - theme provider / theme context
+   - 主题状态持久化方式
+
+3. **全局壳层结构**
+   - sidebar
+   - top context bar
+   - notification / assist rail 的组织方式
+   - main worksurface 的容器与留白逻辑
+
+4. **公共组件与 app primitives**
+   - `PageHeader`
+   - `SectionCard`
+   - `EmptyState`
+   - `MetricCard`
+   - `QuickLink`
+   - `StatusBadge`
+   - 以及 Button / Card / Badge / Input / Dialog / Sheet 等基础组件
+
+5. **页面模板结构**
+   - 集合页模板（collection/list layout）
+   - 详情页模板（workspace/detail layout）
+   - 审核页模板（review layout）
+   - 登录 / auth shell 模板
+
+6. **品牌资源的组织方式**
+   - 品牌 logo / mark 的文件组织方式可以借鉴
+   - 品牌资源在 `public/brand` 下的分组方式可以借鉴
+
+#### 15.3.4 本轮“明确不迁移”的内容
+
+本轮严禁迁移以下内容：
+
+1. **认证逻辑**
+   - `Supabase Auth`
+   - 登录态判断
+   - 登录后角色跳转
+   - 任何 auth provider 实现
+
+2. **API 与后端数据逻辑**
+   - 录音上传逻辑
+   - 转录逻辑
+   - 提取逻辑
+   - 匹配逻辑
+   - 删除逻辑
+
+3. **query / data fetching 实现**
+   - 不迁移对方项目的取数方式
+   - 不迁移对方的缓存策略
+   - 不迁移对方的数据建模语义
+
+4. **权限判断**
+   - 不迁移参考项目里的角色/权限体系
+   - 当前项目继续使用自己的 `admin / matchmaker / user` 判定方式
+
+5. **业务页面语义**
+   - 不迁移参考项目的“项目、账单、钱包、看板”等业务概念
+   - 当前项目继续围绕：
+     - 客户
+     - 录音
+     - 转录
+     - 结构化提取
+     - 匹配
+     - 跟进
+     - 提醒
+
+一句话：
+
+**迁 UI 结构，不迁业务脑子。**
+
+#### 15.3.5 当前项目的视觉方向如何与参考系统结合
+
+本轮迁移并不是“照抄参考仓库的青绿色皮肤”。  
+当前项目需要结合以下两点：
+
+1. **继续保留之前已经确认的高层方向**
+   - 产品不再走“暖金、深棕、私享顾问室”路线
+   - 主界面必须面向 20~30 岁红娘的高频工作台体验
+   - 整体气质必须年轻、轻盈、顺滑、现代
+
+2. **参考仓库主要借的是“结构”，不是“最后配色”**
+   - 迁 `globals.css` 的 token 分层方式
+   - 迁 `theme provider` 的机制
+   - 迁 `visual shell` 的结构
+   - 迁 `app-primitives` 与 `layout templates`
+   - 但当前项目最终配色必须重新调校为适合 Matchmaking Studio 的版本
+
+也就是说：
+
+- 参考项目负责提供“系统骨架”
+- 当前项目负责重新定义“颜色与品牌气质”
+
+#### 15.3.6 Props 驱动页面模板的正式定义
+
+本轮明确采用 **props 驱动页面模板**。
+
+这里的含义不是“页面接受几个简单参数”，而是：
+
+**页面模板只负责呈现结构，不负责知道你的业务数据怎么来的。**
+
+例如，未来的列表页模板不应直接依赖：
+
+- `Supabase`
+- `profile` 的具体数据库行结构
+- `match` 的具体 SQL 返回结构
+
+而应只接受这类 props：
+
+- `title`
+- `description`
+- `actions`
+- `filters`
+- `groups`
+- `items`
+- `emptyState`
+- `sidebar`
+
+当前项目自己的页面负责把真实业务数据转换为模板所需 props。
+
+这样做的好处是：
+
+1. **只重写 UI，不碰业务逻辑**
+2. **页面统一性大幅提升**
+3. **后续更容易替换壳层与组件**
+4. **更适合持续引入新的列表页 / 详情页 / 审核页**
+
+因此，props 驱动页面模板在本轮中不是“可选项”，而是正式方案。
+
+#### 15.3.7 当前项目的目标设计系统分层
+
+迁移后的当前项目，UI 层应分成以下五层：
+
+##### A. Theme / Token Layer
+
+对应：
+
+- `app/globals.css`
+- `design-system/theme/*`
+
+职责：
+
+- 定义颜色、边框、阴影、surface、radius、auth shell、workspace shell 所需 token
+- 提供 light / dark 切换机制
+
+##### B. UI Primitive Layer
+
+对应：
+
+- `components/ui/*`
+
+职责：
+
+- 提供 Button / Card / Badge / Input / Dialog / Sheet / Tabs / Select 等基础原件
+- 所有页面和业务组件只能依赖这一层，不再自行发明另一套局部控件样式
+
+##### C. App Primitive Layer
+
+对应：
+
+- `components/app-primitives.tsx`
+  或当前项目新的等价文件
+
+职责：
+
+- 抽象页面级复用单元：
+  - PageHeader
+  - SectionCard
+  - EmptyState
+  - QuickLink
+  - StatusBadge
+  - MetricCard
+
+##### D. Visual Shell Layer
+
+对应：
+
+- `components/nav/*`
+  或新的 design-system shell 文件
+
+职责：
+
+- 统一整个后台的：
+  - sidebar
+  - top context bar
+  - assist rail
+  - mobile nav
+  - page container
+
+##### E. Props-driven Page Template Layer
+
+对应：
+
+- `design-system/layouts/*`
+  或当前项目对应目录
+
+职责：
+
+- 提供列表页、详情页、审核页、登录页等模板
+- 页面模板只接受 props
+- 业务页面自身负责把数据转换为 props 再接入
+
+#### 15.3.8 目标文件映射（当前项目）
+
+以下是本轮重点会触达的当前项目文件范围：
+
+##### 主题层
+
+- `app/globals.css`
+- 新增：`components/theme/*` 或 `design-system/theme/*`
+
+##### 登录页
+
+- `app/(auth)/login/page.tsx`
+- `components/auth/login-form.tsx`
+- `app/(auth)/user/login/page.tsx`
+
+##### 壳层
+
+- `components/nav/workspace-shell.tsx`
+- `components/nav/sidebar.tsx`
+- `components/nav/top-context-bar.tsx`
+- `components/nav/assist-rail.tsx`
+- `components/nav/mobile-nav.tsx`
+
+##### 基础组件
+
+- `components/ui/button.tsx`
+- `components/ui/card.tsx`
+- `components/ui/badge.tsx`
+- `components/ui/input.tsx`
+- `components/ui/dialog.tsx`
+- `components/ui/sheet.tsx`
+- `components/ui/tabs.tsx`
+- `components/ui/select.tsx`
+- `components/ui/textarea.tsx`
+
+##### 公共 primitives / 模板
+
+- 新增：`components/app-primitives.tsx` 或等价目录
+- 新增：`design-system/layouts/*` 或等价目录
+
+##### 当前批次重接页面（仅红娘端）
+
+- `app/(matchmaker)/matchmaker/clients/page.tsx`
+- `app/(matchmaker)/matchmaker/clients/[id]/page.tsx`
+- `app/(matchmaker)/matchmaker/matches/page.tsx`
+- `app/(matchmaker)/matchmaker/reminders/page.tsx`
+
+注意：
+
+这些页面在第一批中**只重接 UI 壳层与模板**，不改：
+
+- route
+- data loading
+- auth
+- actions
+- role 逻辑
+- 工作流逻辑
+
+以下页面与端别不再纳入本轮执行：
+
+- `app/(admin)/*`
+- `app/(user)/*`
+- 所有移动端专项布局与触控适配
+
+这些内容统一视为路线图事项，待红娘端桌面工作台完全稳定后再进入。
+
+#### 15.3.9 登录页专项要求
+
+登录页是本轮优先级最高的视觉修复位之一。
+
+当前问题：
+
+- 仍然使用 `rose-50 / amber-50 / rose-500`
+- 仍然是单卡片居中 demo 感
+- 完全脱离工作台设计系统
+
+本轮目标：
+
+1. 登录页必须使用与工作台一致的 token 与 theme
+2. 登录页必须引入新的 auth shell
+3. 登录页的结构应采用：
+   - 外层 auth shell
+   - 内层 auth frame
+   - 登录 panel
+   - 品牌说明 / 产品简介 / 产品价值
+4. 登录表单仍然使用当前项目自己的：
+   - Supabase 登录逻辑
+   - role 跳转逻辑
+   - toast 提示逻辑
+
+也就是说：
+
+**重做登录页的视觉和结构，但不改登录页的业务行为。**
+
+#### 15.3.10 执行策略与分支策略
+
+本轮 UI 重构默认在独立分支推进：
+
+- `codex/ui-design-system-refactor`
+
+原因：
+
+1. 改动范围大
+2. 需要允许多次推翻与试错
+3. 必须避免污染主线当前可用工作流
+
+因此，本轮执行策略是：
+
+1. 所有 UI 设计系统迁移先在该分支推进
+2. 主线业务工作流继续保持可用
+3. 待 `theme + shell + login + templates` 稳定后，再择机回合到主线
+
+#### 15.3.11 分阶段实施方案
+
+##### Phase A：Theme Reset
+
+目标：
+
+- 重写 `globals.css`
+- 引入参考项目的 token 分层方式
+- 引入 `data-theme` 深浅色机制
+- 保留当前项目自己的品牌标识与最终配色判断
+
+完成标志：
+
+- 登录页与工作台使用同一套 token
+- 页面不再依赖零散硬编码颜色类名撑视觉
+
+##### Phase B：Shell Refactor
+
+目标：
+
+- 重建 `workspace-shell`
+- 重建 `sidebar`
+- 重建 `top-context-bar`
+- 重建 `assist-rail`
+- 重建 `mobile-nav`
+
+完成标志：
+
+- 工作台整体壳层进入同一语言
+- 页面不再是“各自套壳”
+
+##### Phase C：Auth Shell
+
+目标：
+
+- 重做登录页
+- 引入 auth shell / auth frame / auth panel
+- 登录页与后台壳层达到统一气质
+
+完成标志：
+
+- 登录页不再像单独 demo 页面
+- 登录页与工作台看起来属于同一个产品
+
+##### Phase D：App Primitives + Templates
+
+目标：
+
+- 引入 app primitives
+- 引入 props 驱动页面模板
+- 先覆盖列表页、详情页、审核页的共性结构
+
+完成标志：
+
+- 新页面不再从零写 header / section / empty state
+- 老页面可逐步迁到模板体系中
+
+##### Phase E：First-page Rewiring
+
+目标：
+
+- 用当前项目自己的数据结构接回：
+  - 我的客户
+  - 客户详情
+  - 匹配工作台
+  - 提醒中心
+  - 录音上传与录音审核
+
+完成标志：
+
+- 红娘端桌面核心页面完成换壳
+- 业务逻辑完全保留
+- 管理端、用户端、移动端明确不在本轮交付范围
+
+#### 15.3.12 本轮验收标准
+
+当以下条件同时满足，才算本轮方案达标：
+
+1. 登录页和工作台视觉语言一致
+2. 当前项目的配色不再让人感觉“旧、乱、拼凑”
+3. sidebar / top bar / assist rail / card / status 形成同一产品语言
+4. 页面模板已改为 props 驱动，而不是页面直接写死壳层
+5. 当前项目自己的 auth、api、query、权限和工作流逻辑完全未被迁移污染
+6. UI 系统可以继续服务后续页面改造，而不是只修好一两个页面
+7. 当前分支只对红娘端桌面工作台承担交付责任，管理端、用户端和移动端不因本轮 UI 重构被要求一起收尾
+
 ---
 
 ## 十六、开发阶段规划
@@ -3220,11 +3692,12 @@ UI / 布局重构验收至少满足：
 
 ### Phase 0：设计基线与主题基础层
 
-1. 确定产品视觉 thesis：`Private Matchmaking Office`
-2. 在 `docs/plan.md` 中固定页面骨架、组件范式、视觉原则
-3. 收束 `globals.css` 的主题 token
-4. 统一 `Button / Badge / Card / Dialog / Tabs / Input / Select` 的产品语义样式
-5. 重构 sidebar 与 top context bar，建立全局信息架构
+1. 明确产品 UI 重构方向：以 `virtuals-whale-radar/frontend/admin` 的设计系统结构为参考，只迁 UI 层，不迁业务逻辑
+2. 确定新的产品视觉 thesis：`年轻、轻盈、顺滑、系统化的 Matchmaking 工作台`
+3. 在 `docs/plan.md` 中固定 token、theme、shell、primitives、props 驱动模板的分层方案
+4. 收束并重写 `globals.css` 的主题 token 与 auth / workspace surface 体系
+5. 统一 `Button / Badge / Card / Dialog / Tabs / Input / Select` 的产品语义样式
+6. 重构 sidebar、top context bar、assist rail 与 auth shell，建立全局信息架构
 
 ### Phase 1：字段系统重构与敏感模式上线
 
@@ -3245,7 +3718,7 @@ UI / 布局重构验收至少满足：
 5. 重构审核页为“证据区 + 处理区”的差异工作台
 6. 清理红娘前台中的原始字段 key、英文枚举值、原始 JSON 暴露
 
-### Phase 3：匹配与跟进工作台重构
+### Phase 3：匹配与跟进工作台重构（红娘端）
 
 1. 重构匹配列表页为 `confirmed / pending_confirmation` 双区工作台
 2. 重构匹配详情页，突出“为什么匹配”和“下一步怎么推进”
@@ -3257,7 +3730,7 @@ UI / 布局重构验收至少满足：
 1. 引入字段证据表和核验状态
 2. 评估并按需引入 MBTI 自报、Big Five、Attachment、HEXACO 等扩展画像体系
 3. 增加字段完整度指标
-4. 增加管理端字段治理看板
+4. 管理端字段治理看板后置到 roadmap，不进入当前执行范围
 
 ### Phase 5：更智能的运营闭环
 

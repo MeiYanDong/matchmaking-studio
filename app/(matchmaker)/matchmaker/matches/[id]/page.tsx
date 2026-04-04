@@ -33,13 +33,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
   if (!maleProfile || !femaleProfile) notFound()
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Link href="/matchmaker/matches" className="flex items-center gap-1 text-gray-500 hover:text-gray-700 text-sm mb-6">
+    <div className="mx-auto max-w-4xl p-6">
+      <Link href="/matchmaker/matches" className="mb-6 flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground dark:text-foreground/58 dark:hover:text-foreground">
         <ChevronLeft className="w-4 h-4" />
         返回匹配工作台
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">匹配详情</h1>
-      <p className="text-gray-500 text-sm mb-6">
+      <h1 className="mb-1 text-2xl font-bold text-foreground">匹配详情</h1>
+      <p className="mb-6 text-sm text-muted-foreground dark:text-foreground/60">
         {maleProfile.name} · {femaleProfile.name}
       </p>
       <MatchDetailClient

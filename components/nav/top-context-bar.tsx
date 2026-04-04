@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Bell, ChevronRight, Compass, ShieldCheck } from 'lucide-react'
+import { ThemeToggle } from '@/components/nav/theme-toggle'
 
 type TopContextBarProps = {
   role: 'matchmaker' | 'admin'
@@ -116,45 +117,51 @@ export function TopContextBar({
   const reminderHref = role === 'admin' ? '/admin/dashboard' : '/matchmaker/reminders'
 
   return (
-    <header className="sticky top-0 z-30 border-b border-black/5 bg-[linear-gradient(180deg,rgba(252,248,241,0.98),rgba(252,248,241,0.94))] supports-backdrop-filter:backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/74 supports-backdrop-filter:backdrop-blur-2xl dark:bg-[linear-gradient(180deg,rgba(8,12,20,0.84),rgba(8,12,20,0.78))] dark:border-white/6">
       <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-5 px-4 py-4 xl:px-8">
         <div className="min-w-0">
-          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#8e6e54]">
-            <Compass className="h-3.5 w-3.5" />
+          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground dark:text-foreground/50">
+            <Compass className="h-3.5 w-3.5 text-primary/80" />
             <span>{meta.eyebrow}</span>
             <ChevronRight className="h-3.5 w-3.5 opacity-40" />
             <span>{roleLabel}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-2xl leading-tight text-[#231815]">{meta.title}</h1>
-            <Badge className="border border-[#d8c7b6] bg-white/80 px-2.5 py-1 text-[11px] font-medium tracking-[0.12em] text-[#7a5744]">
+            <h1 className="font-heading text-2xl leading-tight text-foreground">{meta.title}</h1>
+            <Badge className="border border-border/80 bg-background/90 px-2.5 py-1 text-[11px] font-medium tracking-[0.12em] text-muted-foreground dark:border-white/10 dark:bg-white/[0.045] dark:text-foreground/56">
               {displayName}
             </Badge>
           </div>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-[#6c5a4d]">{meta.description}</p>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground dark:text-foreground/62">{meta.description}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden rounded-[22px] border border-[#e5d8c6] bg-white/80 px-4 py-3 text-right shadow-[0_18px_40px_-34px_rgba(35,24,21,0.4)] lg:block">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-[#8e6e54]">Today</div>
-            <div className="mt-1 text-sm font-medium text-[#2d221c]">{formatToday()}</div>
+          <div className="hidden rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-right shadow-[var(--shadow-soft)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(16,24,36,0.94),rgba(11,16,25,0.92))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)] lg:block">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:text-foreground/50">Today</div>
+            <div className="mt-1 text-sm font-medium text-foreground">{formatToday()}</div>
           </div>
 
           <Link
             href={reminderHref}
-            className="group flex items-center gap-3 rounded-[22px] border border-[#e5d8c6] bg-white/90 px-4 py-3 text-sm text-[#2d221c] shadow-[0_18px_40px_-34px_rgba(35,24,21,0.4)] transition-all hover:-translate-y-0.5 hover:border-[#d6b49b]"
+            className="group flex items-center gap-3 rounded-[1.45rem] border border-border/80 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-sm text-foreground shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[0_24px_50px_-36px_rgba(11,99,246,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(16,24,36,0.94),rgba(11,16,25,0.92))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)] dark:hover:border-primary/26 dark:hover:shadow-[0_30px_70px_-42px_rgba(35,96,202,0.42)]"
           >
-            {role === 'admin' ? <ShieldCheck className="h-4 w-4 text-[#8f3c32]" /> : <Bell className="h-4 w-4 text-[#8f3c32]" />}
+            {role === 'admin' ? (
+              <ShieldCheck className="h-4 w-4 text-primary" />
+            ) : (
+              <Bell className="h-4 w-4 text-primary" />
+            )}
             <div className="text-left">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-[#8e6e54]">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground dark:text-foreground/50">
                 {role === 'admin' ? 'Admin View' : 'Unread'}
               </div>
-              <div className="mt-0.5 flex items-center gap-2 font-medium text-[#2d221c]">
+              <div className="mt-0.5 flex items-center gap-2 font-medium text-foreground">
                 <span>{role === 'admin' ? '治理入口' : `${unreadCount} 条待处理提醒`}</span>
-                <span className="text-[#b78963] transition-transform group-hover:translate-x-0.5">→</span>
+                <span className="text-primary transition-transform group-hover:translate-x-0.5">→</span>
               </div>
             </div>
           </Link>
+
+          <ThemeToggle />
         </div>
       </div>
     </header>

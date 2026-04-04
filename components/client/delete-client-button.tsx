@@ -65,17 +65,17 @@ export function DeleteClientButton({ profileId, profileName }: DeleteClientButto
         <Trash2 className="mr-2 h-4 w-4" />
         删除客户
       </AlertDialogTrigger>
-      <AlertDialogContent className="border border-[#ead8c7] bg-[linear-gradient(160deg,rgba(255,250,247,0.98),rgba(251,241,236,0.98))] text-[#231815] shadow-[0_32px_80px_-40px_rgba(53,22,18,0.45)]">
+      <AlertDialogContent className="border border-border/80 bg-[linear-gradient(160deg,rgba(255,255,255,0.98),rgba(246,249,253,0.98))] text-foreground shadow-[0_32px_80px_-40px_rgba(15,23,42,0.24)]">
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-[#fbe7e1] text-[#a03f33]">
+          <AlertDialogMedia className="bg-destructive/10 text-destructive">
             <TriangleAlert className="h-5 w-5" />
           </AlertDialogMedia>
           <AlertDialogTitle>确认删除“{profileName}”？</AlertDialogTitle>
-          <AlertDialogDescription className="leading-7 text-[#6b584c]">
+          <AlertDialogDescription className="leading-7 text-muted-foreground">
             这会一起删除该客户的录音、匹配、提醒、补问任务和字段历史。删除后无法恢复，请确认这名客户确实不再需要保留。
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="border-t border-[#efe1d5] bg-[#fcf4ee]/80">
+        <AlertDialogFooter className="border-t border-border/80 bg-muted/30">
           <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}

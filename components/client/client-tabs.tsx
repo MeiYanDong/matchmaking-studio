@@ -21,25 +21,25 @@ export function ClientTabs({ profile, intention, traitProfile, conversations, ma
 
   return (
     <Tabs defaultValue="info" className="w-full">
-      <TabsList className="mb-6 grid w-full grid-cols-2 rounded-[22px] border border-[#eadfce] bg-[#f6efe6] p-1.5 lg:grid-cols-4">
-        <TabsTrigger value="info" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+      <TabsList className="mb-6 grid w-full grid-cols-2 rounded-[24px] dark:border-white/8 dark:bg-white/[0.03] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] lg:grid-cols-4">
+        <TabsTrigger value="info" className="rounded-[18px]">
           基本信息
         </TabsTrigger>
-        <TabsTrigger value="matches" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+        <TabsTrigger value="matches" className="rounded-[18px]">
           匹配推荐
           {pendingMatchCount > 0 && (
-            <span className="ml-1.5 min-w-5 rounded-full bg-[#8f3c32] px-1.5 py-0.5 text-xs text-white">
+            <span className="ml-1.5 min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-xs text-white dark:bg-primary dark:text-primary-foreground">
               {pendingMatchCount}
             </span>
           )}
         </TabsTrigger>
-        <TabsTrigger value="conversations" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+        <TabsTrigger value="conversations" className="rounded-[18px]">
           录音记录
         </TabsTrigger>
-        <TabsTrigger value="followup" className="rounded-[16px] text-[#6a574a] data-active:bg-white data-active:text-[#251a14]">
+        <TabsTrigger value="followup" className="rounded-[18px]">
           跟进记录
           {openTaskCount > 0 && (
-            <span className="ml-1.5 min-w-5 rounded-full bg-[#b6763e] px-1.5 py-0.5 text-xs text-white">
+            <span className="ml-1.5 min-w-5 rounded-full bg-primary/85 px-1.5 py-0.5 text-xs text-white dark:bg-primary dark:text-primary-foreground">
               {openTaskCount}
             </span>
           )}

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ReminderList, getReminderPriority, type ReminderPriority } from '@/components/reminders/reminder-list'
 import { Bell } from 'lucide-react'
+import { CollectionPageTemplate } from '@/components/layouts/collection-page-template'
 import type { ReminderType } from '@/types/database'
 
 const REMINDER_TYPE_VALUES: ReminderType[] = [
@@ -48,8 +49,8 @@ export default async function RemindersPage({
       href={href}
       className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
         active
-          ? 'border-[#8f3c32] bg-[#8f3c32] text-white'
-          : 'border-[#ddcbbb] bg-white/80 text-[#5f4d41] hover:bg-white'
+          ? 'border-primary/10 bg-primary text-white dark:border-primary/20 dark:bg-primary-foreground dark:text-primary'
+          : 'border-border/80 bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground dark:border-border/70 dark:bg-[color:var(--surface-soft)] dark:text-foreground/68 dark:hover:bg-[color:var(--surface-soft-strong)] dark:hover:text-foreground'
       }`}
     >
       {label}
@@ -57,27 +58,12 @@ export default async function RemindersPage({
   )
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[32px] border border-[#dfd0c0] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(252,247,241,0.98)_48%,rgba(247,238,229,0.95))] px-6 py-7 shadow-[0_26px_64px_-44px_rgba(35,24,21,0.48)]">
-        <div className="flex items-start gap-4">
-          <div className="relative flex h-12 w-12 items-center justify-center rounded-[18px] border border-[#ead8c7] bg-white/80">
-            <Bell className="h-5 w-5 text-[#8f3c32]" />
-          {unread > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8f3c32] px-1.5 text-xs text-white">
-              {unread > 9 ? '9+' : unread}
-            </span>
-          )}
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.18em] text-[#8b6d58]">Follow-up Queue</p>
-            <h2 className="mt-2 font-heading text-4xl text-[#231815]">提醒中心</h2>
-            <p className="mt-3 text-sm leading-7 text-[#6b594c]">{unread > 0 ? `${unread} 条未读提醒，优先处理待补问与待确认事项。` : '当前所有提醒已读，可以回到客户与匹配继续推进。'}</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-[26px] border border-[#e5d7c8] bg-white/78 p-4 shadow-[0_20px_44px_-34px_rgba(35,24,21,0.3)]">
-        <div className="flex flex-wrap items-center gap-2">
+    <CollectionPageTemplate
+      eyebrow="Follow-up Queue"
+      title="提醒中心"
+      description={unread > 0 ? `${unread} 条未读提醒，优先处理待补问与待确认事项。` : '当前所有提醒已读，可以回到客户与匹配继续推进。'}
+      filters={
+        <>
           {filterPill('/matchmaker/reminders', '全部', !activeType && !activePriority && !activeStatus)}
           {filterPill('/matchmaker/reminders?status=unread', '未读', activeStatus === 'unread')}
           {filterPill('/matchmaker/reminders?status=read', '已读', activeStatus === 'read')}
@@ -87,10 +73,10 @@ export default async function RemindersPage({
           {filterPill('/matchmaker/reminders?type=no_followup', '久未跟进', activeType === 'no_followup')}
           {filterPill('/matchmaker/reminders?type=no_new_info', '久未更新', activeType === 'no_new_info')}
           {filterPill('/matchmaker/reminders?type=meeting_reminder', '约谈提醒', activeType === 'meeting_reminder')}
-        </div>
-      </section>
-
+        </>
+      }
+    >
       <ReminderList reminders={filteredReminders} />
-    </div>
+    </CollectionPageTemplate>
   )
 }

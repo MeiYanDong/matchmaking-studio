@@ -78,18 +78,18 @@ const FAQ = [
 export function ProductGuidePage() {
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-[32px] border border-[#ddcfbf] bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(253,248,241,0.98)_40%,rgba(245,235,225,0.95))] shadow-[0_28px_72px_-46px_rgba(35,24,21,0.42)]">
-        <div className="border-b border-[#ead9c7] px-6 py-7 sm:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e6d4c2] bg-white/75 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-[#8e6e54]">
+      <section className="overflow-hidden rounded-[32px] border border-border/80 bg-[color:var(--surface-panel)] shadow-[var(--shadow-soft)]">
+        <div className="border-b border-border/80 px-6 py-7 sm:px-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-[color:var(--surface-soft-strong)] px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />
             Product Guide
           </div>
-          <h2 className="mt-4 font-heading text-4xl leading-tight text-[#231815]">
+          <h2 className="mt-4 font-heading text-4xl leading-tight text-foreground">
             一套面向红娘与婚恋服务机构的
             <br className="hidden sm:block" />
             AI 客户工作台
           </h2>
-          <p className="mt-4 max-w-4xl text-base leading-8 text-[#655246]">
+          <p className="mt-4 max-w-4xl text-base leading-8 text-muted-foreground">
             Matchmaking Studio 不是传统意义上的表格型 CRM，也不是只会聊天的 AI 机器人。
             它的核心目标，是把红娘最耗时、最容易遗漏、最依赖人工整理的客户录音建档流程，
             变成一条稳定、可追踪、可持续更新的工作流。
@@ -97,23 +97,23 @@ export function ProductGuidePage() {
         </div>
 
         <div className="grid gap-5 px-6 py-6 sm:px-8 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[28px] border border-[#ead9c7] bg-white/82 p-5 shadow-[0_22px_52px_-42px_rgba(35,24,21,0.38)]">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">Why It Exists</div>
-            <h3 className="mt-3 font-heading text-2xl text-[#231815]">这个系统为什么存在</h3>
+          <div className="rounded-[28px] border border-border/80 bg-[color:var(--surface-soft-strong)] p-5 shadow-[var(--shadow-soft)]">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Why It Exists</div>
+            <h3 className="mt-3 font-heading text-2xl text-foreground">这个系统为什么存在</h3>
             <div className="mt-4 space-y-3">
               {PAIN_POINTS.map((item) => (
-                <div key={item} className="flex gap-3 rounded-[20px] border border-[#f0e5d8] bg-[#fffaf4] px-4 py-3 text-sm leading-7 text-[#6a574a]">
-                  <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[#a2493d]" />
+                <div key={item} className="flex gap-3 rounded-[20px] border border-border/70 bg-[color:var(--surface-soft)] px-4 py-3 text-sm leading-7 text-muted-foreground">
+                  <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
                   <span>{item}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-[#ead9c7] bg-[linear-gradient(180deg,rgba(143,60,50,0.08),rgba(255,255,255,0.82))] p-5 shadow-[0_22px_52px_-42px_rgba(35,24,21,0.38)]">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">What It Changes</div>
-            <h3 className="mt-3 font-heading text-2xl text-[#231815]">系统带来的改变</h3>
-            <div className="mt-4 space-y-4 text-sm leading-7 text-[#645145]">
+          <div className="rounded-[28px] border border-border/80 bg-[color:var(--surface-soft-strong)] p-5 shadow-[var(--shadow-soft)] dark:bg-[linear-gradient(145deg,rgba(112,166,255,0.16),rgba(0,0,0,0)_36%),linear-gradient(145deg,rgba(22,30,42,0.96),rgba(12,17,24,0.98))]">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">What It Changes</div>
+            <h3 className="mt-3 font-heading text-2xl text-foreground">系统带来的改变</h3>
+            <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground">
               <p>
                 它把“客户录音”从一个很难复用的附件，变成可以持续驱动客户档案更新的资料来源。
               </p>
@@ -124,9 +124,9 @@ export function ProductGuidePage() {
                 它不是替代判断，而是帮助红娘把精力重新放回理解客户、筛选人选和推进关系。
               </p>
             </div>
-            <div className="mt-6 rounded-[24px] border border-[#e7d0c0] bg-white/85 p-4">
-              <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">一句话介绍</div>
-              <p className="mt-3 text-sm leading-7 text-[#59483d]">
+            <div className="mt-6 rounded-[24px] border border-border/80 bg-[color:var(--surface-soft)] p-4">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">一句话介绍</div>
+              <p className="mt-3 text-sm leading-7 text-foreground/80">
                 Matchmaking Studio 帮助红娘把客户沟通录音自动转成文字稿，再把文字稿转成结构化客户信息，
                 持续更新客户档案、匹配进度和后续补问。
               </p>
@@ -135,10 +135,10 @@ export function ProductGuidePage() {
         </div>
       </section>
 
-      <section className="rounded-[32px] border border-[#ddcfbf] bg-white/86 px-6 py-7 shadow-[0_24px_64px_-46px_rgba(35,24,21,0.38)] sm:px-8">
-        <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">Core Workflow</div>
-        <h3 className="mt-3 font-heading text-3xl text-[#231815]">它是怎么工作的</h3>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6a574a]">
+      <section className="rounded-[32px] border border-border/80 bg-[color:var(--surface-panel)] px-6 py-7 shadow-[var(--shadow-soft)] sm:px-8">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Core Workflow</div>
+        <h3 className="mt-3 font-heading text-3xl text-foreground">它是怎么工作的</h3>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
           当前版本最重要的不是更多功能，而是把这条主工作流做稳：
           上传录音、转录、结构化提取、写入数据库。
         </p>
@@ -147,17 +147,17 @@ export function ProductGuidePage() {
           {WORKFLOW.map((item, index) => {
             const Icon = item.icon
             return (
-              <div key={item.title} className="relative rounded-[26px] border border-[#ead9c7] bg-[linear-gradient(180deg,#fffdf9,#fcf6ee)] p-5 shadow-[0_18px_40px_-36px_rgba(35,24,21,0.3)]">
+              <div key={item.title} className="relative rounded-[26px] border border-border/80 bg-[color:var(--surface-soft-strong)] p-5 shadow-[var(--shadow-soft)]">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[16px] border border-[#efd8c7] bg-white text-[#944739] shadow-[0_16px_30px_-24px_rgba(143,60,50,0.55)]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[16px] border border-primary/10 bg-primary/10 text-primary shadow-[0_16px_30px_-24px_rgba(59,130,246,0.18)] dark:bg-primary/14">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#9a7a64]">
+                  <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <h4 className="mt-5 text-lg font-medium text-[#231815]">{item.title}</h4>
-                <p className="mt-3 text-sm leading-7 text-[#675447]">{item.description}</p>
+                <h4 className="mt-5 text-lg font-medium text-foreground">{item.title}</h4>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">{item.description}</p>
               </div>
             )
           })}
@@ -168,15 +168,20 @@ export function ProductGuidePage() {
         {OUTCOMES.map((group) => (
           <div
             key={group.title}
-            className="rounded-[30px] border border-[#ddcfbf] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(251,245,238,0.95))] px-6 py-7 shadow-[0_24px_64px_-46px_rgba(35,24,21,0.35)]"
+            className="rounded-[30px] border border-border/80 bg-[color:var(--surface-panel)] px-6 py-7 shadow-[var(--shadow-soft)]"
           >
-            <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">Outcome</div>
-            <h3 className="mt-3 font-heading text-3xl text-[#231815]">{group.title}</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Outcome</div>
+            <h3 className="mt-3 font-heading text-3xl text-foreground">{group.title}</h3>
             <div className="mt-5 space-y-3">
-              {group.bullets.map((item) => (
-                <div key={item} className="flex gap-3 rounded-[20px] border border-[#efe3d7] bg-white/80 px-4 py-3 text-sm leading-7 text-[#665347]">
-                  <Building2 className="mt-1 h-4 w-4 shrink-0 text-[#a2493d]" />
-                  <span>{item}</span>
+              {group.bullets.map((item, index) => (
+                <div key={item} className="flex gap-3 rounded-[20px] border border-border/70 bg-[color:var(--surface-soft-strong)] px-4 py-3 text-sm leading-7 text-muted-foreground">
+                  <Building2 className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                  <div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+                      {group.title} · {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <span>{item}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -185,29 +190,29 @@ export function ProductGuidePage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-        <div className="rounded-[30px] border border-[#ddcfbf] bg-white/88 px-6 py-7 shadow-[0_24px_64px_-46px_rgba(35,24,21,0.35)]">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">Current Focus</div>
-          <h3 className="mt-3 font-heading text-3xl text-[#231815]">当前版本重点</h3>
-          <div className="mt-5 space-y-4 text-sm leading-7 text-[#675447]">
+        <div className="rounded-[30px] border border-border/80 bg-[color:var(--surface-panel)] px-6 py-7 shadow-[var(--shadow-soft)]">
+          <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Current Focus</div>
+          <h3 className="mt-3 font-heading text-3xl text-foreground">当前版本重点</h3>
+          <div className="mt-5 space-y-4 text-sm leading-7 text-muted-foreground">
             {BOUNDARIES.map((item) => (
-              <div key={item} className="rounded-[20px] border border-[#efe2d3] bg-[#fff9f2] px-4 py-3">
+              <div key={item} className="rounded-[20px] border border-border/70 bg-[color:var(--surface-soft-strong)] px-4 py-3">
                 {item}
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-[30px] border border-[#ddcfbf] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,239,231,0.96))] px-6 py-7 shadow-[0_24px_64px_-46px_rgba(35,24,21,0.35)]">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#8e6e54]">
-            <CircleHelp className="h-3.5 w-3.5" />
+        <div className="rounded-[30px] border border-border/80 bg-[color:var(--surface-panel)] px-6 py-7 shadow-[var(--shadow-soft)]">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+            <CircleHelp className="h-3.5 w-3.5 text-primary/80" />
             FAQ
           </div>
-          <h3 className="mt-3 font-heading text-3xl text-[#231815]">常见问题</h3>
+          <h3 className="mt-3 font-heading text-3xl text-foreground">常见问题</h3>
           <div className="mt-5 space-y-3">
             {FAQ.map((item) => (
-              <div key={item.question} className="rounded-[22px] border border-[#e9dccf] bg-white/82 p-4">
-                <h4 className="text-sm font-medium text-[#231815]">{item.question}</h4>
-                <p className="mt-2 text-sm leading-7 text-[#685449]">{item.answer}</p>
+              <div key={item.question} className="rounded-[22px] border border-border/70 bg-[color:var(--surface-soft-strong)] p-4">
+                <h4 className="text-sm font-medium text-foreground">{item.question}</h4>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.answer}</p>
               </div>
             ))}
           </div>

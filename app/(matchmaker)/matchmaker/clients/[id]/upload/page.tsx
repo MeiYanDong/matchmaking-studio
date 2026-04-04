@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { AudioUploader } from '@/components/upload/audio-uploader'
-import { ChevronLeft } from 'lucide-react'
-import Link from 'next/link'
+import { ReviewLayout } from '@/components/layouts/review-layout'
 import { requireSessionUser } from '@/lib/auth/session-user'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 
@@ -22,16 +21,13 @@ export default async function UploadPage({ params }: { params: Promise<{ id: str
   if (!profile) notFound()
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <Link href={`/matchmaker/clients/${id}`} className="flex items-center gap-1 text-gray-500 hover:text-gray-700 text-sm mb-6">
-        <ChevronLeft className="w-4 h-4" />
-        返回客户详情
-      </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">上传录音</h1>
-      <p className="text-gray-500 text-sm mb-6">
-        为 <span className="font-medium text-gray-700">{profile.name}</span> 上传与红娘的对话录音
-      </p>
-      <AudioUploader profileId={id} />
-    </div>
+    <ReviewLayout
+      backHref={`/matchmaker/clients/${id}`}
+      backLabel="返回客户详情"
+      eyebrow="Audio Upload"
+      title="上传录音"
+      description={`为 ${profile.name} 上传与红娘的对话录音。系统会先将音频安全入库，再继续进入转录和提取阶段。`}
+      content={<AudioUploader profileId={id} />}
+    />
   )
 }

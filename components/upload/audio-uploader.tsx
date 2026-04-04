@@ -464,15 +464,12 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
       <div className="py-12 space-y-6">
         <div className="text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">处理完成！</h3>
-          <p className="text-gray-500">语音已经完成转文字、AI 提取并写入数据库。</p>
+          <h3 className="mb-2 text-xl font-semibold text-foreground dark:text-foreground">处理完成！</h3>
+          <p className="text-muted-foreground dark:text-foreground/58">语音已经完成转文字、AI 提取并写入数据库。</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button
-            className="bg-rose-500 hover:bg-rose-600"
-            onClick={() => router.push(successRedirectPath || `/matchmaker/clients/${profileId}`)}
-          >
+          <Button onClick={() => router.push(successRedirectPath || `/matchmaker/clients/${profileId}`)}>
             <CheckCircle className="w-4 h-4 mr-2" />
             {successRedirectLabel}
           </Button>
@@ -497,22 +494,22 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     const headlineIcon =
       step === 'uploaded' || step === 'transcribed'
         ? <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-        : <Loader className="w-12 h-12 text-rose-400 mx-auto mb-3 animate-spin" />
+        : <Loader className="w-12 h-12 text-primary mx-auto mb-3 animate-spin" />
 
     return (
       <div className="py-8 space-y-6">
         <div className="text-center">
           {headlineIcon}
-          <h3 className="text-lg font-semibold text-gray-900">{STEP_LABELS[step]}</h3>
-          <p className="text-gray-500 text-sm mt-1">{STEP_DESCRIPTIONS[step]}</p>
+          <h3 className="text-lg font-semibold text-foreground dark:text-foreground">{STEP_LABELS[step]}</h3>
+          <p className="mt-1 text-sm text-muted-foreground dark:text-foreground/58">{STEP_DESCRIPTIONS[step]}</p>
           {step === 'uploading' && (
-            <p className="mt-2 text-sm font-medium text-rose-600">资料库上传进度 {uploadProgress}%</p>
+            <p className="mt-2 text-sm font-medium text-primary">资料库上传进度 {uploadProgress}%</p>
           )}
         </div>
         <Progress value={workflowProgress} className="h-2" />
         <div className="flex justify-center gap-8 text-sm">
           {stageOrder.map((s, index) => (
-            <div key={s} className={`flex items-center gap-1.5 ${step === s ? 'text-rose-600 font-medium' : index < currentStageIndex ? 'text-green-600' : 'text-gray-400'}`}>
+            <div key={s} className={`flex items-center gap-1.5 ${step === s ? 'text-primary font-medium dark:text-primary-foreground' : index < currentStageIndex ? 'text-emerald-600 dark:text-emerald-300' : 'text-gray-400 dark:text-foreground/42'}`}>
               {index < currentStageIndex ? (
                 <CheckCircle className="w-4 h-4" />
               ) : step === s ? (
@@ -534,7 +531,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
     <div className="space-y-6">
       {/* Drop zone */}
       <div
-        className={`border-2 border-dashed rounded-xl p-10 text-center transition-colors cursor-pointer ${dragging ? 'border-rose-400 bg-rose-50' : file ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-rose-300 hover:bg-gray-50'}`}
+        className={`cursor-pointer rounded-[28px] border-2 border-dashed p-10 text-center transition-colors ${dragging ? 'border-primary/50 bg-primary/8 dark:border-primary-foreground/45 dark:bg-primary/12' : file ? 'border-emerald-400 bg-emerald-50/70 dark:border-emerald-300/35 dark:bg-emerald-400/[0.08]' : 'border-border bg-white/78 hover:border-primary/30 hover:bg-white dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-primary-foreground/30 dark:hover:bg-white/[0.05]'}`}
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
@@ -551,24 +548,24 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
         {file ? (
           <div>
             <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-2" />
-            <p className="font-medium text-green-700">{file.name}</p>
-            <p className="text-sm text-green-500">
+            <p className="font-medium text-green-700 dark:text-emerald-100">{file.name}</p>
+            <p className="text-sm text-green-500 dark:text-emerald-200/80">
               {(file.size / 1024 / 1024).toFixed(1)} MB
               {duration !== null && ` · ${Math.floor(duration / 60)}分${duration % 60}秒`}
             </p>
           </div>
         ) : (
           <div>
-            <Mic className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-            <p className="font-medium text-gray-700">拖拽音频文件到这里，或点击选择</p>
-            <p className="text-sm text-gray-400 mt-1">支持 MP3、M4A、WAV、OGG，最大 100MB</p>
+            <Mic className="w-10 h-10 text-gray-400 mx-auto mb-3 dark:text-foreground/42" />
+            <p className="font-medium text-gray-700 dark:text-foreground/76">拖拽音频文件到这里，或点击选择</p>
+            <p className="mt-1 text-sm text-gray-400 dark:text-foreground/46">支持 MP3、M4A、WAV、OGG，最大 100MB</p>
           </div>
         )}
       </div>
 
       {/* Error */}
       {error && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg text-red-600 text-sm">
+        <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-400/[0.08] dark:text-red-100">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div className="flex-1">
             <div>{error}</div>
@@ -576,7 +573,7 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
               <Button
                 size="sm"
                 variant="outline"
-                className="mt-2 border-red-200 text-red-600 hover:bg-red-100"
+                className="mt-2 border-red-200 text-red-600 hover:bg-red-100 dark:border-red-300/18 dark:text-red-100 dark:hover:bg-red-400/[0.12]"
                 onClick={async () => {
                   setError('')
                   try {
@@ -602,9 +599,9 @@ export function AudioUploader({ profileId }: AudioUploaderProps) {
           <Button variant="outline" onClick={() => { setFile(null); setDuration(null); setError(''); setConversationId(''); setPendingObjectKey(''); setUploadProgress(0) }} className="flex-1">
             <X className="w-4 h-4 mr-2" />重新选择
           </Button>
-          <Button onClick={handleUpload} className="flex-1 bg-rose-500 hover:bg-rose-600">
-            <Upload className="w-4 h-4 mr-2" />开始上传
-          </Button>
+            <Button onClick={handleUpload} className="flex-1">
+              <Upload className="w-4 h-4 mr-2" />开始上传
+            </Button>
         </div>
       )}
     </div>
