@@ -35,6 +35,7 @@ import {
   parseEditableFieldValue,
   toEditableFieldValue,
 } from '@/lib/ai/field-presentation'
+import { buildDisplayFollowupQuestions, dedupeFieldKeysByDisplay } from '@/lib/followup/presentation'
 
 interface ReviewFormProps {
   conversation: Conversation
@@ -71,8 +72,11 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
 
   const appliedUpdates = extracted.applied_field_updates ?? []
   const reviewRequired = extracted.review_required ?? []
-  const missingFields = extracted.missing_critical_fields ?? []
-  const suggestedQuestions = extracted.suggested_followup_questions ?? []
+  const missingFields = dedupeFieldKeysByDisplay(extracted.missing_critical_fields ?? [])
+  const suggestedQuestions = buildDisplayFollowupQuestions(
+    missingFields,
+    extracted.suggested_followup_questions ?? []
+  )
   const processingNotes = extracted.processing_notes ?? []
 
   const [skippedKeys, setSkippedKeys] = useState<Set<string>>(

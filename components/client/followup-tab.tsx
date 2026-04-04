@@ -13,6 +13,7 @@ import { FollowupTask, Match, Profile } from '@/types/database'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { getFieldDisplayLabel, humanizeAIText } from '@/lib/ai/field-presentation'
+import { buildDisplayFollowupQuestions, dedupeFieldKeysByDisplay } from '@/lib/followup/presentation'
 
 interface FollowupTabProps {
   matches: (Match & { male_profile: Profile; female_profile: Profile })[]
@@ -187,8 +188,12 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
           <p className="text-sm text-gray-400">当前没有待补问任务，AI 已经把需要继续确认的事项清空了。</p>
         ) : (
           <div className="space-y-3">
-            {openTasks.map((task) => (
-              <div key={task.id} className="rounded-xl border border-amber-100 bg-amber-50 p-4">
+            {openTasks.map((task) => {
+              const displayFieldKeys = dedupeFieldKeysByDisplay(task.fieldKeys)
+              const displayQuestions = buildDisplayFollowupQuestions(displayFieldKeys, task.questions)
+
+              return (
+                <div key={task.id} className="rounded-xl border border-amber-100 bg-amber-50 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className={priorityTone[task.priority]}>
                     {task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
@@ -219,9 +224,9 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                   </p>
                 )}
 
-                {!!task.fieldKeys.length && (
+                {!!displayFieldKeys.length && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {task.fieldKeys.map((fieldKey) => (
+                    {displayFieldKeys.map((fieldKey) => (
                       <Badge key={fieldKey} variant="outline" className="bg-white text-gray-600">
                         {getFieldDisplayLabel(fieldKey)}
                       </Badge>
@@ -229,9 +234,9 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                   </div>
                 )}
 
-                {!!task.questions.length && (
+                {!!displayQuestions.length && (
                   <div className="mt-3 space-y-2">
-                    {task.questions.map((question) => (
+                    {displayQuestions.map((question) => (
                       <div key={question} className="rounded-lg bg-white/90 p-3 text-sm text-gray-700">
                         {question}
                       </div>
@@ -268,8 +273,9 @@ export function FollowupTab({ matches, tasks }: FollowupTabProps) {
                     暂不处理
                   </Button>
                 </div>
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         )}
       </section>

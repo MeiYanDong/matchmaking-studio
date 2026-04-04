@@ -31,6 +31,7 @@ import {
   getFieldDisplayLabel,
   humanizeAIText,
 } from '@/lib/ai/field-presentation'
+import { buildDisplayFollowupQuestions, dedupeFieldKeysByDisplay } from '@/lib/followup/presentation'
 
 interface ConversationsTabProps {
   conversations: Conversation[]
@@ -76,6 +77,11 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const latestConversation = conversations[0] ?? null
   const latestExtracted = (latestConversation?.extracted_fields as ExtractedData | null) ?? null
+  const latestMissingFields = dedupeFieldKeysByDisplay(latestExtracted?.missing_critical_fields ?? [])
+  const latestSuggestedQuestions = buildDisplayFollowupQuestions(
+    latestMissingFields,
+    latestExtracted?.suggested_followup_questions ?? []
+  )
 
   async function handleRetry(conversation: Conversation) {
     setRetryingId(conversation.id)
@@ -153,17 +159,17 @@ export function ConversationsTab({ conversations, profileId }: ConversationsTabP
                 />
                 <SummaryCard
                   title="待补问建议"
-                  value={String(latestExtracted?.suggested_followup_questions?.length ?? 0)}
+                  value={String(latestSuggestedQuestions.length)}
                   description="下一轮线下可直接复述的问题数"
                   tone="rose"
                 />
               </div>
 
-              {!!latestExtracted?.missing_critical_fields?.length && (
+              {!!latestMissingFields.length && (
                 <div className="border-t border-white/70 px-6 pb-5 pt-1">
                   <p className="text-xs font-medium text-gray-500 mb-2">关键缺口</p>
                   <div className="flex flex-wrap gap-2">
-                    {latestExtracted.missing_critical_fields.map((field) => (
+                    {latestMissingFields.map((field) => (
                       <Badge key={field} variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
                         {getFieldDisplayLabel(field)}
                       </Badge>
@@ -329,8 +335,11 @@ function ConversationDetail({ conversation }: { conversation: Conversation }) {
   const extracted = (conversation.extracted_fields as ExtractedData | null) ?? null
   const appliedUpdates = extracted?.applied_field_updates ?? []
   const reviewRequired = extracted?.review_required ?? []
-  const missingCriticalFields = extracted?.missing_critical_fields ?? []
-  const suggestedQuestions = extracted?.suggested_followup_questions ?? []
+  const missingCriticalFields = dedupeFieldKeysByDisplay(extracted?.missing_critical_fields ?? [])
+  const suggestedQuestions = buildDisplayFollowupQuestions(
+    missingCriticalFields,
+    extracted?.suggested_followup_questions ?? []
+  )
   const processingNotes = extracted?.processing_notes ?? []
 
   return (
