@@ -142,23 +142,23 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div className="space-y-4">
-        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
           <div className="flex items-center gap-2 mb-3">
-            <FileText className="w-4 h-4 text-gray-500" />
-            <h3 className="font-semibold text-gray-900">转录全文</h3>
+            <FileText className="w-4 h-4 text-gray-500 dark:text-foreground/50" />
+            <h3 className="font-semibold text-gray-900 dark:text-foreground">转录全文</h3>
           </div>
-          <div className="max-h-[32rem] overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-gray-700">
+          <div className="max-h-[32rem] overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-foreground/74">
             {conversation.transcript || '暂无转录文本'}
           </div>
         </div>
 
         {(processingNotes.length > 0 || conversation.extraction_notes) && (
-          <div className="rounded-[28px] border border-primary/12 bg-[linear-gradient(145deg,rgba(241,246,255,0.95),rgba(255,255,255,0.98))] p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.12)]">
+          <div className="rounded-[28px] border border-primary/12 bg-[linear-gradient(145deg,rgba(241,246,255,0.95),rgba(255,255,255,0.98))] p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.12)] dark:border-primary/16 dark:bg-[linear-gradient(145deg,rgba(18,25,35,0.96),rgba(11,16,24,0.98))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.58)]">
             <div className="flex items-center gap-2 mb-3">
               <AlertCircle className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-slate-900">AI 处理备注</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-foreground">AI 处理备注</h3>
             </div>
-            <div className="space-y-2 text-sm text-slate-700">
+            <div className="space-y-2 text-sm text-slate-700 dark:text-foreground/74">
               {processingNotes.map((note) => (
                 <p key={note}>• {humanizeAIText(note)}</p>
               ))}
@@ -171,31 +171,31 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
       </div>
 
       <div className="space-y-4">
-        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-emerald-600" />
-            <h3 className="font-semibold text-gray-900">AI 已自动同步</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-foreground">AI 已自动同步</h3>
           </div>
 
           {!appliedUpdates.length ? (
-            <p className="text-sm text-gray-400">这段录音没有产生可自动写入的字段更新。</p>
+            <p className="text-sm text-gray-400 dark:text-foreground/48">这段录音没有产生可自动写入的字段更新。</p>
           ) : (
             <div className="space-y-3">
               {appliedUpdates.map((item) => (
-                <div key={`${item.field_key}-${String(item.new_value)}`} className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+                <div key={`${item.field_key}-${String(item.new_value)}`} className="rounded-xl border border-emerald-100 bg-emerald-50 p-3 dark:border-emerald-300/12 dark:bg-emerald-400/[0.06]">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-emerald-900">
+                    <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
                       {item.field_label ?? getFieldDisplayLabel(item.field_key)}
                     </p>
-                    <Badge variant="outline" className="border-emerald-200 bg-white text-emerald-700">
+                    <Badge variant="outline" className="border-emerald-200 bg-white text-emerald-700 dark:border-emerald-300/14 dark:bg-white/[0.06] dark:text-emerald-100">
                       已自动写入
                     </Badge>
                   </div>
-                  <p className="mt-2 text-xs text-emerald-800">
+                  <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-100/90">
                     {formatFieldDiff(item.field_key, item.old_value, item.new_value)}
                   </p>
                   {item.evidence_excerpt && (
-                    <p className="mt-2 text-xs text-emerald-700 whitespace-pre-wrap">证据：{item.evidence_excerpt}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-xs text-emerald-700 dark:text-emerald-100/82">证据：{item.evidence_excerpt}</p>
                   )}
                 </div>
               ))}
@@ -203,21 +203,21 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
           )}
         </div>
 
-        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
           <div className="flex items-center gap-2 mb-3">
             <Wand2 className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold text-gray-900">待补问与下一步建议</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-foreground">待补问与下一步建议</h3>
           </div>
 
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2">关键缺口</p>
+              <p className="mb-2 text-xs font-medium text-gray-500 dark:text-foreground/50">关键缺口</p>
               {!missingFields.length ? (
-                <p className="text-sm text-gray-400">这段录音暂无新的关键缺口。</p>
+                <p className="text-sm text-gray-400 dark:text-foreground/48">这段录音暂无新的关键缺口。</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {missingFields.map((field) => (
-                    <Badge key={field} variant="outline" className="border-primary/12 bg-primary/8 text-primary">
+                    <Badge key={field} variant="outline" className="border-primary/12 bg-primary/8 text-primary dark:border-primary/16 dark:bg-white/[0.06] dark:text-primary-foreground">
                       {getFieldDisplayLabel(field)}
                     </Badge>
                   ))}
@@ -225,13 +225,13 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
               )}
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2">AI 推荐补问</p>
+              <p className="mb-2 text-xs font-medium text-gray-500 dark:text-foreground/50">AI 推荐补问</p>
               {!suggestedQuestions.length ? (
-                <p className="text-sm text-gray-400">当前没有新增补问建议。</p>
+                <p className="text-sm text-gray-400 dark:text-foreground/48">当前没有新增补问建议。</p>
               ) : (
                 <div className="space-y-2">
                   {suggestedQuestions.map((question) => (
-                    <div key={question} className="rounded-[20px] border border-primary/12 bg-primary/8 p-3 text-sm text-slate-700">
+                    <div key={question} className="rounded-[20px] border border-primary/12 bg-primary/8 p-3 text-sm text-slate-700 dark:border-primary/16 dark:bg-white/[0.05] dark:text-foreground/76">
                       {question}
                     </div>
                   ))}
@@ -241,14 +241,14 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)]">
+        <div className="rounded-[28px] border border-border/80 bg-white/82 p-5 shadow-[0_20px_44px_-34px_rgba(15,23,42,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(14,19,29,0.92),rgba(10,15,22,0.94))] dark:shadow-[0_28px_64px_-42px_rgba(0,0,0,0.62)]">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-4 h-4 text-orange-500" />
-            <h3 className="font-semibold text-gray-900">需要你确认的异常</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-foreground">需要你确认的异常</h3>
           </div>
 
           {!reviewRequired.length ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-300/12 dark:bg-emerald-400/[0.06] dark:text-emerald-100">
               本次没有异常字段，AI 已完成自动入库。你可以直接返回客户详情继续看候选和补问任务。
             </div>
           ) : (
@@ -262,14 +262,14 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
                 )
 
                 return (
-                  <div key={item.field_key} className={`rounded-xl border p-4 ${skipped ? 'border-gray-200 bg-gray-50 opacity-70' : 'border-orange-200 bg-orange-50'}`}>
+                  <div key={item.field_key} className={`rounded-xl border p-4 ${skipped ? 'border-gray-200 bg-gray-50 opacity-70 dark:border-white/8 dark:bg-white/[0.04]' : 'border-orange-200 bg-orange-50 dark:border-orange-300/12 dark:bg-orange-400/[0.06]'}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-foreground">
                           {item.field_label ?? getFieldDisplayLabel(item.field_key)}
                         </p>
                       </div>
-                      <Badge variant="outline" className={item.confidence === 'low' ? 'border-red-200 bg-white text-red-600' : 'border-orange-200 bg-white text-orange-700'}>
+                      <Badge variant="outline" className={item.confidence === 'low' ? 'border-red-200 bg-white text-red-600 dark:border-red-300/14 dark:bg-white/[0.06] dark:text-red-100' : 'border-orange-200 bg-white text-orange-700 dark:border-orange-300/14 dark:bg-white/[0.06] dark:text-orange-100'}>
                         {item.confidence === 'low' ? '低置信度' : '待确认'}
                       </Badge>
                     </div>
@@ -280,22 +280,22 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
                     </div>
 
                     {item.reason && (
-                      <p className="mt-3 text-xs text-orange-800">{humanizeAIText(item.reason)}</p>
+                      <p className="mt-3 text-xs text-orange-800 dark:text-orange-100">{humanizeAIText(item.reason)}</p>
                     )}
                     {item.evidence_excerpt && (
-                      <p className="mt-2 whitespace-pre-wrap rounded-lg bg-white/80 p-2 text-xs text-gray-700">
+                      <p className="mt-2 whitespace-pre-wrap rounded-lg bg-white/80 p-2 text-xs text-gray-700 dark:bg-white/[0.06] dark:text-foreground/72">
                         证据：{item.evidence_excerpt}
                       </p>
                     )}
 
                     {!spec && (
-                      <p className="mt-2 text-xs text-gray-600">
+                      <p className="mt-2 text-xs text-gray-600 dark:text-foreground/58">
                         这是一项系统归属/身份冲突提示，当前页面不直接回写该字段，默认先跳过；如需处理，请到客户详情或重新归档后再继续。
                       </p>
                     )}
 
                     {placeholderOnly && spec && (
-                      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-800">
+                      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-800 dark:border-blue-300/12 dark:bg-blue-400/[0.06] dark:text-blue-100">
                         AI 还没有给出可直接回写的具体值，这项更适合放进下一轮线下补问。
                         当前页默认不会回写它，你可以先根据上面的补问建议继续沟通。
                       </div>
@@ -314,7 +314,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
 
                     <button
                       type="button"
-                      className="mt-3 text-xs text-gray-500 hover:text-gray-700"
+                      className="mt-3 text-xs text-gray-500 hover:text-gray-700 dark:text-foreground/50 dark:hover:text-foreground/76"
                       onClick={() =>
                         setSkippedKeys((prev) => {
                           const next = new Set(prev)
@@ -331,7 +331,7 @@ export function ReviewForm({ conversation, profile }: ReviewFormProps) {
               })}
 
               {pendingReviewItems.length === 0 && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-300/12 dark:bg-blue-400/[0.06] dark:text-blue-100">
                   当前剩余异常都已经转成“待补问”或系统提示，不需要在这里手动回写。
                 </div>
               )}
@@ -364,8 +364,8 @@ function ReviewInput({
   if (!spec) {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
-        <Input value={value} disabled className="bg-white" />
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
+        <Input value={value} disabled className="bg-white dark:bg-white/[0.05]" />
       </div>
     )
   }
@@ -373,12 +373,12 @@ function ReviewInput({
   if (spec.valueType === 'tri_state') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <select
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"
+          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm dark:bg-white/[0.05] dark:text-foreground"
         >
           <option value="">请选择</option>
           {Object.entries(TRI_STATE_LABELS).map(([nextValue, label]) => (
@@ -394,12 +394,12 @@ function ReviewInput({
   if (spec.valueType === 'education') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <select
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"
+          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm dark:bg-white/[0.05] dark:text-foreground"
         >
           <option value="">请选择学历</option>
           {EDUCATION_VALUES.map((option) => (
@@ -415,12 +415,12 @@ function ReviewInput({
   if (spec.valueType === 'primary_intent') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <select
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"
+          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm dark:bg-white/[0.05] dark:text-foreground"
         >
           <option value="">请选择主意图</option>
           {PRIMARY_INTENT_VALUES.map((option) => (
@@ -436,12 +436,12 @@ function ReviewInput({
   if (spec.valueType === 'relationship_mode') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <select
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"
+          className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm dark:bg-white/[0.05] dark:text-foreground"
         >
           <option value="">请选择关系模式</option>
           {RELATIONSHIP_MODE_VALUES.map((option) => (
@@ -457,7 +457,7 @@ function ReviewInput({
   if (spec.valueType === 'education_array') {
     return (
       <div className="space-y-2">
-        <Label className="text-xs text-gray-500">确认值（可多选）</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值（可多选）</Label>
         <EducationChipSelect value={value} disabled={disabled} onChange={onChange} />
       </div>
     )
@@ -466,13 +466,13 @@ function ReviewInput({
   if (spec.valueType === 'string_array') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值（每行一项）</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值（每行一项）</Label>
         <Textarea
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
           rows={3}
-          className="bg-white"
+          className="bg-white dark:bg-white/[0.05]"
         />
       </div>
     )
@@ -481,7 +481,7 @@ function ReviewInput({
   if (spec.valueType === 'json' && fieldKey === 'preference_importance') {
     return (
       <div className="space-y-2">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <PreferenceImportanceEditor value={value} disabled={disabled} onChange={onChange} />
       </div>
     )
@@ -490,13 +490,13 @@ function ReviewInput({
   if (spec.valueType === 'number') {
     return (
       <div className="space-y-1">
-        <Label className="text-xs text-gray-500">确认值</Label>
+        <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
         <Input
           type="number"
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="bg-white"
+          className="bg-white dark:bg-white/[0.05]"
         />
       </div>
     )
@@ -504,12 +504,12 @@ function ReviewInput({
 
   return (
     <div className="space-y-1">
-      <Label className="text-xs text-gray-500">确认值</Label>
+      <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
       <Input
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className="bg-white"
+        className="bg-white dark:bg-white/[0.05]"
       />
     </div>
   )
@@ -528,20 +528,20 @@ function ValuePreview({
 }) {
   const lines = formatFieldValueLines(fieldKey, value)
   const className = tone === 'amber'
-    ? 'border-primary/12 bg-white/82'
-    : 'border-gray-200 bg-white/80'
+    ? 'border-primary/12 bg-white/82 dark:border-primary/16 dark:bg-white/[0.05]'
+    : 'border-gray-200 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]'
 
   return (
     <div className={`rounded-lg border p-3 ${className}`}>
-      <p className="text-xs font-medium text-gray-500">{title}</p>
+      <p className="text-xs font-medium text-gray-500 dark:text-foreground/50">{title}</p>
       {!lines.length ? (
-        <p className="mt-2 text-sm text-gray-400">未填写</p>
+        <p className="mt-2 text-sm text-gray-400 dark:text-foreground/46">未填写</p>
       ) : lines.length === 1 && lines[0].length < 40 ? (
-        <p className="mt-2 text-sm font-medium text-gray-800">{lines[0]}</p>
+        <p className="mt-2 text-sm font-medium text-gray-800 dark:text-foreground">{lines[0]}</p>
       ) : (
         <div className="mt-2 flex flex-wrap gap-2">
           {lines.map((line) => (
-            <Badge key={line} variant="outline" className="bg-white text-gray-700">
+            <Badge key={line} variant="outline" className="bg-white text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground/72">
               {line}
             </Badge>
           ))}
