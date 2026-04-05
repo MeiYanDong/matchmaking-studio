@@ -3,6 +3,19 @@ import {
   GenderType,
   ProfileStatus,
   EducationLevel,
+  EducationLevelV2,
+  MaritalHistoryType,
+  HasChildrenType,
+  CustodyStatusType,
+  HasAssetType,
+  LifestyleYnType,
+  FrequencyType,
+  FamilyAssetBandType,
+  IncomeSourceCategory,
+  UrgencyLevelType,
+  ParentsMaritalStatusType,
+  FinancialTiesType,
+  LifecycleStatus,
   PrimaryIntent,
   RelationshipMode,
   TriState,
@@ -140,4 +153,102 @@ export const REMINDER_TYPE_LABELS: Record<ReminderType, string> = {
   no_new_info: '信息更新提醒',
   meeting_reminder: '约谈提醒',
   pending_confirmation: '待补问提醒',
+}
+
+export const EDUCATION_LEVEL_V2_LABELS: Record<EducationLevelV2, string> = {
+  high_school_or_below: '高中及以下',
+  junior_college: '专科',
+  bachelor: '本科',
+  master: '硕士',
+  doctor: '博士',
+  unknown: '未知',
+}
+
+export const MARITAL_HISTORY_LABELS: Record<MaritalHistoryType, string> = {
+  never_married: '未婚',
+  divorced: '离异',
+  widowed: '丧偶',
+  unknown: '未知',
+}
+
+export const HAS_CHILDREN_LABELS: Record<HasChildrenType, string> = {
+  yes: '有',
+  no: '无',
+  unknown: '未知',
+}
+
+export const CUSTODY_STATUS_LABELS: Record<CustodyStatusType, string> = {
+  self: '自己',
+  ex_partner: '对方',
+  shared: '共同',
+  other: '其他',
+  unknown: '未知',
+}
+
+export const HAS_ASSET_LABELS: Record<HasAssetType, string> = {
+  yes: '有',
+  no: '无',
+  unknown: '未知',
+}
+
+export const LIFESTYLE_YN_LABELS: Record<LifestyleYnType, string> = {
+  yes: '是',
+  no: '否',
+  unknown: '未知',
+}
+
+export const FREQUENCY_LABELS: Record<FrequencyType, string> = {
+  occasionally: '偶尔',
+  frequently: '频繁',
+  daily: '每天',
+  unknown: '未知',
+}
+
+export const FAMILY_ASSET_BAND_LABELS: Record<FamilyAssetBandType, string> = {
+  A7: '千万级',
+  A8: '亿级',
+  A9: '十亿级',
+  A10: '百亿级+',
+  unknown: '未知',
+}
+
+export const INCOME_SOURCE_LABELS: Record<IncomeSourceCategory, string> = {
+  salary: '工资薪酬',
+  dividend: '股权分红',
+  self_business: '自营业务',
+  mixed: '混合来源',
+  other: '其他',
+  unknown: '未知',
+}
+
+export const URGENCY_LEVEL_LABELS: Record<UrgencyLevelType, string> = {
+  low: '不急',
+  normal: '正常',
+  high: '较急',
+  urgent: '非常急',
+  unknown: '未知',
+}
+
+export const PARENTS_MARITAL_STATUS_LABELS: Record<ParentsMaritalStatusType, string> = {
+  together: '在一起',
+  divorced: '离异',
+  widowed: '丧偶',
+  unknown: '未知',
+}
+
+export const FINANCIAL_TIES_LABELS: Record<FinancialTiesType, string> = {
+  yes: '有',
+  no: '无',
+  unknown: '未知',
+}
+
+export const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
+  new_pending_completion: '新建待完善',
+  actively_searching: '主动寻找中',
+  recommended: '已被推介',
+  meeting_in_progress: '约谈进行中',
+  feedback_pending_entry: '等待反馈录入',
+  paused: '暂停',
+  matched_success: '匹配成功',
+  archived: '已归档',
 }

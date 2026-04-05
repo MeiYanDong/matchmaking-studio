@@ -4,13 +4,26 @@ import { createClient as createSupabaseClient, createServiceRoleClient } from '@
 import { revalidatePath } from 'next/cache'
 import {
   EducationLevel,
+  EducationLevelV2,
+  FamilyAssetBandType,
+  FinancialTiesType,
+  FrequencyType,
   GenderType,
+  HasAssetType,
+  HasChildrenType,
   ImportanceLevel,
+  IncomeSourceCategory,
   Json,
+  LifecycleStatus,
+  LifestyleYnType,
+  MaritalHistoryType,
+  ParentsMaritalStatusType,
   PrimaryIntent,
   ProfileStatus,
   RelationshipMode,
+  CustodyStatusType,
   TriState,
+  UrgencyLevelType,
 } from '@/types/database'
 import { withSupabaseRetry } from '@/lib/supabase/retry'
 import { extractBucketObjectPath } from '@/lib/storage/object-path'
@@ -69,6 +82,7 @@ export async function createClient(formData: {
     .from('profiles')
     .insert({
       name: formData.name.trim() || `待识别客户-${Date.now().toString().slice(-6)}`,
+      full_name: formData.name.trim() || null,
       gender: formData.gender,
       phone: formData.phone,
       raw_notes: formData.note ?? null,
@@ -80,9 +94,15 @@ export async function createClient(formData: {
 
   if (error) throw new Error(error.message)
 
-  // 同时创建空的 intentions 记录
-  await supabase.from('intentions').insert({ profile_id: data.id })
-  await supabase.from('trait_profiles').insert({ profile_id: data.id })
+  // 同时创建空的 intentions / trait_profiles / customer_lifecycle 记录
+  await Promise.all([
+    supabase.from('intentions').insert({ profile_id: data.id }),
+    supabase.from('trait_profiles').insert({ profile_id: data.id }),
+    supabase.from('customer_lifecycle').insert({
+      profile_id: data.id,
+      status: 'new_pending_completion' as LifecycleStatus,
+    }),
+  ])
 
   revalidatePath('/matchmaker/clients')
   return data
@@ -91,6 +111,7 @@ export async function createClient(formData: {
 export const createClient_action = createClient
 
 export async function updateProfile(profileId: string, updates: {
+  // 旧字段（保留兼容）
   name?: string
   gender?: GenderType
   age?: number | null
@@ -125,6 +146,53 @@ export async function updateProfile(profileId: string, updates: {
   ai_summary?: string | null
   raw_notes?: string | null
   status?: ProfileStatus
+  // Phase-1 新字段
+  full_name?: string | null
+  display_name?: string | null
+  current_city?: string | null
+  birth_year_month?: string | null
+  height_cm?: number | null
+  weight_kg?: number | null
+  wechat_id?: string | null
+  education_level_v2?: EducationLevelV2 | null
+  bachelor_school?: string | null
+  master_school?: string | null
+  doctor_school?: string | null
+  major?: string | null
+  company_name?: string | null
+  monthly_income?: number | null
+  income_source_type?: IncomeSourceCategory | null
+  has_property?: HasAssetType | null
+  property_count?: number | null
+  property_notes?: string | null
+  has_vehicle?: HasAssetType | null
+  vehicle_brand?: string | null
+  vehicle_model?: string | null
+  vehicle_notes?: string | null
+  family_asset_band?: FamilyAssetBandType | null
+  financial_assets_notes?: string | null
+  insurance_notes?: string | null
+  marital_history_enum?: MaritalHistoryType | null
+  marital_history_notes?: string | null
+  has_children_enum?: HasChildrenType | null
+  children_count?: number | null
+  children_age_notes?: string | null
+  custody_status?: CustodyStatusType | null
+  financial_ties_with_ex_partner?: FinancialTiesType | null
+  smokes?: LifestyleYnType | null
+  smoking_frequency?: FrequencyType | null
+  drinks?: LifestyleYnType | null
+  drinking_frequency?: FrequencyType | null
+  urgency_level?: UrgencyLevelType | null
+  hukou_city?: string | null
+  native_place?: string | null
+  siblings_summary?: string | null
+  parents_occupation?: string | null
+  parents_marital_status?: ParentsMaritalStatusType | null
+  family_origin_notes?: string | null
+  mbti?: string | null
+  personality_summary?: string | null
+  self_description?: string | null
 }) {
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

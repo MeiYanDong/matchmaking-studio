@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Profile, Intention, EducationLevel, GenderType, PrimaryIntent, ProfileStatus, RelationshipMode, TraitProfile, TriState } from '@/types/database'
-import { EDUCATION_LABELS, GENDER_LABELS, INTENT_LABELS, STATUS_LABELS, TRI_STATE_LABELS } from '@/types/app'
+import { Profile, Intention, EducationLevel, EducationLevelV2, GenderType, PrimaryIntent, ProfileStatus, RelationshipMode, TraitProfile, TriState, MaritalHistoryType, HasChildrenType, LifestyleYnType, UrgencyLevelType } from '@/types/database'
+import { EDUCATION_LABELS, EDUCATION_LEVEL_V2_LABELS, GENDER_LABELS, INTENT_LABELS, STATUS_LABELS, TRI_STATE_LABELS, MARITAL_HISTORY_LABELS, HAS_CHILDREN_LABELS, LIFESTYLE_YN_LABELS, URGENCY_LEVEL_LABELS } from '@/types/app'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -66,6 +66,39 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
     hidden_expectations: profile.hidden_expectations ?? '',
     ai_summary: profile.ai_summary ?? '',
     raw_notes: profile.raw_notes ?? '',
+    // Phase-1 新字段
+    full_name: profile.full_name ?? '',
+    wechat_id: profile.wechat_id ?? '',
+    birth_year_month: profile.birth_year_month ?? '',
+    current_city: profile.current_city ?? '',
+    hukou_city: profile.hukou_city ?? '',
+    native_place: profile.native_place ?? '',
+    height_cm: profile.height_cm?.toString() ?? '',
+    weight_kg: profile.weight_kg?.toString() ?? '',
+    education_level_v2: profile.education_level_v2 ?? '',
+    bachelor_school: profile.bachelor_school ?? '',
+    master_school: profile.master_school ?? '',
+    major: profile.major ?? '',
+    company_name: profile.company_name ?? '',
+    monthly_income: profile.monthly_income?.toString() ?? '',
+    marital_history_enum: profile.marital_history_enum ?? '',
+    marital_history_notes: profile.marital_history_notes ?? '',
+    has_children_enum: profile.has_children_enum ?? '',
+    children_count: profile.children_count?.toString() ?? '',
+    children_age_notes: profile.children_age_notes ?? '',
+    smokes: profile.smokes ?? '',
+    drinks: profile.drinks ?? '',
+    urgency_level: profile.urgency_level ?? '',
+    personality_summary: profile.personality_summary ?? '',
+    self_description: profile.self_description ?? '',
+    mbti: profile.mbti ?? '',
+    siblings_summary: profile.siblings_summary ?? '',
+    parents_occupation: profile.parents_occupation ?? '',
+    property_notes: profile.property_notes ?? '',
+    vehicle_brand: profile.vehicle_brand ?? '',
+    vehicle_notes: profile.vehicle_notes ?? '',
+    financial_assets_notes: profile.financial_assets_notes ?? '',
+    insurance_notes: profile.insurance_notes ?? '',
   })
 
   const [traitForm, setTraitForm] = useState({
@@ -142,6 +175,39 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
           hidden_expectations: emptyToNull(profileForm.hidden_expectations),
           ai_summary: emptyToNull(profileForm.ai_summary),
           raw_notes: emptyToNull(profileForm.raw_notes),
+          // Phase-1 新字段
+          full_name: emptyToNull(profileForm.full_name),
+          wechat_id: emptyToNull(profileForm.wechat_id),
+          birth_year_month: emptyToNull(profileForm.birth_year_month),
+          current_city: emptyToNull(profileForm.current_city),
+          hukou_city: emptyToNull(profileForm.hukou_city),
+          native_place: emptyToNull(profileForm.native_place),
+          height_cm: parseOptionalNumber(profileForm.height_cm),
+          weight_kg: parseOptionalNumber(profileForm.weight_kg),
+          education_level_v2: profileForm.education_level_v2 as EducationLevelV2 || null,
+          bachelor_school: emptyToNull(profileForm.bachelor_school),
+          master_school: emptyToNull(profileForm.master_school),
+          major: emptyToNull(profileForm.major),
+          company_name: emptyToNull(profileForm.company_name),
+          monthly_income: parseOptionalNumber(profileForm.monthly_income),
+          marital_history_enum: profileForm.marital_history_enum as MaritalHistoryType || null,
+          marital_history_notes: emptyToNull(profileForm.marital_history_notes),
+          has_children_enum: profileForm.has_children_enum as HasChildrenType || null,
+          children_count: parseOptionalNumber(profileForm.children_count),
+          children_age_notes: emptyToNull(profileForm.children_age_notes),
+          smokes: profileForm.smokes as LifestyleYnType || null,
+          drinks: profileForm.drinks as LifestyleYnType || null,
+          urgency_level: profileForm.urgency_level as UrgencyLevelType || null,
+          personality_summary: emptyToNull(profileForm.personality_summary),
+          self_description: emptyToNull(profileForm.self_description),
+          mbti: emptyToNull(profileForm.mbti),
+          siblings_summary: emptyToNull(profileForm.siblings_summary),
+          parents_occupation: emptyToNull(profileForm.parents_occupation),
+          property_notes: emptyToNull(profileForm.property_notes),
+          vehicle_brand: emptyToNull(profileForm.vehicle_brand),
+          vehicle_notes: emptyToNull(profileForm.vehicle_notes),
+          financial_assets_notes: emptyToNull(profileForm.financial_assets_notes),
+          insurance_notes: emptyToNull(profileForm.insurance_notes),
         }),
         updateTraitProfile(profile.id, {
           exercise_habits: emptyToNull(traitForm.exercise_habits),
@@ -329,6 +395,88 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             <div className="col-span-2">
               <FieldTextarea label="未结构化备注" value={profileForm.raw_notes} onChange={v => setProfileForm((p) => ({ ...p, raw_notes: v }))} rows={3} />
             </div>
+            {/* Phase-1 新字段 */}
+            <div className="col-span-2 pt-2 border-t border-gray-100 dark:border-white/8">
+              <p className="text-xs text-gray-400 dark:text-foreground/40 mb-3">Phase-1 精细化字段</p>
+            </div>
+            <FieldInput label="完整姓名" value={profileForm.full_name} onChange={v => setProfileForm((p) => ({ ...p, full_name: v }))} />
+            <FieldInput label="微信号" value={profileForm.wechat_id} onChange={v => setProfileForm((p) => ({ ...p, wechat_id: v }))} />
+            <FieldInput label="出生年月 (YYYY-MM)" value={profileForm.birth_year_month} onChange={v => setProfileForm((p) => ({ ...p, birth_year_month: v }))} placeholder="1992-06" />
+            <FieldInput label="所在城市（精细）" value={profileForm.current_city} onChange={v => setProfileForm((p) => ({ ...p, current_city: v }))} />
+            <FieldInput label="户籍城市" value={profileForm.hukou_city} onChange={v => setProfileForm((p) => ({ ...p, hukou_city: v }))} />
+            <FieldInput label="祖籍" value={profileForm.native_place} onChange={v => setProfileForm((p) => ({ ...p, native_place: v }))} />
+            <FieldInput label="精确身高(cm)" value={profileForm.height_cm} onChange={v => setProfileForm((p) => ({ ...p, height_cm: v }))} type="number" />
+            <FieldInput label="精确体重(kg)" value={profileForm.weight_kg} onChange={v => setProfileForm((p) => ({ ...p, weight_kg: v }))} type="number" />
+            <SelectField
+              label="学历（精细）"
+              value={profileForm.education_level_v2}
+              onChange={(value) => setProfileForm((p) => ({ ...p, education_level_v2: value }))}
+              options={Object.entries(EDUCATION_LEVEL_V2_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择学历"
+            />
+            <FieldInput label="本科院校" value={profileForm.bachelor_school} onChange={v => setProfileForm((p) => ({ ...p, bachelor_school: v }))} />
+            <FieldInput label="硕士院校" value={profileForm.master_school} onChange={v => setProfileForm((p) => ({ ...p, master_school: v }))} />
+            <FieldInput label="专业" value={profileForm.major} onChange={v => setProfileForm((p) => ({ ...p, major: v }))} />
+            <FieldInput label="公司名称" value={profileForm.company_name} onChange={v => setProfileForm((p) => ({ ...p, company_name: v }))} />
+            <FieldInput label="月收入(万元)" value={profileForm.monthly_income} onChange={v => setProfileForm((p) => ({ ...p, monthly_income: v }))} type="number" />
+            <SelectField
+              label="婚史（枚举）"
+              value={profileForm.marital_history_enum}
+              onChange={(value) => setProfileForm((p) => ({ ...p, marital_history_enum: value }))}
+              options={Object.entries(MARITAL_HISTORY_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择婚史"
+            />
+            <FieldInput label="婚史补充" value={profileForm.marital_history_notes} onChange={v => setProfileForm((p) => ({ ...p, marital_history_notes: v }))} />
+            <SelectField
+              label="是否有孩子（枚举）"
+              value={profileForm.has_children_enum}
+              onChange={(value) => setProfileForm((p) => ({ ...p, has_children_enum: value }))}
+              options={Object.entries(HAS_CHILDREN_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择"
+            />
+            <FieldInput label="孩子数量" value={profileForm.children_count} onChange={v => setProfileForm((p) => ({ ...p, children_count: v }))} type="number" />
+            <FieldInput label="孩子年龄情况" value={profileForm.children_age_notes} onChange={v => setProfileForm((p) => ({ ...p, children_age_notes: v }))} />
+            <SelectField
+              label="是否吸烟（枚举）"
+              value={profileForm.smokes}
+              onChange={(value) => setProfileForm((p) => ({ ...p, smokes: value }))}
+              options={Object.entries(LIFESTYLE_YN_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择"
+            />
+            <SelectField
+              label="是否饮酒（枚举）"
+              value={profileForm.drinks}
+              onChange={(value) => setProfileForm((p) => ({ ...p, drinks: value }))}
+              options={Object.entries(LIFESTYLE_YN_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择"
+            />
+            <SelectField
+              label="成婚紧迫程度"
+              value={profileForm.urgency_level}
+              onChange={(value) => setProfileForm((p) => ({ ...p, urgency_level: value }))}
+              options={Object.entries(URGENCY_LEVEL_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder="选择紧迫程度"
+            />
+            <FieldInput label="MBTI" value={profileForm.mbti} onChange={v => setProfileForm((p) => ({ ...p, mbti: v }))} placeholder="INFJ / ENFP ..." />
+            <div className="col-span-2">
+              <FieldTextarea label="性格描述" value={profileForm.personality_summary} onChange={v => setProfileForm((p) => ({ ...p, personality_summary: v }))} rows={2} />
+            </div>
+            <div className="col-span-2">
+              <FieldTextarea label="自我描述" value={profileForm.self_description} onChange={v => setProfileForm((p) => ({ ...p, self_description: v }))} rows={2} />
+            </div>
+            <div className="col-span-2">
+              <FieldInput label="兄弟姐妹情况" value={profileForm.siblings_summary} onChange={v => setProfileForm((p) => ({ ...p, siblings_summary: v }))} />
+            </div>
+            <FieldInput label="父母职业" value={profileForm.parents_occupation} onChange={v => setProfileForm((p) => ({ ...p, parents_occupation: v }))} />
+            <FieldInput label="房产情况" value={profileForm.property_notes} onChange={v => setProfileForm((p) => ({ ...p, property_notes: v }))} />
+            <FieldInput label="车辆品牌" value={profileForm.vehicle_brand} onChange={v => setProfileForm((p) => ({ ...p, vehicle_brand: v }))} />
+            <FieldInput label="车辆补充" value={profileForm.vehicle_notes} onChange={v => setProfileForm((p) => ({ ...p, vehicle_notes: v }))} />
+            <div className="col-span-2">
+              <FieldTextarea label="金融资产说明" value={profileForm.financial_assets_notes} onChange={v => setProfileForm((p) => ({ ...p, financial_assets_notes: v }))} rows={2} />
+            </div>
+            <div className="col-span-2">
+              <FieldTextarea label="保险情况" value={profileForm.insurance_notes} onChange={v => setProfileForm((p) => ({ ...p, insurance_notes: v }))} rows={2} />
+            </div>
           </div>
         ) : (
           <div className="space-y-5">
@@ -339,33 +487,50 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
               lifestylePhotoUrls={profile.lifestyle_photo_urls ?? profile.photo_urls}
             />
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              <InfoField label="姓名" value={profile.name} />
+              <InfoField label="姓名" value={profile.full_name || profile.name} />
               <InfoField label="性别" value={GENDER_LABELS[profile.gender]} />
               <InfoField label="状态" value={STATUS_LABELS[profile.status]} />
               <InfoField label="联系方式" value={profile.phone} />
-              <InfoField label="年龄" value={profile.age ? `${profile.age} 岁` : ''} />
-              <InfoField label="身高" value={profile.height ? `${profile.height} cm` : ''} />
-              <InfoField label="体重" value={profile.weight ? `${profile.weight} kg` : ''} />
-              <InfoField label="所在城市" value={profile.city} />
-              <InfoField label="户籍/老家" value={profile.hometown} />
-              <InfoField label="学历" value={profile.education ? EDUCATION_LABELS[profile.education] : ''} />
+              {profile.wechat_id && <InfoField label="微信" value={profile.wechat_id} />}
+              <InfoField label="出生年月" value={profile.birth_year_month || (profile.age ? `${profile.age} 岁` : '')} />
+              <InfoField label="身高" value={(profile.height_cm || profile.height) ? `${profile.height_cm || profile.height} cm` : ''} />
+              <InfoField label="体重" value={(profile.weight_kg || profile.weight) ? `${profile.weight_kg || profile.weight} kg` : ''} />
+              <InfoField label="所在城市" value={profile.current_city || profile.city} />
+              <InfoField label="户籍城市" value={profile.hukou_city || profile.hometown} />
+              {profile.native_place && <InfoField label="祖籍" value={profile.native_place} />}
+              <InfoField label="学历" value={profile.education_level_v2 ? EDUCATION_LEVEL_V2_LABELS[profile.education_level_v2] : (profile.education ? EDUCATION_LABELS[profile.education] : '')} />
+              {(profile.bachelor_school || profile.master_school) && (
+                <InfoField label="毕业院校" value={[profile.bachelor_school, profile.master_school].filter(Boolean).join(' / ')} />
+              )}
+              {profile.major && <InfoField label="专业" value={profile.major} />}
               <InfoField label="职业" value={profile.occupation} />
               <InfoField label="职位" value={profile.job_title} />
-              <InfoField label="年薪" value={profile.annual_income ? `约 ${profile.annual_income} 万元` : ''} />
-              <InfoField label="收入区间" value={profile.income_range} />
+              {profile.company_name && <InfoField label="公司" value={profile.company_name} />}
+              <InfoField label="月收入" value={profile.monthly_income ? `约 ${profile.monthly_income} 万元/月` : (profile.annual_income ? `约 ${profile.annual_income} 万元/年` : profile.income_range || '')} />
               <InfoField label="资产" value={profile.assets} />
+              {profile.property_notes && <InfoField label="房产" value={profile.property_notes} />}
+              {profile.vehicle_brand && <InfoField label="车辆" value={[profile.vehicle_brand, profile.vehicle_notes].filter(Boolean).join(' ')} />}
+              {profile.financial_assets_notes && <InfoField label="金融���产" value={profile.financial_assets_notes} />}
               <InfoField label="颜值评分" value={profile.appearance_score ? `${profile.appearance_score} / 10` : ''} />
-              <InfoField label="婚史" value={profile.marital_history} />
-              <InfoField label="是否有孩子" value={formatBoolean(profile.has_children)} />
-              <InfoField label="是否吸烟" value={formatBoolean(profile.smoking)} />
-              <InfoField label="是否饮酒" value={formatBoolean(profile.drinking)} />
+              <InfoField label="婚史" value={profile.marital_history_enum ? MARITAL_HISTORY_LABELS[profile.marital_history_enum] : (profile.marital_history || '')} />
+              <InfoField label="是否有孩子" value={profile.has_children_enum ? HAS_CHILDREN_LABELS[profile.has_children_enum] : formatBoolean(profile.has_children)} />
+              <InfoField label="是否吸烟" value={profile.smokes ? LIFESTYLE_YN_LABELS[profile.smokes] : formatBoolean(profile.smoking)} />
+              <InfoField label="是否饮酒" value={profile.drinks ? LIFESTYLE_YN_LABELS[profile.drinks] : formatBoolean(profile.drinking)} />
+              {profile.urgency_level && <InfoField label="紧迫程度" value={URGENCY_LEVEL_LABELS[profile.urgency_level]} />}
               <InfoField label="认真程度" value={profile.seriousness_score ? `${profile.seriousness_score} / 10` : ''} />
+              {profile.mbti && <InfoField label="MBTI" value={profile.mbti} />}
             </dl>
 
             <InfoTags label="兴趣爱好" items={profile.hobbies} tone="rose" />
             <InfoTags label="生活方式" items={profile.lifestyle_tags} tone="emerald" />
             <InfoTags label="性格标签" items={profile.personality_tags} tone="blue" />
-            <InfoPanel label="孩子情况" value={profile.children_notes} tone="slate" />
+            <InfoPanel label="孩子情况" value={profile.children_age_notes || profile.children_notes} tone="slate" />
+            {profile.marital_history_notes && <InfoPanel label="婚史补充" value={profile.marital_history_notes} tone="slate" />}
+            {profile.personality_summary && <InfoPanel label="性格描述" value={profile.personality_summary} tone="blue" />}
+            {profile.self_description && <InfoPanel label="自我描述" value={profile.self_description} tone="blue" />}
+            {profile.siblings_summary && <InfoPanel label="兄弟姐妹" value={profile.siblings_summary} tone="slate" />}
+            {profile.parents_occupation && <InfoPanel label="父母职业" value={profile.parents_occupation} tone="slate" />}
+            {profile.insurance_notes && <InfoPanel label="保险情况" value={profile.insurance_notes} tone="slate" />}
             <InfoPanel label="家庭责任/压力" value={profile.family_burden_notes} tone="amber" />
             <InfoPanel label="父母介入程度" value={profile.parental_involvement} tone="orange" />
             <InfoPanel label="红娘推进建议" value={profile.followup_strategy} tone="green" />

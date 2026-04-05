@@ -69,7 +69,13 @@
   - 作用：第一阶段生命周期状态模型冻结输出
   - 回答：客户状态到底有哪些、怎么迁移、如何提醒、怎样记日志
 
-### 2.8 字段专项执行清单
+### 2.8 导入与资料卡冻结
+
+- [freeze-zhenlian-import-and-cards-v1.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/freeze-zhenlian-import-and-cards-v1.md)
+  - 作用：第一阶段导入落点对齐与资料卡可见范围冻结输出
+  - 回答：三种导入入口如何共享字段落点、AI 草稿流转规则、材料语义边界、资料卡三版本字段范围
+
+### 2.9 字段专项执行清单
 
 - [todo-zhenlian-fields-2.1-2.3.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/todo-zhenlian-fields-2.1-2.3.md)
   - 作用：模块一 `2.1~2.3` 的字段专项执行拆解
