@@ -1,5 +1,10 @@
 # 创建音频转文本
 
+> 状态：历史 / 兼容接口参考
+> 这份文档描述的是 OpenAI 兼容音频转写接口口径，可用于云雾 / 兔子类聚合网关兜底，但不是当前 `marry` 的主链路合同。
+> 当前项目里的 Whisper 主链路优先走 `Groq`，默认模型是 `whisper-large-v3-turbo`；只有兼容网关兜底时，才参考这里的 `/v1/audio/transcriptions` 和 `whisper-1` 口径。
+> 真实接入逻辑请以 [/Users/myandong/Projects/marry2/lib/ai/client.ts](/Users/myandong/Projects/marry2/lib/ai/client.ts) 和 [/Users/myandong/Projects/marry2/docs/ops/deployment.md](/Users/myandong/Projects/marry2/docs/ops/deployment.md) 为准。
+
 ## OpenAPI Specification
 
 ```yaml
@@ -106,4 +111,3 @@ security:
   - bearer: []
 
 ```
-

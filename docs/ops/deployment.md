@@ -16,7 +16,7 @@
      - `marry_claude_YUNWU_API_KEY`（云雾兜底）
      - `ANTHROPIC_API_KEY`（如需官方最终兜底）
    - 兼容模式下也支持：
-     - `API_KEY`（走 `docs/API/*` 中的聚合网关，共用同一把 key）
+     - `API_KEY`（走 `docs/reference/api/` 中的聚合网关，共用同一把 key）
    - 可选：`AI_API_BASE_URL`（默认 `https://yunwu.ai`）
    - 可选：`CLAUDE_DEFAULT_MODEL`（默认 `anthropic/claude-sonnet-4.6`）
    - `CRON_SECRET`

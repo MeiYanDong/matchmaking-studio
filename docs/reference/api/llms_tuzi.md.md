@@ -1,5 +1,9 @@
 # api.tu-zi.com
 
+> 状态：供应商 / 聚合平台参考
+> 这份文档用于保留 `api.tu-zi.com` 的资料入口和兼容接口说明，不是当前 `marry` 的实现合同。
+> 当前项目里，兔子相关口径只应被当成兼容网关 / 历史接入参考；要判断真实接入顺序、环境变量和默认模型，应优先看 [/Users/myandong/Projects/marry2/lib/ai/client.ts](/Users/myandong/Projects/marry2/lib/ai/client.ts) 与 [/Users/myandong/Projects/marry2/docs/ops/deployment.md](/Users/myandong/Projects/marry2/docs/ops/deployment.md)。
+
 ## Docs
 - [介绍](https://apifox.tu-zi.com/7324323m0.md): 
 - openai [项目说明](https://apifox.tu-zi.com/7324324m0.md): 

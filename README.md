@@ -379,7 +379,8 @@ npm test
 
 更多实现细节见：
 
-- [docs/plan.md](/Users/myandong/Projects/marry2/docs/plan.md)
-- [docs/todo.md](/Users/myandong/Projects/marry2/docs/todo.md)
-- [docs/roadmap.md](/Users/myandong/Projects/marry2/docs/roadmap.md)
-- [docs/deployment.md](/Users/myandong/Projects/marry2/docs/deployment.md)
+- [docs/README.md](/Users/myandong/Projects/marry2/docs/README.md)
+- [当前主线总纲](/Users/myandong/Projects/marry2/docs/current/zhenlian/plan-zhenlian-rebuild.md)
+- [第一阶段计划](/Users/myandong/Projects/marry2/docs/current/zhenlian/plan-zhenlian-phase-1.md)
+- [历史 v1.0 计划](/Users/myandong/Projects/marry2/docs/history/v1/plan.md)
+- [部署说明](/Users/myandong/Projects/marry2/docs/ops/deployment.md)
