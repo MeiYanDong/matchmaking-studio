@@ -219,9 +219,9 @@ test('tryParseExtractionContract 会忽略未知字段并保留其他字段', ()
   const result = tryParseExtractionContract({
     field_updates: [
       {
-        field_key: 'mbti',
+        field_key: 'zodiac_sign',
         action: 'set',
-        new_value: 'INTP',
+        new_value: '天蝎座',
         confidence: 'high',
       },
       {
@@ -275,7 +275,7 @@ test('parseExtractionContract 兼容第三方模型的近似字段名', () => {
   assert.equal(parsed.field_updates[0]?.field_key, 'age')
   assert.equal(parsed.field_updates[0]?.action, 'set')
   assert.equal(parsed.field_updates[0]?.evidence_excerpt, '我是男生,35岁')
-  assert.equal(parsed.field_updates[1]?.field_key, 'height')
+  assert.equal(parsed.field_updates[1]?.field_key, 'height_cm')
   assert.equal(parsed.field_updates[1]?.field_label, '身高')
   assert.equal(parsed.field_updates[1]?.new_value, 164)
   assert.equal(parsed.review_required[0]?.field_key, 'profile_gender')
@@ -445,7 +445,7 @@ test('parseExtractionContract 兼容中文字段名和近似中文别名', () =>
 
   assert.deepEqual(
     parsed.field_updates.map((item) => item.field_key),
-    ['age', 'city', 'relationship_mode', 'accepts_mode_compensated_dating']
+    ['age', 'current_city', 'relationship_mode', 'accepts_mode_compensated_dating']
   )
   assert.deepEqual(parsed.missing_critical_fields, [
     'fertility_preference',
