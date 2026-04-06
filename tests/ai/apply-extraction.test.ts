@@ -115,14 +115,15 @@ function createProfile(overrides: Partial<Profile> = {}): Profile {
     mbti: null,
     personality_summary: null,
     self_description: null,
+    letter_to_partner: null,
     ...overrides,
   }
 }
 
 function createIntention(overrides: Partial<Intention> = {}): Intention {
   return {
+    id: 'intention-1',
     profile_id: 'profile-1',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     primary_intent: null,
     intent_notes: null,
@@ -165,14 +166,18 @@ function createIntention(overrides: Partial<Intention> = {}): Intention {
     biggest_concerns: null,
     implicit_intent_notes: null,
     preference_importance: null,
+    dating_frequency_expectation: null,
+    monthly_date_budget: null,
+    wedding_scale_preference: null,
+    accepts_parents_cohabitation: null,
     ...overrides,
   }
 }
 
 function createTraitProfile(overrides: Partial<TraitProfile> = {}): TraitProfile {
   return {
+    id: 'trait-1',
     profile_id: 'profile-1',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     hobby_ranked_tags: null,
     exercise_habits: null,
@@ -191,7 +196,6 @@ function createConversation(overrides: Partial<Conversation> = {}): Conversation
   return {
     id: 'conv-1',
     created_at: '2026-04-02T00:00:00.000Z',
-    updated_at: '2026-04-02T00:00:00.000Z',
     profile_id: 'profile-1',
     matchmaker_id: 'mm-1',
     audio_url: 'audio/test.mp3',
@@ -207,6 +211,7 @@ function createConversation(overrides: Partial<Conversation> = {}): Conversation
     reviewed_at: null,
     status: 'done',
     error_message: null,
+    failed_stage: null,
     ...overrides,
   }
 }

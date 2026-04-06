@@ -193,6 +193,7 @@ export async function updateProfile(profileId: string, updates: {
   mbti?: string | null
   personality_summary?: string | null
   self_description?: string | null
+  letter_to_partner?: string | null
 }) {
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -250,6 +251,10 @@ export async function updateIntention(profileId: string, updates: {
   biggest_concerns?: string[] | null
   implicit_intent_notes?: string | null
   preference_importance?: Json | null
+  dating_frequency_expectation?: string | null
+  monthly_date_budget?: string | null
+  wedding_scale_preference?: string | null
+  accepts_parents_cohabitation?: string | null
 }) {
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

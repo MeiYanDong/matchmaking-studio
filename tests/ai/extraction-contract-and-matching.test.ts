@@ -115,14 +115,15 @@ function createProfile(overrides: Partial<Profile> = {}): Profile {
     mbti: null,
     personality_summary: null,
     self_description: null,
+    letter_to_partner: null,
     ...overrides,
   }
 }
 
 function createIntention(overrides: Partial<Intention> = {}): Intention {
   return {
+    id: 'intention-1',
     profile_id: 'profile',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     primary_intent: 'marriage',
     intent_notes: null,
@@ -165,14 +166,18 @@ function createIntention(overrides: Partial<Intention> = {}): Intention {
     biggest_concerns: null,
     implicit_intent_notes: null,
     preference_importance: { city: 'important', income: 'hard' },
+    dating_frequency_expectation: null,
+    monthly_date_budget: null,
+    wedding_scale_preference: null,
+    accepts_parents_cohabitation: null,
     ...overrides,
   }
 }
 
 function createTraitProfile(overrides: Partial<TraitProfile> = {}): TraitProfile {
   return {
+    id: 'trait-1',
     profile_id: 'profile',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     hobby_ranked_tags: null,
     exercise_habits: '每周健身',
