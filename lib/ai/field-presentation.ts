@@ -240,8 +240,17 @@ export function formatFieldValueLines(fieldKey: string, value: unknown): string[
     || fieldKey === 'accepts_long_distance'
     || fieldKey === 'relocation_willingness'
     || fieldKey === 'accepts_partner_children'
+    || fieldKey === 'has_property'
+    || fieldKey === 'has_vehicle'
+    || fieldKey === 'financial_ties_with_ex_partner'
+    || fieldKey === 'prenup_acceptance'
   ) {
     return [formatTriStateValue(value)]
+  }
+
+  if (fieldKey === 'biological_child_requirement') {
+    const s = String(value)
+    return [BOOLEAN_LABELS[s as keyof typeof BOOLEAN_LABELS] ?? formatPrimitiveValue(value)]
   }
 
   if (fieldKey === 'preference_importance') {

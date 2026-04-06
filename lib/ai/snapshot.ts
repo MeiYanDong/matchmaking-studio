@@ -61,6 +61,31 @@ export function buildCurrentProfileSnapshot({
   snapshot.followup_strategy = profile.followup_strategy
   snapshot.ai_summary = profile.ai_summary
 
+  // Phase-1 新增字段 — profiles
+  snapshot.wechat_id = profile.wechat_id
+  snapshot.weight_kg = profile.weight_kg
+  snapshot.doctor_school = profile.doctor_school
+  snapshot.hukou_city = profile.hukou_city
+  snapshot.native_place = profile.native_place
+  snapshot.income_source_type = profile.income_source_type
+  snapshot.has_property = profile.has_property
+  snapshot.property_count = profile.property_count
+  snapshot.has_vehicle = profile.has_vehicle
+  snapshot.vehicle_model = profile.vehicle_model
+  snapshot.family_asset_band = profile.family_asset_band
+  snapshot.financial_assets_notes = profile.financial_assets_notes
+  snapshot.marital_history_notes = profile.marital_history_notes
+  snapshot.children_count = profile.children_count
+  snapshot.custody_status = profile.custody_status
+  snapshot.financial_ties_with_ex_partner = profile.financial_ties_with_ex_partner
+  snapshot.smoking_frequency = profile.smoking_frequency
+  snapshot.drinking_frequency = profile.drinking_frequency
+  snapshot.siblings_summary = profile.siblings_summary
+  snapshot.parents_occupation = profile.parents_occupation
+  snapshot.parents_marital_status = profile.parents_marital_status
+  snapshot.personality_summary = profile.personality_summary
+  snapshot.self_description = profile.self_description
+
   snapshot.primary_intent = intention?.primary_intent ?? null
   snapshot.relationship_mode = intention?.relationship_mode ?? null
   snapshot.accepts_mode_marriage_standard = intention?.accepts_mode_marriage_standard ?? 'unknown'
@@ -82,6 +107,22 @@ export function buildCurrentProfileSnapshot({
   snapshot.communication_style = intention?.communication_style ?? null
   snapshot.relationship_pace = intention?.relationship_pace ?? null
   snapshot.biggest_concerns = intention?.biggest_concerns ?? null
+
+  // Phase-1 新增字段 — intentions
+  snapshot.fertility_timeline = intention?.fertility_timeline ?? null
+  snapshot.desired_children_count = intention?.desired_children_count ?? null
+  snapshot.biological_child_requirement = intention?.biological_child_requirement ?? null
+  snapshot.co_parenting_expectation = intention?.co_parenting_expectation ?? null
+  snapshot.wedding_scale_preference = intention?.wedding_scale_preference ?? null
+  snapshot.financial_arrangement_expectation = intention?.financial_arrangement_expectation ?? null
+  snapshot.accepts_parents_cohabitation = intention?.accepts_parents_cohabitation ?? null
+  snapshot.settle_city_preferences = intention?.settle_city_preferences ?? null
+  snapshot.dating_frequency_expectation = intention?.dating_frequency_expectation ?? null
+  snapshot.monthly_date_budget = intention?.monthly_date_budget ?? null
+  snapshot.preferred_height_min = intention?.preferred_height_min ?? null
+  snapshot.preferred_net_worth_min = intention?.preferred_net_worth_min ?? null
+  snapshot.preferred_industry_tags = intention?.preferred_industry_tags ?? null
+  snapshot.prenup_acceptance = intention?.prenup_acceptance ?? null
 
   snapshot.exercise_habits = traitProfile?.exercise_habits ?? null
   snapshot.diet_habits = traitProfile?.diet_habits ?? null
