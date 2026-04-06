@@ -237,13 +237,6 @@ function normalizeValue(fieldKey: V1FieldKey, value: unknown): Json | undefined 
       const next = typeof value === 'number' ? value : Number(value)
       return Number.isFinite(next) ? next : undefined
     }
-    case 'boolean': {
-      if (typeof value === 'boolean') return value
-      const next = String(value).trim().toLowerCase()
-      if (['true', 'yes', '有', '是'].includes(next)) return true
-      if (['false', 'no', '没有', '否'].includes(next)) return false
-      return undefined
-    }
     case 'tri_state': {
       const next = String(value).trim().toLowerCase()
       return isTriStateValue(next) ? next : undefined
@@ -286,15 +279,15 @@ function valuesEqual(a: unknown, b: unknown) {
 
 const MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS = new Set<V1FieldKey>([
   'age',
-  'height',
-  'city',
+  'height_cm',
+  'current_city',
   'current_base_cities',
-  'education',
+  'education_level_v2',
   'occupation',
   'work_schedule',
-  'annual_income',
-  'marital_history',
-  'has_children',
+  'monthly_income',
+  'marital_history_enum',
+  'has_children_enum',
 ])
 
 function canBackfillDirectProfileFactAtMediumConfidence(

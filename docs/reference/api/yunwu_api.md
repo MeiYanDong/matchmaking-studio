@@ -1,5 +1,10 @@
 # 云雾API 接口对接 
 
+> 状态：供应商 / 聚合网关参考
+> 不是当前实现 source of truth。
+> 当前 `marry` 的实际接入以 [/Users/myandong/Projects/marry2/lib/ai/client.ts](/Users/myandong/Projects/marry2/lib/ai/client.ts) 和 [/Users/myandong/Projects/marry2/docs/ops/deployment.md](/Users/myandong/Projects/marry2/docs/ops/deployment.md) 为准。
+> 当前链路中，云雾主要是兼容网关兜底，不是 Whisper 或 Claude 的默认主链路。
+
 ## Docs
 - [引言](https://yunwu.apifox.cn/doc-5459032.md): 
 - [在线调试说明](https://yunwu.apifox.cn/doc-5459006.md): 

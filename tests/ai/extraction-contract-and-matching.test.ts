@@ -68,14 +68,62 @@ function createProfile(overrides: Partial<Profile> = {}): Profile {
     hidden_expectations: null,
     ai_summary: null,
     raw_notes: null,
+    // Phase-1 新字段
+    full_name: null,
+    display_name: null,
+    current_city: null,
+    birth_year_month: null,
+    height_cm: null,
+    weight_kg: null,
+    wechat_id: null,
+    education_level_v2: null,
+    bachelor_school: null,
+    master_school: null,
+    doctor_school: null,
+    major: null,
+    company_name: null,
+    monthly_income: null,
+    income_source_type: null,
+    has_property: null,
+    property_count: null,
+    property_notes: null,
+    has_vehicle: null,
+    vehicle_brand: null,
+    vehicle_model: null,
+    vehicle_notes: null,
+    family_asset_band: null,
+    financial_assets_notes: null,
+    insurance_notes: null,
+    marital_history_enum: null,
+    marital_history_notes: null,
+    has_children_enum: null,
+    children_count: null,
+    children_age_notes: null,
+    custody_status: null,
+    financial_ties_with_ex_partner: null,
+    smokes: null,
+    smoking_frequency: null,
+    drinks: null,
+    drinking_frequency: null,
+    urgency_level: null,
+    hukou_city: null,
+    native_place: null,
+    siblings_summary: null,
+    parents_occupation: null,
+    parents_marital_status: null,
+    family_origin_notes: null,
+    mbti: null,
+    personality_summary: null,
+    self_description: null,
+    letter_to_partner: null,
     ...overrides,
   }
 }
 
 function createIntention(overrides: Partial<Intention> = {}): Intention {
   return {
+    id: 'intention-1',
     profile_id: 'profile',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     primary_intent: 'marriage',
     intent_notes: null,
@@ -118,14 +166,18 @@ function createIntention(overrides: Partial<Intention> = {}): Intention {
     biggest_concerns: null,
     implicit_intent_notes: null,
     preference_importance: { city: 'important', income: 'hard' },
+    dating_frequency_expectation: null,
+    monthly_date_budget: null,
+    wedding_scale_preference: null,
+    accepts_parents_cohabitation: null,
     ...overrides,
   }
 }
 
 function createTraitProfile(overrides: Partial<TraitProfile> = {}): TraitProfile {
   return {
+    id: 'trait-1',
     profile_id: 'profile',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     hobby_ranked_tags: null,
     exercise_habits: '每周健身',
@@ -172,9 +224,9 @@ test('tryParseExtractionContract 会忽略未知字段并保留其他字段', ()
   const result = tryParseExtractionContract({
     field_updates: [
       {
-        field_key: 'mbti',
+        field_key: 'zodiac_sign',
         action: 'set',
-        new_value: 'INTP',
+        new_value: '天蝎座',
         confidence: 'high',
       },
       {
@@ -228,7 +280,7 @@ test('parseExtractionContract 兼容第三方模型的近似字段名', () => {
   assert.equal(parsed.field_updates[0]?.field_key, 'age')
   assert.equal(parsed.field_updates[0]?.action, 'set')
   assert.equal(parsed.field_updates[0]?.evidence_excerpt, '我是男生,35岁')
-  assert.equal(parsed.field_updates[1]?.field_key, 'height')
+  assert.equal(parsed.field_updates[1]?.field_key, 'height_cm')
   assert.equal(parsed.field_updates[1]?.field_label, '身高')
   assert.equal(parsed.field_updates[1]?.new_value, 164)
   assert.equal(parsed.review_required[0]?.field_key, 'profile_gender')
@@ -398,7 +450,7 @@ test('parseExtractionContract 兼容中文字段名和近似中文别名', () =>
 
   assert.deepEqual(
     parsed.field_updates.map((item) => item.field_key),
-    ['age', 'city', 'relationship_mode', 'accepts_mode_compensated_dating']
+    ['age', 'current_city', 'relationship_mode', 'accepts_mode_compensated_dating']
   )
   assert.deepEqual(parsed.missing_critical_fields, [
     'fertility_preference',

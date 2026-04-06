@@ -9,7 +9,9 @@ export const MANUAL_ONLY_V1_FOLLOWUP_FIELD_KEYS = new Set([
 const CANONICAL_QUESTION_BY_FIELD_KEY: Record<string, string> = {
   relationship_mode: '你现在更明确是奔着结婚，还是恋爱带经济安排，还是生育资产安排这类模式？',
   marital_history: '你之前有过婚史吗，还是一直未婚？',
+  marital_history_enum: '你之前有过婚史吗，还是一直未婚？',
   has_children: '你自己目前有孩子吗？',
+  has_children_enum: '你自己目前有孩子吗？',
   accepts_partner_children: '对方如果有孩子，你这边能接受吗？',
   accepts_partner_marital_history: '你能接受对方有过婚史吗？离异的可以考虑吗？',
   fertility_preference: '你自己未来有没有想生孩子的打算？',
@@ -24,11 +26,11 @@ const FIELD_QUESTION_PATTERNS: Array<{ fieldKey: string; patterns: RegExp[] }> =
     patterns: [/奔着结婚/, /经济安排/, /生育.*资产安排/, /关系模式/],
   },
   {
-    fieldKey: 'marital_history',
+    fieldKey: 'marital_history_enum',
     patterns: [/婚史/, /未婚/, /结过婚/, /离异/],
   },
   {
-    fieldKey: 'has_children',
+    fieldKey: 'has_children_enum',
     patterns: [/自己.*有孩子/, /^有孩子吗/, /目前有孩子/],
   },
   {

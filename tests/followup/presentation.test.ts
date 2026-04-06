@@ -4,19 +4,19 @@ import { buildDisplayFollowupQuestions, dedupeFieldKeysByDisplay } from '@/lib/f
 
 test('关键缺口按最终显示文案去重', () => {
   const result = dedupeFieldKeysByDisplay([
-    'marital_history',
-    'marital_history',
+    'marital_history_enum',
+    'marital_history_enum',
     '婚史',
-    'has_children',
+    'has_children_enum',
   ])
 
-  assert.deepEqual(result, ['marital_history', 'has_children'])
+  assert.deepEqual(result, ['marital_history_enum', 'has_children_enum'])
 })
 
 test('待补问会优先使用字段标准问法并折叠语义重复问题', () => {
   const result = buildDisplayFollowupQuestions(
     [
-      'marital_history',
+      'marital_history_enum',
       'accepts_partner_marital_history',
       'accepts_partner_children',
       'fertility_preference',

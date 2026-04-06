@@ -1,5 +1,7 @@
 # Matchmaking Studio - 可执行开发清单
 
+> 状态提示：这是 v1.0 历史清单，不再是当前主线执行入口。当前主线请看 [todo-zhenlian-phase-1.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/todo-zhenlian-phase-1.md)。
+
 > 依据：[plan.md](./plan.md)  
 > 目标：把当前项目收束为一套 AI-first、红娘主导、面向高质量客户的婚恋撮合工作台  
 > 使用规则：只有在“代码已落地 + 本地验证通过 + 关键页面/流程实际可用”后，才将对应任务勾选为已完成

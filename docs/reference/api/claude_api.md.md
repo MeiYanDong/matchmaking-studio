@@ -1,5 +1,10 @@
 # Claude
 
+> 状态：历史 / 兼容接口参考
+> 这份文档保留的是 Anthropic 兼容聊天接口口径，可用于聚合网关或历史接入回看，但不是当前 `marry` 的默认 Claude 合同。
+> 当前项目里的 Claude 主链路优先走 `OpenRouter`，云雾 / 兔子类网关只作为兼容兜底，`ANTHROPIC_API_KEY` 只作为最终官方兜底。
+> 真实接入逻辑请以 [/Users/myandong/Projects/marry2/lib/ai/client.ts](/Users/myandong/Projects/marry2/lib/ai/client.ts) 和 [/Users/myandong/Projects/marry2/docs/ops/deployment.md](/Users/myandong/Projects/marry2/docs/ops/deployment.md) 为准。
+
 ## OpenAPI Specification
 
 ```yaml

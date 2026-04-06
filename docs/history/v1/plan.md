@@ -1,5 +1,7 @@
 # Matchmaking Studio - 详细需求方案（重构版）
 
+> 状态提示：这是 v1.0 历史文档，不再是当前主线 source of truth。当前主线请看 [plan-zhenlian-rebuild.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/plan-zhenlian-rebuild.md) 与 [plan-zhenlian-phase-1.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/plan-zhenlian-phase-1.md)。
+
 > 版本：V2.0  
 > 版本状态：V2.1（补充 UI / 布局 / 体验重构方案）  
 > 日期：2026-04-03  
@@ -86,7 +88,7 @@ AI 的职责是：
 
 #### 原则 G：V1 不做说话人分离前提
 
-根据当前接入的第三方网关文档，音频转写接口明确可用的是 `whisper-1`，支持 `json / text / srt / verbose_json / vtt`，但没有文档化的说话人分离参数。[voice_api.md.md](./API/voice_api.md.md)  
+根据当前接入的第三方网关文档，音频转写接口明确可用的是 `whisper-1`，支持 `json / text / srt / verbose_json / vtt`，但没有文档化的说话人分离参数。[voice_api.md.md](/Users/myandong/Projects/marry2/docs/reference/api/voice_api.md.md)  
 因此 V1 采用以下策略：
 
 - 默认一段音频只对应“红娘 + 单一客户”
@@ -3694,14 +3696,14 @@ UI / 布局重构验收至少满足：
 
 1. 明确产品 UI 重构方向：以 `virtuals-whale-radar/frontend/admin` 的设计系统结构为参考，只迁 UI 层，不迁业务逻辑
 2. 确定新的产品视觉 thesis：`年轻、轻盈、顺滑、系统化的 Matchmaking 工作台`
-3. 在 `docs/plan.md` 中固定 token、theme、shell、primitives、props 驱动模板的分层方案
+3. 在 `docs/history/v1/plan.md` 中固定 token、theme、shell、primitives、props 驱动模板的分层方案
 4. 收束并重写 `globals.css` 的主题 token 与 auth / workspace surface 体系
 5. 统一 `Button / Badge / Card / Dialog / Tabs / Input / Select` 的产品语义样式
 6. 重构 sidebar、top context bar、assist rail 与 auth shell，建立全局信息架构
 
 ### Phase 1：字段系统重构与敏感模式上线
 
-1. 建立 `docs/plan.md` 中定义的新字段体系
+1. 建立 `docs/history/v1/plan.md` 中定义的新字段体系
 2. 新增敏感关系模式字段和三态接受状态
 3. 仅落地 V1 最小必要的生活方式字段与简化情绪稳定字段
 4. 建立“AI 默认入库 + 红娘只处理异常”的异常确认页

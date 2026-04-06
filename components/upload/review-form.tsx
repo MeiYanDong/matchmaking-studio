@@ -391,7 +391,7 @@ function ReviewInput({
     )
   }
 
-  if (spec.valueType === 'education') {
+  if (spec.valueType === 'string' && 'options' in spec && Array.isArray(spec.options) && spec.options.length) {
     return (
       <div className="space-y-1">
         <Label className="text-xs text-gray-500 dark:text-foreground/50">确认值</Label>
@@ -401,10 +401,10 @@ function ReviewInput({
           onChange={(event) => onChange(event.target.value)}
           className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm dark:bg-white/[0.05] dark:text-foreground"
         >
-          <option value="">请选择学历</option>
-          {EDUCATION_VALUES.map((option) => (
+          <option value="">请选择</option>
+          {(spec.options as readonly string[]).map((option) => (
             <option key={option} value={option}>
-              {EDUCATION_LABELS[option]}
+              {option}
             </option>
           ))}
         </select>

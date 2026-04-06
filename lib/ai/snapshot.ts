@@ -29,21 +29,33 @@ export function buildCurrentProfileSnapshot({
   snapshot.nationality = profile.nationality
   snapshot.languages = profile.languages
   snapshot.age = profile.age
-  snapshot.height = profile.height
-  snapshot.city = profile.city
+  snapshot.height_cm = profile.height_cm ?? profile.height
+  snapshot.current_city = profile.current_city ?? profile.city
   snapshot.current_base_cities = profile.current_base_cities
   snapshot.residency_status = profile.residency_status
   snapshot.travel_frequency = profile.travel_frequency
-  snapshot.education = profile.education
+  snapshot.education_level_v2 = (profile.education_level_v2 ?? profile.education) as typeof profile.education_level_v2
   snapshot.occupation = profile.occupation
   snapshot.work_schedule = profile.work_schedule
-  snapshot.annual_income = profile.annual_income
+  snapshot.monthly_income = profile.monthly_income ?? (profile.annual_income ? Math.round(profile.annual_income / 12 * 100) / 100 : null)
   snapshot.net_worth_range = profile.net_worth_range
   snapshot.assets = profile.assets
   snapshot.support_budget_range = profile.support_budget_range
-  snapshot.marital_history = profile.marital_history
-  snapshot.has_children = profile.has_children
+  snapshot.marital_history_enum = (profile.marital_history_enum ?? profile.marital_history) as typeof profile.marital_history_enum
+  snapshot.has_children_enum = profile.has_children_enum ?? (profile.has_children === true ? 'yes' : profile.has_children === false ? 'no' : null)
   snapshot.children_notes = profile.children_notes
+  snapshot.children_age_notes = profile.children_age_notes
+  snapshot.birth_year_month = profile.birth_year_month
+  snapshot.bachelor_school = profile.bachelor_school
+  snapshot.master_school = profile.master_school
+  snapshot.major = profile.major
+  snapshot.company_name = profile.company_name
+  snapshot.smokes = (profile.smokes ?? (profile.smoking === true ? 'yes' : profile.smoking === false ? 'no' : null)) as typeof profile.smokes
+  snapshot.drinks = (profile.drinks ?? (profile.drinking === true ? 'yes' : profile.drinking === false ? 'no' : null)) as typeof profile.drinks
+  snapshot.urgency_level = profile.urgency_level
+  snapshot.mbti = profile.mbti
+  snapshot.vehicle_brand = profile.vehicle_brand
+  snapshot.property_notes = profile.property_notes
   snapshot.hobbies = profile.hobbies
   snapshot.hidden_expectations = profile.hidden_expectations
   snapshot.followup_strategy = profile.followup_strategy

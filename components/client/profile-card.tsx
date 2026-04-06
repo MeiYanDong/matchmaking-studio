@@ -1,7 +1,7 @@
 'use client'
 
 import { Profile, Intention } from '@/types/database'
-import { GENDER_LABELS, EDUCATION_LABELS, INTENT_LABELS, STATUS_LABELS, TRI_STATE_LABELS } from '@/types/app'
+import { GENDER_LABELS, EDUCATION_LABELS, EDUCATION_LEVEL_V2_LABELS, INTENT_LABELS, STATUS_LABELS, TRI_STATE_LABELS, MARITAL_HISTORY_LABELS, HAS_CHILDREN_LABELS, LIFESTYLE_YN_LABELS } from '@/types/app'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -38,7 +38,7 @@ export function ProfileCard({ profile, intention, compact = false, printable = f
             {intentLabel && <Badge className="text-xs bg-rose-100 text-rose-700 hover:bg-rose-100 dark:border-rose-300/12 dark:bg-rose-400/[0.08] dark:text-rose-100">{intentLabel}</Badge>}
           </div>
           <p className="truncate text-xs text-gray-500 dark:text-foreground/56">
-            {[profile.age && `${profile.age}岁`, profile.city, profile.occupation].filter(Boolean).join(' · ')}
+            {[profile.age && `${profile.age}岁`, profile.current_city || profile.city, profile.occupation].filter(Boolean).join(' · ')}
           </p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export function ProfileCard({ profile, intention, compact = false, printable = f
                   )}
                 </div>
                 <p className="mt-2 text-sm text-gray-500 dark:text-foreground/56">
-                  {[profile.age && `${profile.age}岁`, profile.city, profile.hometown && `籍贯 ${profile.hometown}`].filter(Boolean).join(' · ')}
+                  {[profile.age && `${profile.age}岁`, profile.current_city || profile.city, (profile.hukou_city || profile.hometown) && `籍贯 ${profile.hukou_city || profile.hometown}`].filter(Boolean).join(' · ')}
                 </p>
               </div>
               {profile.appearance_score && (
@@ -111,12 +111,12 @@ export function ProfileCard({ profile, intention, compact = false, printable = f
             </div>
 
             <div className="grid md:grid-cols-2 gap-3 text-sm">
-              <InfoRow icon={<MapPin className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="所在城市" value={profile.city} />
-              <InfoRow icon={<GraduationCap className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="学历" value={profile.education ? EDUCATION_LABELS[profile.education] : null} />
+              <InfoRow icon={<MapPin className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="所在城市" value={profile.current_city || profile.city} />
+              <InfoRow icon={<GraduationCap className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="学历" value={profile.education_level_v2 ? EDUCATION_LEVEL_V2_LABELS[profile.education_level_v2] : (profile.education ? EDUCATION_LABELS[profile.education] : null)} />
               <InfoRow icon={<Briefcase className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="职业" value={profile.job_title || profile.occupation} />
-              <InfoRow icon={<DollarSign className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="收入" value={profile.annual_income ? `约 ${profile.annual_income} 万元` : profile.income_range} />
-              <InfoRow icon={<Scale className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="身高 / 体重" value={[profile.height && `${profile.height}cm`, profile.weight && `${profile.weight}kg`].filter(Boolean).join(' / ') || null} />
-              <InfoRow icon={<Sparkles className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="资产情况" value={profile.assets} />
+              <InfoRow icon={<DollarSign className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="收入" value={profile.monthly_income ? `月收入约 ${profile.monthly_income} 万元` : (profile.annual_income ? `约 ${profile.annual_income} 万元` : profile.income_range)} />
+              <InfoRow icon={<Scale className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="身高 / 体重" value={[(profile.height_cm || profile.height) && `${profile.height_cm || profile.height}cm`, (profile.weight_kg || profile.weight) && `${profile.weight_kg || profile.weight}kg`].filter(Boolean).join(' / ') || null} />
+              <InfoRow icon={<Sparkles className="h-4 w-4 text-gray-400 dark:text-foreground/36" />} label="婚史 / 孩子" value={[profile.marital_history_enum ? MARITAL_HISTORY_LABELS[profile.marital_history_enum] : profile.marital_history, profile.has_children_enum ? `有孩：${HAS_CHILDREN_LABELS[profile.has_children_enum]}` : (profile.has_children != null ? `有孩：${profile.has_children ? '是' : '否'}` : null)].filter(Boolean).join(' · ') || null} />
             </div>
 
             {profile.hobbies?.length ? (

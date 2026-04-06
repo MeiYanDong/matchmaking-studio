@@ -46,11 +46,11 @@ const EMOTIONAL_STABILITY_LABELS: Record<string, string> = {
 
 const COMMON_IMPORTANCE_KEYS = [
   'age',
-  'city',
-  'education',
+  'current_city',
+  'education_level_v2',
   'preferred_education',
   'preferred_income_min',
-  'annual_income',
+  'monthly_income',
   'accepts_long_distance',
   'relationship_mode',
 ] as const satisfies readonly V1FieldKey[]
@@ -221,7 +221,7 @@ export function formatFieldValueLines(fieldKey: string, value: unknown): string[
     return formatImportanceObject(value as Record<string, unknown>)
   }
 
-  if (fieldKey === 'education' || fieldKey === 'preferred_education') {
+  if (fieldKey === 'education_level_v2' || fieldKey === 'preferred_education') {
     return [formatEducationValue(value)]
   }
 
@@ -296,17 +296,6 @@ export function parseEditableFieldValue(
     return Number.isFinite(next) ? next : undefined
   }
 
-  if (valueType === 'boolean') {
-    const next = normalizeToken(trimmed)
-    if (['true', 'yes', '是', '有'].includes(next)) return true
-    if (['false', 'no', '否', '没有'].includes(next)) return false
-    return undefined
-  }
-
-  if (valueType === 'education') {
-    return parseEducationToken(trimmed) ?? undefined
-  }
-
   if (valueType === 'primary_intent') {
     return parsePrimaryIntentToken(trimmed) ?? undefined
   }
@@ -370,12 +359,18 @@ export function parseEditableFieldValue(
 
 export function getImportancePreviewKeys(value: string) {
   const parsed = parseEditableFieldValue('preference_importance', 'json', value)
+  const extraKeys: string[] = []
+
   if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-    const keys = Object.keys(parsed).filter(isKnownFieldKey)
-    if (keys.length) return keys
+    const setKeys = Object.keys(parsed).filter(isKnownFieldKey)
+    for (const key of setKeys) {
+      if (!(COMMON_IMPORTANCE_KEYS as readonly string[]).includes(key)) {
+        extraKeys.push(key)
+      }
+    }
   }
 
-  return [...COMMON_IMPORTANCE_KEYS]
+  return [...COMMON_IMPORTANCE_KEYS, ...extraKeys]
 }
 
 export function toggleEducationSelection(rawValue: string, option: EducationLevel) {
@@ -401,7 +396,7 @@ export function isPlaceholderCandidateValue(fieldKey: string, value: unknown) {
   if (Array.isArray(value) || typeof value === 'object') return false
 
   if (
-    fieldKey === 'education'
+    fieldKey === 'education_level_v2'
     || fieldKey === 'primary_intent'
     || fieldKey === 'relationship_mode'
     || fieldKey === 'preferred_education'

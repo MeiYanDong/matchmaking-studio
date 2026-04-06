@@ -2,7 +2,7 @@
 
 > 日期：2026-04-03  
 > 目标：把当前产品从“红娘 AI 工作台”稳定推进到“红娘主导、客户可控接入、权限清晰、体验高级”的高质量婚恋撮合系统  
-> 说明：本文件记录的是产品阶段路线，不等同于开发实现清单。具体落地任务请参考 [todo.md](./todo.md)。
+> 说明：本文件记录的是产品阶段路线，不等同于开发实现清单。当前主线的具体落地任务请参考 [todo-zhenlian-phase-1.md](/Users/myandong/Projects/marry2/docs/current/zhenlian/todo-zhenlian-phase-1.md)。
 
 ---
 

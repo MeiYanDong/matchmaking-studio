@@ -68,14 +68,62 @@ function createProfile(overrides: Partial<Profile> = {}): Profile {
     hidden_expectations: null,
     ai_summary: null,
     raw_notes: null,
+    // Phase-1 新字段
+    full_name: null,
+    display_name: null,
+    current_city: null,
+    birth_year_month: null,
+    height_cm: null,
+    weight_kg: null,
+    wechat_id: null,
+    education_level_v2: null,
+    bachelor_school: null,
+    master_school: null,
+    doctor_school: null,
+    major: null,
+    company_name: null,
+    monthly_income: null,
+    income_source_type: null,
+    has_property: null,
+    property_count: null,
+    property_notes: null,
+    has_vehicle: null,
+    vehicle_brand: null,
+    vehicle_model: null,
+    vehicle_notes: null,
+    family_asset_band: null,
+    financial_assets_notes: null,
+    insurance_notes: null,
+    marital_history_enum: null,
+    marital_history_notes: null,
+    has_children_enum: null,
+    children_count: null,
+    children_age_notes: null,
+    custody_status: null,
+    financial_ties_with_ex_partner: null,
+    smokes: null,
+    smoking_frequency: null,
+    drinks: null,
+    drinking_frequency: null,
+    urgency_level: null,
+    hukou_city: null,
+    native_place: null,
+    siblings_summary: null,
+    parents_occupation: null,
+    parents_marital_status: null,
+    family_origin_notes: null,
+    mbti: null,
+    personality_summary: null,
+    self_description: null,
+    letter_to_partner: null,
     ...overrides,
   }
 }
 
 function createIntention(overrides: Partial<Intention> = {}): Intention {
   return {
+    id: 'intention-1',
     profile_id: 'profile-1',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     primary_intent: null,
     intent_notes: null,
@@ -118,14 +166,18 @@ function createIntention(overrides: Partial<Intention> = {}): Intention {
     biggest_concerns: null,
     implicit_intent_notes: null,
     preference_importance: null,
+    dating_frequency_expectation: null,
+    monthly_date_budget: null,
+    wedding_scale_preference: null,
+    accepts_parents_cohabitation: null,
     ...overrides,
   }
 }
 
 function createTraitProfile(overrides: Partial<TraitProfile> = {}): TraitProfile {
   return {
+    id: 'trait-1',
     profile_id: 'profile-1',
-    created_at: '2026-04-02T00:00:00.000Z',
     updated_at: '2026-04-02T00:00:00.000Z',
     hobby_ranked_tags: null,
     exercise_habits: null,
@@ -144,7 +196,6 @@ function createConversation(overrides: Partial<Conversation> = {}): Conversation
   return {
     id: 'conv-1',
     created_at: '2026-04-02T00:00:00.000Z',
-    updated_at: '2026-04-02T00:00:00.000Z',
     profile_id: 'profile-1',
     matchmaker_id: 'mm-1',
     audio_url: 'audio/test.mp3',
@@ -160,6 +211,7 @@ function createConversation(overrides: Partial<Conversation> = {}): Conversation
     reviewed_at: null,
     status: 'done',
     error_message: null,
+    failed_stage: null,
     ...overrides,
   }
 }
@@ -210,14 +262,14 @@ test('明确新值会覆盖旧值并写回 profiles', async () => {
   const mock = createMockSupabase()
   const result = await applyExtractionContractToProfile({
     supabase: mock.client as never,
-    profile: createProfile({ city: '上海' }),
+    profile: createProfile({ current_city: '上海' }),
     intention: createIntention(),
     traitProfile: createTraitProfile(),
     conversation: createConversation(),
     contract: createContract({
       field_updates: [
         {
-          field_key: 'city',
+          field_key: 'current_city',
           field_label: '所在城市',
           action: 'set',
           new_value: '北京',
@@ -231,7 +283,7 @@ test('明确新值会覆盖旧值并写回 profiles', async () => {
 
   const profileUpdate = mock.operations.find((item) => item.table === 'profiles')
   assert.ok(profileUpdate)
-  assert.equal((profileUpdate?.payload as { city?: string }).city, '北京')
+  assert.equal((profileUpdate?.payload as { current_city?: string }).current_city, '北京')
   assert.equal(result.appliedFieldUpdates.length, 1)
   assert.equal(result.reviewRequired.length, 0)
 })
@@ -241,14 +293,14 @@ test('自动写入字段时会同步记录 field_observations', async () => {
 
   await applyExtractionContractToProfile({
     supabase: mock.client as never,
-    profile: createProfile({ city: '上海' }),
+    profile: createProfile({ current_city: '上海' }),
     intention: createIntention(),
     traitProfile: createTraitProfile(),
     conversation: createConversation({ id: 'conv-observation' }),
     contract: createContract({
       field_updates: [
         {
-          field_key: 'city',
+          field_key: 'current_city',
           field_label: '所在城市',
           action: 'set',
           new_value: '杭州',
@@ -269,7 +321,7 @@ test('自动写入字段时会同步记录 field_observations', async () => {
     {
       profile_id: 'profile-1',
       conversation_id: 'conv-observation',
-      field_key: 'city',
+      field_key: 'current_city',
       field_value_json: '杭州',
       source_type: 'ai_extracted',
       confidence: 92,
@@ -416,7 +468,7 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
           auto_apply: true,
         },
         {
-          field_key: 'height',
+          field_key: 'height_cm',
           field_label: '身高',
           action: 'set',
           new_value: 164,
@@ -425,7 +477,7 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
           auto_apply: true,
         },
         {
-          field_key: 'city',
+          field_key: 'current_city',
           field_label: '所在城市',
           action: 'set',
           new_value: '杭州',
@@ -449,8 +501,8 @@ test('明确事实字段在 medium 置信度且无旧值时会自动写入，而
   const profileUpdate = mock.operations.find((item) => item.table === 'profiles')
   assert.ok(profileUpdate)
   assert.equal((profileUpdate?.payload as { age?: number }).age, 28)
-  assert.equal((profileUpdate?.payload as { height?: number }).height, 164)
-  assert.equal((profileUpdate?.payload as { city?: string }).city, '杭州')
+  assert.equal((profileUpdate?.payload as { height_cm?: number }).height_cm, 164)
+  assert.equal((profileUpdate?.payload as { current_city?: string }).current_city, '杭州')
   assert.deepEqual((profileUpdate?.payload as { current_base_cities?: string[] }).current_base_cities, ['杭州'])
   assert.equal(result.appliedFieldUpdates.length, 4)
   assert.equal(result.reviewRequired.length, 0)
@@ -490,7 +542,7 @@ test('原始 review_required 会补齐当前值和 AI 候选值，供审核页�
   const mock = createMockSupabase()
   const result = await applyExtractionContractToProfile({
     supabase: mock.client as never,
-    profile: createProfile({ age: 36, annual_income: 520 }),
+    profile: createProfile({ age: 36, monthly_income: 520 }),
     intention: createIntention(),
     traitProfile: createTraitProfile(),
     conversation: createConversation(),
@@ -506,12 +558,12 @@ test('原始 review_required 会补齐当前值和 AI 候选值，供审核页�
           auto_apply: false,
         },
         {
-          field_key: 'annual_income',
-          field_label: '年收入',
+          field_key: 'monthly_income',
+          field_label: '月收入',
           action: 'set',
           new_value: 500,
           confidence: 'low',
-          evidence_excerpt: '年收入500万。',
+          evidence_excerpt: '月收入500万。',
           auto_apply: false,
         },
       ],
@@ -524,8 +576,8 @@ test('原始 review_required 会补齐当前值和 AI 候选值，供审核页�
           reason: '年龄倒退，需人工确认',
         },
         {
-          field_key: 'annual_income',
-          field_label: '年收入',
+          field_key: 'monthly_income',
+          field_label: '月收入',
           issue_type: 'ambiguous_statement',
           confidence: 'medium',
           reason: '收入变化，需人工确认',

@@ -170,7 +170,7 @@ test('同一字段的近义补问会在入库前折叠为标准问法', async ()
       id: 'task-existing',
       match_id: null,
       task_type: 'sensitive_confirmation',
-      field_keys: ['marital_history', 'accepts_partner_children', 'fertility_preference'],
+      field_keys: ['marital_history_enum', 'accepts_partner_children', 'fertility_preference'],
       question_list: [
         '你之前有过婚史吗，还是一直未婚？',
         '对方如果有孩子，你这边能接受吗？',
@@ -184,7 +184,7 @@ test('同一字段的近义补问会在入库前折叠为标准问法', async ()
     supabase: mock.client as never,
     matchmakerId: 'mm-1',
     profileId: 'profile-1',
-    fieldKeys: ['marital_history', 'accepts_partner_children', 'fertility_preference'],
+    fieldKeys: ['marital_history_enum', 'accepts_partner_children', 'fertility_preference'],
     questions: [
       '你之前有过婚史吗，还是一直是未婚状态？',
       '对方有孩子的话，你这边能考虑吗？',
