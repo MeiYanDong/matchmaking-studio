@@ -225,7 +225,8 @@ function ConversationCard({
   const autoAppliedCount = extracted?.applied_field_updates?.length ?? 0
   const reviewRequiredCount = extracted?.review_required?.length ?? 0
   const missingFieldCount = extracted?.missing_critical_fields?.length ?? 0
-  const shouldReview = conversation.status === 'done' && reviewRequiredCount > 0 && !conversation.reviewed_at
+  // 只要还有待确认字段就显示「处理异常」按钮，即使 reviewed_at 已有值（允许重新处理）
+  const shouldReview = conversation.status === 'done' && reviewRequiredCount > 0
   const canContinueWorkflow =
     conversation.status === 'uploaded'
     || conversation.status === 'transcribed'

@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { runMatchingForProfile } from '@/lib/matching/engine'
 import { Json } from '@/types/database'
 import { applyExtractionContractToProfile } from '@/lib/ai/apply-extraction'
@@ -34,6 +34,7 @@ type ExistingExtractionPayload = {
 
 export async function resolveConversationReview(input: ResolveConversationReviewInput) {
   const supabase = await createClient()
+  const serviceSupabase = createServiceRoleClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('未登录')
@@ -107,7 +108,7 @@ export async function resolveConversationReview(input: ResolveConversationReview
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
 
   const applyResult = await applyExtractionContractToProfile({
-    supabase,
+    supabase: serviceSupabase,
     profile,
     intention,
     traitProfile,
@@ -134,12 +135,18 @@ export async function resolveConversationReview(input: ResolveConversationReview
     review_required: [],
   } as Json
 
+  // 只有在有实际字段被处理（写入或 skip）时才标记为已 review
+  const hasProcessedAnyItem = fieldUpdates.length > 0
+    || input.decisions.some((d) => d.skip)
+
   await supabase
     .from('conversations')
     .update({
       extracted_fields: nextExtractedFields,
-      reviewed_by: user.id,
-      reviewed_at: new Date().toISOString(),
+      ...(hasProcessedAnyItem ? {
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      } : {}),
     })
     .eq('id', input.conversationId)
 
