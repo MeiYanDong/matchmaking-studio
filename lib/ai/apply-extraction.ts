@@ -242,6 +242,12 @@ function normalizeValue(fieldKey: V1FieldKey, value: unknown): Json | undefined 
       return isTriStateValue(next) ? next : undefined
     }
     case 'string': {
+      // biological_child_requirement 的 DB 列是 boolean，特殊处理
+      if (fieldKey === 'biological_child_requirement') {
+        if (value === true || value === 'true') return true
+        if (value === false || value === 'false') return false
+        return undefined
+      }
       const next = String(value).trim()
       return next ? next : undefined
     }

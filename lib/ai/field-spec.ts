@@ -1048,13 +1048,13 @@ export const V1_FIELD_SPECS = [
     label: '与前任是否有金融往来',
     targetTable: 'profiles',
     category: 'sensitive',
-    valueType: 'string',
+    valueType: 'tri_state',
     matchingRole: 'soft',
     autoApply: 'review_on_conflict',
     options: ['yes', 'no', 'unknown'],
     description: '客户与前任之间是否仍存在抚养费、共同房贷等金融关系。',
     extractRule: '只有客户明确提到与前任有/无经济往来时才提取。',
-    updateRule: 'yes/no 只允许被新的明确 yes/no 覆盖。',
+    updateRule: 'yes/no 只允许被新的明确 yes/no 覆盖；unknown 不能覆盖已有的 yes/no。',
   },
 
   // profiles — 生活习惯频率
@@ -1184,8 +1184,8 @@ export const V1_FIELD_SPECS = [
     matchingRole: 'soft',
     autoApply: 'review_on_conflict',
     options: ['true', 'false'],
-    description: '客户是否明确要求对方具备生育能力。',
-    extractRule: '只有客户明确提出此要求时才提取。',
+    description: '客户是否明确要求对方具备生育能力。输出 true 表示要求，false 表示不要求。',
+    extractRule: '只有客户明确提出此要求时才提取；输出 true 或 false。',
     updateRule: '新明确表态覆盖旧值。',
   },
   {
