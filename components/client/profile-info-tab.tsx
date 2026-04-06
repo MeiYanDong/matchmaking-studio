@@ -78,6 +78,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
     education_level_v2: profile.education_level_v2 ?? '',
     bachelor_school: profile.bachelor_school ?? '',
     master_school: profile.master_school ?? '',
+    doctor_school: profile.doctor_school ?? '',
     major: profile.major ?? '',
     company_name: profile.company_name ?? '',
     monthly_income: profile.monthly_income?.toString() ?? '',
@@ -207,6 +208,7 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
           education_level_v2: profileForm.education_level_v2 as EducationLevelV2 || null,
           bachelor_school: emptyToNull(profileForm.bachelor_school),
           master_school: emptyToNull(profileForm.master_school),
+          doctor_school: emptyToNull(profileForm.doctor_school),
           major: emptyToNull(profileForm.major),
           company_name: emptyToNull(profileForm.company_name),
           monthly_income: parseOptionalNumber(profileForm.monthly_income),
@@ -428,6 +430,10 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             {['master', 'doctor'].includes(profileForm.education_level_v2) && (
               <FieldInput label="硕士院校" value={profileForm.master_school} onChange={v => setProfileForm((p) => ({ ...p, master_school: v }))} />
             )}
+            {/* 博士院校：仅 doctor */}
+            {profileForm.education_level_v2 === 'doctor' && (
+              <FieldInput label="博士院校" value={profileForm.doctor_school} onChange={v => setProfileForm((p) => ({ ...p, doctor_school: v }))} />
+            )}
 
             {/* ── 职业 ── */}
             <FieldInput label="职业/行业" value={profileForm.occupation} onChange={v => setProfileForm((p) => ({ ...p, occupation: v }))} />
@@ -618,6 +624,8 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
             </div>
             <div className="col-span-2">
               <FieldTextarea label="自我描述" value={profileForm.self_description} onChange={v => setProfileForm((p) => ({ ...p, self_description: v }))} rows={2} />
+            </div>
+            <div className="col-span-2">
               <FieldTextarea label="想对未来另一半说的话" value={profileForm.letter_to_partner} onChange={v => setProfileForm((p) => ({ ...p, letter_to_partner: v }))} rows={2} placeholder="匹配推介时展示给对方看" />
             </div>
 
@@ -657,8 +665,8 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
               <InfoField label="户籍城市" value={profile.hukou_city || profile.hometown} />
               {profile.native_place && <InfoField label="祖籍" value={profile.native_place} />}
               <InfoField label="学历" value={profile.education_level_v2 ? EDUCATION_LEVEL_V2_LABELS[profile.education_level_v2] : (profile.education ? EDUCATION_LABELS[profile.education] : '')} />
-              {(profile.bachelor_school || profile.master_school) && (
-                <InfoField label="毕业院校" value={[profile.bachelor_school, profile.master_school].filter(Boolean).join(' / ')} />
+              {(profile.bachelor_school || profile.master_school || profile.doctor_school) && (
+                <InfoField label="毕业院校" value={[profile.bachelor_school, profile.master_school, profile.doctor_school].filter(Boolean).join(' / ')} />
               )}
               {profile.major && <InfoField label="专业" value={profile.major} />}
               <InfoField label="职业" value={profile.occupation} />
@@ -783,13 +791,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
                     label="是否愿意迁居"
                     value={intentForm.relocation_willingness}
                     onChange={(value) => setIntentForm((p) => ({ ...p, relocation_willingness: value as TriState }))}
-                    options={TRI_STATE_OPTIONS}
-                    placeholder="请选择"
-                  />
-                  <SelectField
-                    label="是否接受对方有孩子"
-                    value={intentForm.accepts_partner_children}
-                    onChange={(value) => setIntentForm((p) => ({ ...p, accepts_partner_children: value as TriState }))}
                     options={TRI_STATE_OPTIONS}
                     placeholder="请选择"
                   />
@@ -929,7 +930,6 @@ export function ProfileInfoTab({ profile, intention, traitProfile }: ProfileInfo
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-violet-500 dark:text-violet-300">结婚意图专属</p>
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                   <InfoField label="是否愿意迁居" value={formatTriState(intention.relocation_willingness)} />
-                  <InfoField label="是否接受对方有孩子" value={formatTriState(intention.accepts_partner_children)} />
                   {intention.wedding_scale_preference && <InfoField label="婚礼规模偏好" value={intention.wedding_scale_preference} />}
                   {intention.financial_arrangement_expectation && <InfoField label="财务安排期望" value={intention.financial_arrangement_expectation} />}
                   {intention.accepts_parents_cohabitation && <InfoField label="是否接受父母同住" value={intention.accepts_parents_cohabitation} />}

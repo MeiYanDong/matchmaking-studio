@@ -13,7 +13,7 @@ import { withSupabaseRetry } from '@/lib/supabase/retry'
 
 const GENDER_VALUES: GenderType[] = ['male', 'female']
 const INTENT_VALUES: PrimaryIntent[] = ['marriage', 'dating', 'fertility']
-const STATUS_VALUES: ProfileStatus[] = ['active', 'inactive', 'matched', 'paused']
+const STATUS_VALUES: ProfileStatus[] = ['active', 'paused', 'matched_dating', 'matched_married', 'withdrawn']
 
 type ProfileListItem = Profile & {
   intentions: Intention[] | null
@@ -78,8 +78,10 @@ export default async function ClientsPage({
           <FilterLink href="/matchmaker/clients?intent=fertility" label="生育目标" active={intent === 'fertility'} />
           <div className="mx-1 my-1 hidden h-5 w-px bg-border sm:block" />
           <FilterLink href="/matchmaker/clients?status=active" label="活跃" active={status === 'active'} />
-          <FilterLink href="/matchmaker/clients?status=matched" label="已匹配" active={status === 'matched'} />
           <FilterLink href="/matchmaker/clients?status=paused" label="暂停" active={status === 'paused'} />
+          <FilterLink href="/matchmaker/clients?status=matched_dating" label="已匹配（恋爱中）" active={status === 'matched_dating'} />
+          <FilterLink href="/matchmaker/clients?status=matched_married" label="已匹配（已婚）" active={status === 'matched_married'} />
+          <FilterLink href="/matchmaker/clients?status=withdrawn" label="退档" active={status === 'withdrawn'} />
         </>
       }
       heroFooter={

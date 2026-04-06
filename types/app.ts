@@ -79,10 +79,11 @@ export const GENDER_LABELS: Record<GenderType, string> = {
 }
 
 export const STATUS_LABELS: Record<ProfileStatus, string> = {
-  active: '活跃',
-  inactive: '停用',
-  matched: '已匹配',
-  paused: '暂停',
+  active:          '活跃 · 积极寻找中',
+  paused:          '暂停 · 暂时搁置',
+  matched_dating:  '已匹配（恋爱中）',
+  matched_married: '已匹配（已婚）',
+  withdrawn:       '退档',
 }
 
 export const EDUCATION_LABELS: Record<EducationLevel, string> = {

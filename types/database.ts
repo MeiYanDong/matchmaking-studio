@@ -7,7 +7,12 @@ export type Json =
   | Json[]
 
 export type GenderType = 'male' | 'female'
-export type ProfileStatus = 'active' | 'inactive' | 'matched' | 'paused'
+export type ProfileStatus =
+  | 'active'           // 活跃 · 积极寻找中
+  | 'paused'           // 暂停 · 暂时搁置
+  | 'matched_dating'   // 已匹配（恋爱中）
+  | 'matched_married'  // 已匹配（已婚）
+  | 'withdrawn'        // 退档
 export type EducationLevel = 'high_school' | 'associate' | 'bachelor' | 'master' | 'phd' | 'other'
 export type PrimaryIntent = 'marriage' | 'dating' | 'fertility'
 
@@ -119,6 +124,35 @@ export type FieldVerificationStatus = 'unverified' | 'pending' | 'verified' | 'r
 export interface Database {
   public: {
     Tables: {
+      scoring_anchors: {
+        Row: {
+          id: string
+          score: number
+          gender: string
+          description: string
+          image_url: string | null
+          uploaded_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          score: number
+          gender: string
+          description?: string
+          image_url?: string | null
+          uploaded_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          score?: number
+          gender?: string
+          description?: string
+          image_url?: string | null
+          uploaded_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           user_id: string
@@ -259,6 +293,7 @@ export interface Database {
           mbti: string | null
           personality_summary: string | null
           self_description: string | null
+          letter_to_partner: string | null
         }
         Insert: {
           id?: string
@@ -370,6 +405,7 @@ export interface Database {
           mbti?: string | null
           personality_summary?: string | null
           self_description?: string | null
+          letter_to_partner?: string | null
         }
         Update: {
           id?: string
@@ -481,6 +517,7 @@ export interface Database {
           mbti?: string | null
           personality_summary?: string | null
           self_description?: string | null
+          letter_to_partner?: string | null
         }
         Relationships: []
       }
@@ -530,6 +567,10 @@ export interface Database {
           biggest_concerns: string[] | null
           implicit_intent_notes: string | null
           preference_importance: Json | null
+          dating_frequency_expectation: string | null
+          monthly_date_budget: string | null
+          wedding_scale_preference: string | null
+          accepts_parents_cohabitation: string | null
         }
         Insert: {
           id?: string
@@ -576,6 +617,10 @@ export interface Database {
           biggest_concerns?: string[] | null
           implicit_intent_notes?: string | null
           preference_importance?: Json | null
+          dating_frequency_expectation?: string | null
+          monthly_date_budget?: string | null
+          wedding_scale_preference?: string | null
+          accepts_parents_cohabitation?: string | null
         }
         Update: {
           id?: string
@@ -622,6 +667,10 @@ export interface Database {
           biggest_concerns?: string[] | null
           implicit_intent_notes?: string | null
           preference_importance?: Json | null
+          dating_frequency_expectation?: string | null
+          monthly_date_budget?: string | null
+          wedding_scale_preference?: string | null
+          accepts_parents_cohabitation?: string | null
         }
         Relationships: []
       }

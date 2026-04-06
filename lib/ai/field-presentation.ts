@@ -359,12 +359,18 @@ export function parseEditableFieldValue(
 
 export function getImportancePreviewKeys(value: string) {
   const parsed = parseEditableFieldValue('preference_importance', 'json', value)
+  const extraKeys: string[] = []
+
   if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-    const keys = Object.keys(parsed).filter(isKnownFieldKey)
-    if (keys.length) return keys
+    const setKeys = Object.keys(parsed).filter(isKnownFieldKey)
+    for (const key of setKeys) {
+      if (!(COMMON_IMPORTANCE_KEYS as readonly string[]).includes(key)) {
+        extraKeys.push(key)
+      }
+    }
   }
 
-  return [...COMMON_IMPORTANCE_KEYS]
+  return [...COMMON_IMPORTANCE_KEYS, ...extraKeys]
 }
 
 export function toggleEducationSelection(rawValue: string, option: EducationLevel) {

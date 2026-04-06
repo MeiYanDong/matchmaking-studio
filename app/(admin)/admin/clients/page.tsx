@@ -12,7 +12,7 @@ import type { Json } from '@/types/database'
 
 const GENDER_VALUES: GenderType[] = ['male', 'female']
 const INTENT_VALUES: PrimaryIntent[] = ['marriage', 'dating', 'fertility']
-const STATUS_VALUES: ProfileStatus[] = ['active', 'inactive', 'matched', 'paused']
+const STATUS_VALUES: ProfileStatus[] = ['active', 'paused', 'matched_dating', 'matched_married', 'withdrawn']
 const RELATIONSHIP_MODE_VALUES: RelationshipMode[] = ['marriage_standard', 'compensated_dating', 'fertility_asset_arrangement']
 const BASIC_FIELD_KEYS = ['phone', 'age', 'city', 'education', 'occupation', 'annual_income', 'marital_history', 'has_children'] as const
 
@@ -164,10 +164,11 @@ export default async function AdminClientsPage({
         </select>
         <select name="status" defaultValue={status ?? ''} className="h-10 rounded-md border border-input bg-transparent px-3 text-sm">
           <option value="">全部状态</option>
-          <option value="active">活跃</option>
-          <option value="matched">已匹配</option>
-          <option value="paused">暂停</option>
-          <option value="inactive">停用</option>
+          <option value="active">活跃 · 积极寻找中</option>
+          <option value="paused">暂停 · 暂时搁置</option>
+          <option value="matched_dating">已匹配（恋爱中）</option>
+          <option value="matched_married">已匹配（已婚）</option>
+          <option value="withdrawn">退档</option>
         </select>
         <select name="completeness" defaultValue={params.completeness ?? ''} className="h-10 rounded-md border border-input bg-transparent px-3 text-sm">
           <option value="">字段完整度</option>
