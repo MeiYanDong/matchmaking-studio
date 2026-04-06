@@ -1,7 +1,6 @@
 import { PageHeader, SectionCard } from '@/components/app-primitives'
 import { NewClientForm } from '@/components/client/new-client-form'
 import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, AudioLines, ShieldCheck, Sparkles } from 'lucide-react'
@@ -18,7 +17,7 @@ export default function NewClientPage() {
           actions={
             <Link
               href="/matchmaker/clients"
-              className={cn(buttonVariants({ variant: 'outline' }), 'rounded-full')}
+              className="inline-flex items-center justify-center rounded-full border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               返回客户列表
