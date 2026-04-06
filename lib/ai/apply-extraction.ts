@@ -556,10 +556,23 @@ export async function applyExtractionContractToProfile({
       supabase
         .from('field_observations')
         .insert(fieldObservationPayload)
+        .then((result) => {
+          if (result.error) {
+            // field_observations 表可能尚未在此环境中创建，静默跳过
+            console.warn('[apply-extraction] field_observations insert skipped:', result.error.message)
+          }
+          return result
+        })
     )
   }
 
-  await Promise.all(writeOperations)
+  const writeResults = await Promise.all(writeOperations)
+  for (const result of writeResults) {
+    const r = result as { error?: { message?: string; code?: string } | null }
+    if (r?.error && r.error.code !== 'PGRST205') {
+      console.error('[apply-extraction] write operation failed:', r.error)
+    }
+  }
 
   const matchingRelevantChanged = appliedFieldUpdates.some((item) => {
     if (!isKnownFieldKey(item.field_key)) {
