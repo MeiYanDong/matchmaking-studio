@@ -299,28 +299,17 @@ function valuesEqual(a: unknown, b: unknown) {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
-const MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS = new Set<V1FieldKey>([
-  'age',
-  'height_cm',
-  'current_city',
-  'current_base_cities',
-  'education_level_v2',
-  'occupation',
-  'work_schedule',
-  'monthly_income',
-  'marital_history_enum',
-  'has_children_enum',
-])
-
 function canBackfillDirectProfileFactAtMediumConfidence(
-  fieldKey: V1FieldKey,
+  _fieldKey: V1FieldKey,
   confidence: ExtractionConfidence,
   explicitConflict: boolean,
   oldValue: unknown
 ) {
+  // 空字段没有冲突风险，medium confidence 足够直接写入
+  // 只有 low confidence 或字段已有值时才拒绝
   if (confidence === 'low' || explicitConflict) return false
   if (oldValue !== null && oldValue !== undefined) return false
-  return MEDIUM_CONFIDENCE_PROFILE_FACT_AUTO_APPLY_FIELDS.has(fieldKey)
+  return true
 }
 
 function shouldAutoApply(
