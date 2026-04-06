@@ -101,9 +101,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-foreground/80">
                   {profile.age ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.age} 岁</span> : null}
-                  {profile.city ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.city}</span> : null}
+                  {(profile.current_city || profile.city) ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.current_city || profile.city}</span> : null}
                   {profile.occupation ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.occupation}</span> : null}
-                  {profile.annual_income ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">约 {profile.annual_income} 万 / 年</span> : null}
+                  {(profile.monthly_income || profile.annual_income) ? <span className="rounded-full border border-border/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.05] dark:text-foreground/78">{profile.monthly_income ? `约 ${profile.monthly_income} 万 / 月` : `约 ${profile.annual_income} 万 / 年`}</span> : null}
                 </div>
               </div>
             </div>
