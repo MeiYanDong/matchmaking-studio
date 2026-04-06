@@ -455,7 +455,11 @@ export async function applyExtractionContractToProfile({
 
     const canAutoApply = (update.auto_apply ?? true)
       && update.action !== 'review'
-      && shouldAutoApply(update.confidence, explicitConflict, fieldKey, oldValue, update.evidence_excerpt)
+      && (
+        // action === 'replace' 表示红娘已明确确认，跳过所有自动应用启发式规则，直接写入
+        update.action === 'replace'
+        || shouldAutoApply(update.confidence, explicitConflict, fieldKey, oldValue, update.evidence_excerpt)
+      )
 
     if (!canAutoApply) {
       reviewRequired.push({
