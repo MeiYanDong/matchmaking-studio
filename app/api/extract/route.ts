@@ -30,7 +30,7 @@ function getExtractionMaxTokens() {
     return Math.floor(raw)
   }
 
-  return 1536
+  return 2560
 }
 
 const EXTRACTION_RETRY_SYSTEM_SUFFIX = `
@@ -79,7 +79,7 @@ async function generateAndParseExtractionContract(input: {
 
     const retryResult = await generateClaudeTextDetailed({
       model: input.model,
-      maxTokens: Math.max(input.maxTokens, 2300),
+      maxTokens: Math.max(input.maxTokens, 3072),
       system: `${input.system}\n${EXTRACTION_RETRY_SYSTEM_SUFFIX}`.trim(),
       responseFormat: 'json_object',
       messages: [
