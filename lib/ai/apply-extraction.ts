@@ -501,34 +501,6 @@ export async function applyExtractionContractToProfile({
     })
   }
 
-  const hasProfileUpdates = Object.keys(profileUpdates).length > 0
-  const hasIntentionUpdates = Object.keys(intentionUpdates).length > 0
-  const hasTraitProfileUpdates = Object.keys(traitProfileUpdates).length > 0
-
-  const writeOperations: Array<unknown> = []
-
-  if (hasProfileUpdates) {
-    writeOperations.push(
-      supabase.from('profiles').update(profileUpdates).eq('id', profile.id)
-    )
-  }
-
-  if (hasIntentionUpdates) {
-    writeOperations.push(
-      supabase
-        .from('intentions')
-        .upsert({ profile_id: profile.id, ...intentionUpdates }, { onConflict: 'profile_id' })
-    )
-  }
-
-  if (hasTraitProfileUpdates) {
-    writeOperations.push(
-      supabase
-        .from('trait_profiles')
-        .upsert({ profile_id: profile.id, ...traitProfileUpdates }, { onConflict: 'profile_id' })
-    )
-  }
-
   const dedupedReviewRequired = filterDisplayableReviewRequiredItems(
     dedupeReviewRequiredItems(reviewRequired),
     currentSnapshot
@@ -541,12 +513,49 @@ export async function applyExtractionContractToProfile({
   }
   conversationUpdates.extraction_notes = contract.processing_notes.join('\n') || null
 
-  writeOperations.push(
-    supabase
-      .from('conversations')
-      .update(conversationUpdates)
-      .eq('id', conversation.id)
-  )
+  // 按字段逐个写入：一个字段失败不影响其他字段
+  // profiles — 每个字段单独 update
+  for (const [fieldKey, fieldValue] of Object.entries(profileUpdates)) {
+    const result = await supabase
+      .from('profiles')
+      .update({ [fieldKey]: fieldValue })
+      .eq('id', profile.id)
+    if (result.error && result.error.code !== 'PGRST205') {
+      console.error(`[apply-extraction] profiles.${fieldKey} write failed:`, result.error.message)
+      // 从 appliedFieldUpdates 中移除写入失败的字段
+      const idx = appliedFieldUpdates.findIndex((u) => u.field_key === fieldKey)
+      if (idx !== -1) appliedFieldUpdates.splice(idx, 1)
+    }
+  }
+
+  // intentions — 每个字段单独 upsert
+  for (const [fieldKey, fieldValue] of Object.entries(intentionUpdates)) {
+    const result = await supabase
+      .from('intentions')
+      .upsert({ profile_id: profile.id, [fieldKey]: fieldValue }, { onConflict: 'profile_id' })
+    if (result.error && result.error.code !== 'PGRST205') {
+      console.error(`[apply-extraction] intentions.${fieldKey} write failed:`, result.error.message)
+      const idx = appliedFieldUpdates.findIndex((u) => u.field_key === fieldKey)
+      if (idx !== -1) appliedFieldUpdates.splice(idx, 1)
+    }
+  }
+
+  // trait_profiles — 每个字段单独 upsert
+  for (const [fieldKey, fieldValue] of Object.entries(traitProfileUpdates)) {
+    const result = await supabase
+      .from('trait_profiles')
+      .upsert({ profile_id: profile.id, [fieldKey]: fieldValue }, { onConflict: 'profile_id' })
+    if (result.error && result.error.code !== 'PGRST205') {
+      console.error(`[apply-extraction] trait_profiles.${fieldKey} write failed:`, result.error.message)
+      const idx = appliedFieldUpdates.findIndex((u) => u.field_key === fieldKey)
+      if (idx !== -1) appliedFieldUpdates.splice(idx, 1)
+    }
+  }
+
+  // conversations 和 field_observations 不受上述影响，单独提交
+  const writeOperations: Array<unknown> = [
+    supabase.from('conversations').update(conversationUpdates).eq('id', conversation.id),
+  ]
 
   const fieldObservationPayload = buildFieldObservationInserts({
     profileId: profile.id,
@@ -562,7 +571,6 @@ export async function applyExtractionContractToProfile({
         .insert(fieldObservationPayload)
         .then((result) => {
           if (result.error) {
-            // field_observations 表可能尚未在此环境中创建，静默跳过
             console.warn('[apply-extraction] field_observations insert skipped:', result.error.message)
           }
           return result
