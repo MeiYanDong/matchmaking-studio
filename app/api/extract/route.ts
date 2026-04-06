@@ -248,6 +248,7 @@ export async function POST(request: NextRequest) {
       traitProfile,
       conversation,
       contract: extractionContract,
+      finalStatus: 'done',
     })
 
     await syncFollowupTask({
@@ -262,15 +263,6 @@ export async function POST(request: NextRequest) {
     if (applyResult.matchingRelevantChanged) {
       await runMatchingForProfile(conversation.profile_id)
     }
-
-    await supabase
-      .from('conversations')
-      .update({
-        status: 'done',
-        failed_stage: null,
-        error_message: null,
-      })
-      .eq('id', targetConversationId)
 
     return NextResponse.json({
       success: true,

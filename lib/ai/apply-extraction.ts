@@ -19,7 +19,12 @@ import {
   ReviewRequiredItem,
 } from '@/lib/ai/extraction-contract'
 import { buildCurrentProfileSnapshot, type CurrentProfileSnapshot } from '@/lib/ai/snapshot'
-import { V1_FIELD_SPEC_BY_KEY, type V1FieldKey } from '@/lib/ai/field-spec'
+import {
+  PRIMARY_INTENT_VALUES,
+  RELATIONSHIP_MODE_VALUES,
+  V1_FIELD_SPEC_BY_KEY,
+  type V1FieldKey,
+} from '@/lib/ai/field-spec'
 import { isPlaceholderCandidateValue } from '@/lib/ai/field-presentation'
 import { buildFieldObservationInserts } from '@/lib/ai/field-observations'
 
@@ -31,6 +36,8 @@ type ApplyExtractionInput = {
   conversation: Conversation
   contract: ExtractionContract
   observationSourceType?: Database['public']['Enums']['field_observation_source_type']
+  /** 提取完成后写入 conversations.status，避免 route 层额外发起第二次 update */
+  finalStatus?: ConversationUpdate['status']
 }
 
 type ApplyExtractionResult = {
@@ -206,11 +213,12 @@ function isTriStateValue(value: unknown): value is TriState {
 
 function normalizeStringArray(value: unknown) {
   if (!Array.isArray(value)) return null
+  if (value.length === 0) return undefined  // 空数组 = 模型没给数据，跳过更新；显式清空应传 null
   const normalized = value
     .map((item) => String(item).trim())
     .filter(Boolean)
 
-  return normalized.length ? Array.from(new Set(normalized)) : null
+  return normalized.length ? Array.from(new Set(normalized)) : undefined
 }
 
 function normalizeImportanceJson(value: unknown) {
@@ -263,8 +271,16 @@ function normalizeValue(fieldKey: V1FieldKey, value: unknown): Json | undefined 
       return Number.isNaN(next.getTime()) ? undefined : next.toISOString()
     }
     default: {
+      // primary_intent 和 relationship_mode 走这里，做枚举校验
       const next = String(value).trim()
-      return next ? next : undefined
+      if (!next) return undefined
+      if (fieldKey === 'primary_intent') {
+        return (PRIMARY_INTENT_VALUES as readonly string[]).includes(next) ? next : undefined
+      }
+      if (fieldKey === 'relationship_mode') {
+        return (RELATIONSHIP_MODE_VALUES as readonly string[]).includes(next) ? next : undefined
+      }
+      return next
     }
   }
 }
@@ -371,6 +387,7 @@ export async function applyExtractionContractToProfile({
   conversation,
   contract,
   observationSourceType = 'ai_extracted',
+  finalStatus,
 }: ApplyExtractionInput): Promise<ApplyExtractionResult> {
   const currentSnapshot = buildCurrentProfileSnapshot({
     profile,
@@ -385,6 +402,7 @@ export async function applyExtractionContractToProfile({
   const conversationUpdates: ConversationUpdate = {
     missing_fields: contract.missing_critical_fields,
     suggested_questions: contract.suggested_followup_questions,
+    ...(finalStatus ? { status: finalStatus, failed_stage: null, error_message: null } : {}),
   }
 
   const syntheticSummaryFieldUpdates: FieldUpdate[] = Object.entries(contract.summary_updates ?? {})
